@@ -1,0 +1,45 @@
+{
+  "name": "macroedge",
+  "version": "1.0.0",
+  "private": true,
+  "browserslist": [
+    "defaults"
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "sync:worker": "npx tsx scripts/sync-worker.ts",
+    "verify:sync": "node scripts/verify-sync-acceptance.mjs",
+    "verify:incidents": "node scripts/verify-agent7-incidents.mjs",
+    "ml:sync": ".venv/bin/python -m ml.data_pipeline",
+    "ml:train": ".venv/bin/python -m ml.train_all",
+    "ml:infer": ".venv/bin/python -m ml.infer",
+    "verify:ml": ".venv/bin/python -m ml.verify_all"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-sans": "^5.0.0",
+    "@fontsource/jetbrains-mono": "^5.0.0",
+    "@supabase/supabase-js": "^2.49.0",
+    "clsx": "^2.1.1",
+    "lightweight-charts": "^5.3.0",
+    "lucide-react": "^0.475.0",
+    "next": "^15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.0",
+    "tailwind-merge": "^3.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.3.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.8.0"
+  }
+}

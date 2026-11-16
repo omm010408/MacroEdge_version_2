@@ -1,0 +1,678 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inflation Dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #000; --surface: #0A0A0A; --surface-2: #131313; --line: #1C1C1C; --line-strong: #2E2E2E;
+  --fg: #FFF; --fg-2: #A3A3A3; --fg-3: #6B6B6B; --pos: #22C55E; --neg: #EF4444;
+  --ui: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --num: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 14px/1.5 var(--ui); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 4px; }
+.up { color: var(--pos); }
+.down { color: var(--neg); }
+.muted { color: var(--fg-3); }
+
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: #000; border-bottom: 1px solid var(--line); }
+.topbar-inner { display: flex; align-items: center; gap: 20px; height: 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; white-space: nowrap; }
+.mark { display: grid; place-items: center; width: 30px; height: 28px; border: 1px solid var(--line-strong); border-radius: 6px; font: 600 11px var(--num); }
+.brand small { font: 500 11px var(--num); color: var(--fg-3); border: 1px solid var(--line-strong); border-radius: 4px; padding: 2px 6px; }
+.tabs { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.tabs a { padding: 6px 12px; border-radius: 6px; color: var(--fg-2); font-size: 13px; white-space: nowrap; }
+.tabs a[aria-current="page"] { background: var(--surface-2); color: var(--fg); }
+.top-tools { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.pillbtn { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--fg-2); font-size: 13px; white-space: nowrap; }
+.pillbtn kbd { font: 500 11px var(--num); color: var(--fg-3); }
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: 5px; font: 500 11px var(--num); letter-spacing: .04em; color: var(--fg-2); white-space: nowrap; }
+.badge.solid { color: #000; background: #fff; border-color: #fff; }
+.badge.up { color: var(--pos); border-color: rgba(34,197,94,.45); }
+.badge.down { color: var(--neg); border-color: rgba(239,68,68,.45); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+.avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2); font: 600 11px var(--num); }
+
+.layout { display: grid; grid-template-columns: 224px minmax(0, 1fr); }
+.side { position: sticky; top: calc(56px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 56px); overflow-y: auto; display: flex; flex-direction: column; padding: 18px 12px 24px max(12px, env(safe-area-inset-left, 0px)); border-right: 1px solid var(--line); }
+.side nav a, .side summary { display: flex; align-items: center; padding: 8px 10px; border-radius: 8px; color: var(--fg-2); font-size: 13.5px; list-style: none; }
+.side summary::-webkit-details-marker { display: none; }
+.side nav a:hover, .side summary:hover { color: var(--fg); }
+.side [aria-current="page"] { background: var(--surface-2); color: var(--fg); box-shadow: inset 2px 0 0 #fff; }
+.side details a { padding-left: 30px; font-size: 13px; }
+.side-label { margin: 22px 10px 8px; font: 500 11px var(--num); letter-spacing: .08em; color: var(--fg-3); }
+.radar { margin-top: auto; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
+.radar header { display: flex; justify-content: space-between; align-items: center; font: 500 11px var(--num); color: var(--fg-3); letter-spacing: .04em; }
+.radar svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+.radar ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; font: 400 10.5px var(--num); color: var(--fg-3); }
+.radar li b { display: block; margin-top: 2px; font-weight: 500; font-size: 12px; color: var(--fg); }
+.radar li span { display: block; font-size: 10.5px; }
+
+.main { min-width: 0; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-bottom: 40px; }
+.main-inner { max-width: 1480px; margin: 0 auto; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 24px; font-size: 13px; color: var(--fg-3); }
+.crumbs b { color: var(--fg); font-weight: 500; }
+.head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 28px; margin-top: 16px; }
+.head h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.025em; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.head p { margin: 8px 0 0; color: var(--fg-2); max-width: 70ch; }
+.actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.seg button { padding: 6px 11px; border-radius: 6px; color: var(--fg-3); font: 500 12px var(--num); }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.sync { height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--fg-2); font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; min-width: 0; }
+.ch { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.ch h3 { margin: 0; font-size: 14px; font-weight: 500; color: var(--fg-2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.info { display: inline-grid; place-items: center; width: 14px; height: 14px; border: 1px solid var(--line-strong); border-radius: 50%; font: 500 9px var(--num); color: var(--fg-3); }
+.code { font: 400 11px var(--num); color: var(--fg-3); letter-spacing: .04em; max-width: 100%; }
+.big { margin-top: 10px; font: 500 30px/1.1 var(--num); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.delta { margin-top: 6px; font: 400 12.5px var(--num); font-variant-numeric: tabular-nums; }
+.note { margin: 6px 0 0; font-size: 12.5px; color: var(--fg-3); }
+
+.sec { margin-top: 40px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.sec h2 { margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sec h2 .n { font: 500 12px var(--num); color: var(--fg-3); border: 1px solid var(--line-strong); border-radius: 5px; padding: 2px 7px; }
+.sec > span { font: 400 12px var(--num); color: var(--fg-3); }
+
+/* KPI cards */
+.kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 24px; }
+.kpi { display: flex; flex-direction: column; min-width: 0; }
+.kpi .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.kpi .val { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.kpi .val b { font: 500 30px/1 var(--num); font-variant-numeric: tabular-nums; }
+.kpi .val small { font: 500 12px var(--num); padding: 3px 7px; border-radius: 5px; }
+.kpi .val small.up { color: var(--neg); background: rgba(239,68,68,.12); }
+.kpi .val small.flat { color: var(--fg-3); background: var(--surface-2); }
+.kpi dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--line); }
+.kpi dt { font: 400 11px var(--num); color: var(--fg-3); }
+.kpi dd { margin: 3px 0 0; font: 400 13px var(--num); color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.kpi footer { margin-top: auto; padding-top: 14px; font: 400 11px var(--num); color: var(--fg-3); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+
+/* provenance strip */
+.prov { margin-top: 16px; }
+.prov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; }
+.prov-item { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.prov-item header { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); }
+.prov-item .src { margin-top: 8px; font: 400 11.5px var(--num); color: var(--fg-3); display: flex; justify-content: space-between; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; }
+.prov-item .src span:first-child { overflow: hidden; text-overflow: ellipsis; }
+.live { display: inline-flex; align-items: center; gap: 5px; font: 500 10.5px var(--num); color: var(--pos); border: 1px solid rgba(34,197,94,.4); border-radius: 4px; padding: 1px 6px; flex-shrink: 0; }
+.live i { width: 5px; height: 5px; border-radius: 50%; background: var(--pos); display: inline-block; }
+
+/* charts */
+.chart { position: relative; height: 240px; margin-top: 14px; cursor: crosshair; touch-action: pan-y; }
+.chart.short { height: 200px; }
+.chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gl { stroke: var(--line); }
+.ax { fill: var(--fg-3); font: 400 11px var(--num); }
+.guide { stroke: #4A4A4A; display: none; }
+.pdot { display: none; }
+.chart.on .guide, .chart.on .pdot { display: inline; }
+.tip { position: absolute; top: 0; left: 0; display: none; flex-direction: column; gap: 2px; padding: 6px 9px; background: #000; border: 1px solid var(--line-strong); border-radius: 7px; font: 400 11.5px var(--num); color: var(--fg-3); pointer-events: none; white-space: nowrap; }
+.tip b { font-weight: 500; font-size: 13px; color: var(--fg); }
+.chart.on .tip { display: flex; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font: 400 12px var(--num); color: var(--fg-3); }
+.legend i { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 6px; background: currentColor; }
+.legend i.dash { background: none; border-top: 2px dashed currentColor; height: 0; }
+.legend i.bar { width: 10px; height: 10px; background: currentColor; border-radius: 2px; }
+
+.row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+.row-side { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); margin-top: 16px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 760px; }
+.tbl th { text-align: left; font: 500 11px var(--num); color: var(--fg-3); letter-spacing: .03em; padding: 12px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tbl td { padding: 13px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl tbody tr:hover td { background: #0F0F0F; }
+.tbl .n, .tbl th.n { text-align: right; }
+.tbl .mono { font-family: var(--num); }
+.tbl .src { font: 400 11.5px var(--num); color: var(--fg-3); }
+.pill { display: inline-block; padding: 4px 9px; border-radius: 6px; font: 500 12px var(--num); border: 1px solid var(--line-strong); color: var(--fg-2); }
+.pill.hot { color: var(--neg); border-color: rgba(239,68,68,.5); }
+.pill.cool { color: var(--pos); border-color: rgba(34,197,94,.5); }
+.tbl-note { margin: 10px 0 0; font: 400 12px var(--num); color: var(--fg-3); }
+
+/* dispersion bars */
+.hb { display: grid; grid-template-columns: 120px minmax(0, 1fr) 64px; gap: 12px; align-items: center; margin-top: 14px; font-size: 13px; color: var(--fg-2); }
+.hb .track { position: relative; height: 12px; background: var(--surface-2); border-radius: 3px; }
+.hb .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: #fff; }
+.hb .fill.hot { background: var(--neg); }
+.hb .tgt { position: absolute; top: -5px; bottom: -5px; width: 0; border-left: 1px dashed var(--fg-3); }
+.hb b { font: 500 13px var(--num); text-align: right; color: var(--fg); font-variant-numeric: tabular-nums; }
+
+/* regime summary */
+.reg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.reg div { padding: 12px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.reg span { display: block; font-size: 12.5px; color: var(--fg-2); }
+.reg b { display: block; margin-top: 6px; font: 500 13px var(--num); font-variant-numeric: tabular-nums; }
+.reg small { display: block; margin-top: 2px; font: 400 11.5px var(--num); color: var(--fg-3); }
+
+/* breakeven sticky */
+.be { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.be .big { margin-top: 0; }
+
+/* cross-asset */
+.xa { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; margin-top: 16px; }
+.xa .panel { display: flex; flex-direction: column; gap: 10px; }
+.xa h4 { margin: 0; font-size: 14px; font-weight: 600; }
+.xa .line { font: 400 13px var(--num); color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.xa .sub { font-size: 13px; color: var(--fg-3); }
+.xa .tag { align-self: flex-start; font-size: 12px; padding: 4px 9px; border-radius: 6px; border: 1px solid var(--line-strong); color: var(--fg-2); }
+.xa .tag.hot { color: var(--neg); border-color: rgba(239,68,68,.5); }
+.xa .tag.cool { color: var(--pos); border-color: rgba(34,197,94,.5); }
+.xa footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line); font: 400 11px var(--num); color: var(--fg-3); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+
+.dq ul { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.dq li { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 13.5px; color: var(--fg-2); }
+.dq li b { color: var(--fg); font-weight: 500; }
+.dq li span { display: block; margin-top: 4px; font: 400 12px var(--num); color: var(--fg-3); }
+
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--line); font: 400 12px var(--num); color: var(--fg-3); }
+
+@media (max-width: 1199px) {
+  .side { display: none; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .main { padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+  .row-side { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .row2 { grid-template-columns: minmax(0, 1fr); }
+  .tabs, .pillbtn kbd, .pillbtn span, .brand small { display: none; }
+  .top-tools > .badge { display: none; }
+  .head h1 { font-size: 26px; }
+  .kpi .val b { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#" aria-label="MacroEdge home"><span class="mark">ME</span><span>MacroEdge</span><small>Terminal</small></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#" aria-current="page">Terminal</a>
+      <a href="#">Command</a>
+      <a href="#">AI bias</a>
+      <a href="#">Data ops</a>
+      <a href="#">Incidents</a>
+    </nav>
+    <div class="top-tools">
+      <button class="pillbtn" type="button" aria-label="Search"><span>Search</span><kbd>⌘K</kbd></button>
+      <span class="badge">Tier I · Analyst</span>
+      <span class="avatar" aria-hidden="true">RO</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <nav aria-label="Statistics">
+      <a href="#">Macro overview</a>
+      <details>
+        <summary>Positioning</summary>
+        <a href="#">Commitments of traders</a>
+        <a href="#">Correlation matrix</a>
+      </details>
+      <details>
+        <summary>Liquidity</summary>
+        <a href="#">Monetary policy</a>
+        <a href="#">Primary dealer stats</a>
+      </details>
+      <a href="#">Credit and risk</a>
+      <details open>
+        <summary>Economy</summary>
+        <a href="#">Economy &amp; labor</a>
+        <a href="#" aria-current="page">Inflation</a>
+        <a href="#">Fixed income &amp; rates</a>
+        <a href="#">International</a>
+      </details>
+    </nav>
+    <div class="side-label">TOOLS</div>
+    <nav aria-label="Tools">
+      <a href="#">Comparator</a>
+      <a href="#">Watch list</a>
+      <a href="#">Daily check</a>
+      <a href="#">AI bias engine</a>
+    </nav>
+    <section class="radar" aria-label="Macro radar">
+      <header><span>MACRO RADAR</span><span class="badge down">INFL</span></header>
+      <div id="radar"></div>
+      <ul id="radarVals"></ul>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <nav class="crumbs" aria-label="Breadcrumb"><span>MacroEdge</span><span>›</span><span>Economy</span><span>›</span><b>Inflation</b></nav>
+
+      <header class="head">
+        <div>
+          <h1>Inflation dashboard <span class="badge"><span class="dot" style="color:#22C55E"></span>Live · 2026-11-13</span></h1>
+          <p>Inflation trends, price pressures, market expectations and what they imply for central-bank policy.</p>
+        </div>
+        <div class="actions">
+          <span class="badge solid">Current</span>
+          <button class="sync" type="button"><span aria-hidden="true">⟳</span>Sync</button>
+          <div class="seg" id="range" role="group" aria-label="Range"></div>
+        </div>
+      </header>
+
+      <div class="kpis" id="kpis"></div>
+
+      <section class="panel prov" aria-label="Feed provenance and cadence">
+        <div class="ch"><h3>Benchmark feed provenance &amp; cadence</h3><span class="code">Real observations sync from FRED, BLS and BEA via Data operations</span></div>
+        <div class="prov-grid" id="prov"></div>
+      </section>
+
+      <div class="sec"><h2><span class="n">1</span>Consumer price index</h2><span>BLS · Urban consumers</span></div>
+      <div class="row-side">
+        <section class="panel" aria-label="CPI components">
+          <div class="ch"><h3>Component basket</h3><span class="code">MoM · YoY · prior · source</span></div>
+          <div class="tbl-wrap">
+            <table class="tbl" aria-label="CPI component basket">
+              <thead><tr><th>Component</th><th class="n">MoM</th><th class="n">YoY / rate</th><th class="n">Prior</th><th class="n">Wt %</th><th>Source</th><th>Trend</th></tr></thead>
+              <tbody id="cpiRows"></tbody>
+            </table>
+          </div>
+          <p class="tbl-note">YoY / rate is the value in the component table. The KPI card shows 3.74% for the same series; see data quality below.</p>
+        </section>
+        <section class="panel" aria-label="CPI component dispersion">
+          <div class="ch"><h3>Component dispersion</h3><span class="code">Latest vs 2.0% target</span></div>
+          <p class="note">Shelter and supercore stickiness against energy deflation.</p>
+          <div id="disp"></div>
+        </section>
+      </div>
+
+      <div class="sec"><h2><span class="n">2–5</span>PCE, PPI, expectations and history</h2><span>BEA · BLS · FRED</span></div>
+      <div class="row2">
+        <section class="panel" aria-label="Headline vs core CPI">
+          <div class="ch"><h3>Headline vs core CPI YoY <span class="info">i</span></h3><span class="code">CPIAUCSL · CPILFESL</span></div>
+          <div class="big" id="gapCpi"></div>
+          <div class="delta" id="gapCpiSub"></div>
+          <div class="chart" data-chart="cpi"></div>
+          <div class="legend"><span style="color:#FFF"><i></i>Headline CPI</span><span style="color:#A3A3A3"><i class="dash"></i>Core CPI</span></div>
+        </section>
+        <section class="panel" aria-label="Headline vs core PCE">
+          <div class="ch"><h3>Headline vs core PCE YoY <span class="info">i</span></h3><span class="code">PCEPI · PCEPILFE</span></div>
+          <div class="big" id="gapPce"></div>
+          <div class="delta" id="gapPceSub"></div>
+          <div class="chart" data-chart="pce"></div>
+          <div class="legend"><span style="color:#22C55E"><i></i>Core PCE</span><span style="color:#A3A3A3"><i class="dash"></i>Headline PCE</span></div>
+        </section>
+        <section class="panel" aria-label="PPI final demand vs CPI">
+          <div class="ch"><h3>PPI final demand vs CPI <span class="info">i</span></h3><span class="code">PPIFIS</span></div>
+          <div class="big">6.52%</div>
+          <div class="delta down">+0.23 pp m/m · prior 6.29%</div>
+          <div class="chart" data-chart="ppi"></div>
+          <div class="legend"><span style="color:#EF4444"><i></i>PPI final demand</span><span style="color:#A3A3A3"><i class="dash"></i>CPI YoY</span></div>
+        </section>
+        <section class="panel" aria-label="Market breakevens">
+          <div class="ch"><h3>Market breakevens · 10Y vs 5Y5Y <span class="info">i</span></h3><span class="code">T10YIE · T5YIFR</span></div>
+          <div class="big">2.24%</div>
+          <div class="delta muted">5Y 2.46% · 5Y5Y 2.22% · headline card uses 10Y</div>
+          <div class="chart" data-chart="be"></div>
+          <div class="legend"><span style="color:#22C55E"><i></i>10Y breakeven</span><span style="color:#A3A3A3"><i class="dash"></i>5Y5Y forward</span></div>
+        </section>
+      </div>
+
+      <div class="row-side">
+        <section class="panel" aria-label="PCE and PPI pipeline components">
+          <div class="ch"><h3>PCE and PPI pipeline components</h3><span class="code">BEA · BLS sub-indices</span></div>
+          <div class="tbl-wrap">
+            <table class="tbl" aria-label="PCE and PPI pipeline">
+              <thead><tr><th>Component</th><th class="n">MoM</th><th class="n">YoY / rate</th><th class="n">Prior</th><th class="n">Wt %</th><th>Source</th><th>Trend</th></tr></thead>
+              <tbody id="pipeRows"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" aria-label="Monthly YoY inflection momentum">
+          <div class="ch"><h3>Monthly YoY inflection momentum</h3><span class="code">Pp change, m/m</span></div>
+          <p class="note">Month-over-month acceleration or deceleration in percentage points.</p>
+          <div class="chart short" data-chart="mom"></div>
+        </section>
+      </div>
+
+      <div class="row-side">
+        <section class="panel" aria-label="Inflation expectations">
+          <div class="ch"><h3>Inflation expectations</h3><span class="code">TIPS &amp; survey anchors</span></div>
+          <div class="be" style="margin-top:16px">
+            <div class="ch"><h3>10Y breakeven inflation</h3><span class="badge">Sticky</span></div>
+            <div class="big">2.24%</div>
+            <div class="delta muted">Prior 2.24% · FRED T10YIE · obs 2026-11-13</div>
+            <p class="note">Breakeven has been flat for the last four observations, so the stickiness flag is set.</p>
+          </div>
+        </section>
+        <section class="panel" aria-label="3Y regime dispersion summary">
+          <div class="ch"><h3>3Y regime dispersion summary</h3><span class="code">2023-11 → 2026-10</span></div>
+          <div class="reg" id="reg"></div>
+        </section>
+      </div>
+
+      <div class="sec"><h2><span class="n">6</span>Cross-asset policy &amp; market implications</h2><span>Live factor mapping</span></div>
+      <div class="xa" id="xa"></div>
+
+      <div class="sec"><h2>Data quality &amp; reconciliation</h2><span>Read before using the numbers</span></div>
+      <section class="panel dq" aria-label="Data quality">
+        <ul id="dq"></ul>
+      </section>
+
+      <footer class="foot">
+        <span>BLS · CUUR0000SA0 / FRED · CPILFESL, PCEPI, PCEPILFE, PPIFIS, T10YIE, T5YIFR, DFII10, DGS10, DGS2 · Units % YoY · Freq monthly / daily</span>
+        <span>Sample series where noted</span>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const N = 36;
+  const RANGE = { "1Y": 12, "2Y": 24, "3Y": 36 };
+  const st = { range: "3Y" };
+
+  const mLabel = (i) => { const d = new Date(2023, 10 + i, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; };
+  const seed = (s) => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
+  const rnd = (s) => () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
+
+  // Monthly sample path. Ends on `end` at index `last`, `prior` at last-1. Nulls after `last`.
+  function path(start, end, prior, amp, key, last) {
+    const r = rnd(seed(key)), p = [r() * 6.28, r() * 6.28];
+    const out = [];
+    for (let i = 0; i <= last; i++) {
+      const t = i / last;
+      const w = Math.sin(t * 9 + p[0]) * 0.6 + Math.sin(t * 23 + p[1]) * 0.4;
+      out.push(start + (end - start) * t + w * amp * (1 - 0.4 * t));
+    }
+    out[last] = end;
+    out[last - 1] = prior;
+    while (out.length < N) out.push(null);
+    return out;
+  }
+
+  const S = {
+    cpi: path(3.2, 3.74, 3.40, 0.22, "cpi", 34),
+    core: path(2.3, 2.57, 2.45, 0.1, "core", 34),
+    pce: path(3.0, 3.65, 3.44, 0.18, "pce", 34),
+    cpce: path(2.9, 3.12, 3.03, 0.1, "cpce", 34),
+    ppi: path(5.6, 6.52, 6.29, 0.4, "ppi", 35),
+    be: path(2.2, 2.24, 2.24, 0.07, "be", 35),
+    f55: path(2.25, 2.22, 2.24, 0.06, "f55", 35),
+    cpiYoy: null,
+  };
+  S.cpiYoy = S.cpi;
+  // Monthly momentum: m/m change of PPI YoY in pp.
+  S.mom = S.ppi.map((v, i) => (i === 0 || v === null || S.ppi[i - 1] === null ? null : +(v - S.ppi[i - 1]).toFixed(2)));
+
+  const pct = (v) => v.toFixed(2) + "%";
+  const gap = (a, b) => (a - b >= 0 ? "+" : "−") + Math.abs(a - b).toFixed(2) + " pp";
+
+  const KPI = [
+    { name: "CPI YoY", freq: "MONTHLY", status: "CURRENT", v: 3.74, d: 0.34, prev: 3.40, cons: "—", surp: "—", src: "BLS · CUUR0000SA0", obs: "2026-09-01" },
+    { name: "Core CPI YoY", freq: "MONTHLY", status: "CURRENT", v: 2.57, d: 0.12, prev: 2.45, cons: "—", surp: "—", src: "FRED · CPILFESL", obs: "2026-09-01" },
+    { name: "PCE YoY", freq: "MONTHLY", status: "DELAYED", v: 3.65, d: 0.20, prev: 3.44, cons: "—", surp: "—", src: "FRED · PCEPI", obs: "2026-09-01" },
+    { name: "Core PCE YoY", freq: "MONTHLY", status: "DELAYED", v: 3.12, d: 0.09, prev: 3.03, cons: "—", surp: "—", src: "FRED · PCEPILFE", obs: "2026-09-01" },
+    { name: "PPI YoY", freq: "MONTHLY", status: "CURRENT", v: 6.52, d: 0.23, prev: 6.29, cons: "—", surp: "—", src: "FRED · PPIFIS", obs: "2026-10-01" },
+    { name: "10Y breakeven inflation", freq: "DAILY", status: "CURRENT", v: 2.24, d: 0.00, prev: 2.24, cons: "—", surp: "—", src: "FRED · T10YIE", obs: "2026-11-13" },
+  ];
+
+  const PROV = [
+    ["CPI YoY", "Monthly", "BLS · CUUR0000SA0"],
+    ["Core CPI YoY", "Monthly", "FRED · CPILFESL"],
+    ["PCE YoY", "Monthly", "FRED · PCEPI / BEA"],
+    ["Core PCE YoY", "Monthly", "FRED · PCEPILFE"],
+    ["PPI YoY", "Monthly", "FRED · PPIFIS / BLS"],
+    ["10Y breakeven", "Daily", "FRED · T10YIE"],
+  ];
+
+  const CPI_ROWS = [
+    ["CPI YoY", "—", 3.72, 3.35, "—", "FRED · CPIAUCSL", "Accelerating", "hot"],
+    ["Core CPI YoY", "—", 2.57, 2.45, "—", "FRED · CPILFESL", "Accelerating", "hot"],
+  ];
+  const PIPE_ROWS = [
+    ["PCE YoY", "—", 3.65, 3.44, "—", "FRED · PCEPI", "Accelerating", "hot"],
+    ["Core PCE YoY", "—", 3.12, 3.03, "—", "FRED · PCEPILFE", "Accelerating", "hot"],
+    ["PPI YoY", "—", 6.52, 6.29, "—", "FRED · PPIFIS", "Accelerating", "hot"],
+  ];
+  const rowHTML = (r) => `<tr>
+    <td>${r[0]}</td><td class="n mono">${r[1]}</td>
+    <td class="n mono ${r[7] === "hot" ? "down" : ""}">${r[2].toFixed(2)}%</td>
+    <td class="n mono">${r[3].toFixed(2)}%</td><td class="n mono">${r[4]}</td>
+    <td class="src">${r[5]}</td><td><span class="pill ${r[7]}">${r[6]}</span></td></tr>`;
+
+  const DISP = [["CPI YoY", 3.74], ["Core CPI YoY", 2.57], ["PCE YoY", 3.65], ["Core PCE YoY", 3.12], ["PPI YoY", 6.52], ["10Y breakeven", 2.24]];
+
+  const XA = [
+    { t: "Federal Reserve policy", l: "Core PCE 3.12% vs 2.00% target", s: "Gradual easing pace", tag: "2.00% FOMC mandate anchor", tone: "", src: "FRED · PCEPILFE / BE…" },
+    { t: "US 10Y real yield", l: "2.86% (DFII10)", s: "Restrictive real discount", tag: "FRED DFII10 real rate anchor", tone: "hot", src: "US Treasury / FRED" },
+    { t: "US dollar index (DXY)", l: "103.41 spot", s: "Live rate-differential tracking", tag: "Cross-asset FX benchmark", tone: "cool", src: "YFinance" },
+    { t: "Gold (XAUUSD)", l: "$3,886.30 / oz", s: "Real-yield sensitivity", tag: "Inverse sensitivity to US10Y real", tone: "", src: "API Ninjas" },
+    { t: "Treasury curve (2s10s)", l: "+24 bps spread", s: "Positive slope", tag: "DGS10 − DGS2 spread", tone: "cool", src: "FRED · DGS10 / DGS2" },
+  ];
+
+  const DQ = [
+    ["Headline CPI vs core card reads 0.00%", "The card shows headline 0.00% and Δ −3.72 pp. Headline minus core from the KPI values is +1.17 pp (3.74% − 2.57%). This page uses the computed gap."],
+    ["Headline PCE vs core card reads 0.00%", "Same issue: the card shows 0.00% with Δ −3.12 pp. Computed gap is +0.53 pp (3.65% − 3.12%)."],
+    ["CPI YoY differs between the table and the KPI card", "Component table shows 3.72%; KPI card and dispersion show 3.74%. Both are kept here; check the source timestamp before using either alone."],
+    ["10Y breakeven differs between the panel and the card", "Breakeven panel header reads 2.34%; KPI card, expectations card and dispersion show 2.24%. This page uses 2.24% (T10YIE, obs 2026-11-13)."],
+    ["Regime minimums of 0.00% look like gaps", "The 3Y summary shows 0.00 as the low for headline CPI, core CPI, core PCE and breakeven. These are likely missing observations, not real zeros, so treat the ranges as unreliable until history is backfilled."],
+    ["Delayed and missing consensus", "PCE and core PCE are flagged DELAYED, and consensus and surprise are empty for every series, so the surprise read is unavailable."],
+  ];
+
+  function chart(el, lines, labels, o) {
+    const W = el.clientWidth || 400, H = el.clientHeight || 240, pl = 52, pr = 8, pt = 8, pb = 24, n = labels.length;
+    const all = lines.flatMap((l) => l.vals).filter((v) => v !== null);
+    let lo = Math.min(...all), hi = Math.max(...all);
+    const pad = (hi - lo) * 0.12 || 0.5;
+    lo = Math.max(0, lo - pad) === 0 && lo - pad < 0 ? 0 : lo - pad;
+    hi = hi + pad;
+    const ticks = [0, 1, 2, 3, 4].map((k) => lo + ((hi - lo) * k) / 4);
+    const x = (i) => pl + ((W - pl - pr) * i) / (n - 1);
+    const y = (v) => pt + (H - pt - pb) * (1 - (v - lo) / (hi - lo));
+    let s = "";
+    ticks.forEach((v) => {
+      const yy = y(v).toFixed(1);
+      s += `<line class="gl" x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}"/><text class="ax" x="${pl - 8}" y="${(+yy + 4).toFixed(1)}" text-anchor="end">${v.toFixed(2)}%</text>`;
+    });
+    if (o.target !== undefined) {
+      const yy = y(o.target).toFixed(1);
+      s += `<line x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}" stroke="#6B6B6B" stroke-dasharray="3 4"/>`;
+    }
+    [0, 1, 2, 3].forEach((k) => {
+      const i = Math.round(((n - 1) * k) / 3);
+      const anchor = k === 0 ? "start" : k === 3 ? "end" : "middle";
+      s += `<text class="ax" x="${x(i).toFixed(1)}" y="${H - 6}" text-anchor="${anchor}">${labels[i]}</text>`;
+    });
+    const base = (H - pb).toFixed(1);
+    lines.forEach((l, li) => {
+      // Build segments split at nulls so gaps are shown, not drawn as zeros.
+      const segs = [];
+      let cur = [];
+      l.vals.forEach((v, i) => { if (v === null) { if (cur.length) segs.push(cur); cur = []; } else cur.push([x(i), y(v)]); });
+      if (cur.length) segs.push(cur);
+      segs.forEach((pts) => {
+        const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join("");
+        if (li === 0 && !l.dash) s += `<path d="${d}L${pts[pts.length - 1][0].toFixed(1)},${base}L${pts[0][0].toFixed(1)},${base}Z" fill="${l.color}" fill-opacity=".07"/>`;
+        s += `<path d="${d}" fill="none" stroke="${l.color}" stroke-width="${l.dash ? 1.4 : 1.8}" stroke-linejoin="round" ${l.dash ? 'stroke-dasharray="5 5"' : ""}/>`;
+      });
+    });
+    const main = lines[0];
+    s += `<line class="guide" x1="0" x2="0" y1="${pt}" y2="${H - pb}" stroke-width="1"/><circle class="pdot" r="4" cx="0" cy="0" fill="${main.color}" stroke="#0A0A0A" stroke-width="2"/>`;
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label}">${s}</svg><div class="tip"></div>`;
+    const g = el.querySelector(".guide"), dot = el.querySelector(".pdot"), tip = el.querySelector(".tip");
+    el.onpointermove = (e) => {
+      const r = el.getBoundingClientRect();
+      const px = e.clientX - r.left;
+      const i = Math.max(0, Math.min(n - 1, Math.round(((px - pl) / (W - pl - pr)) * (n - 1))));
+      const xx = x(i);
+      g.setAttribute("x1", xx); g.setAttribute("x2", xx);
+      const mv = main.vals[i];
+      dot.setAttribute("cx", xx); dot.setAttribute("cy", mv === null ? -10 : y(mv));
+      const rows = lines.map((l) => `<span>${l.name || ""} ${l.vals[i] === null ? "no obs" : l.fmt(l.vals[i])}</span>`).join("");
+      tip.innerHTML = `<span>${labels[i]}</span>${rows}`;
+      tip.style.left = Math.max(0, Math.min(W - 170, xx - 70)) + "px";
+      el.classList.add("on");
+    };
+    el.onpointerleave = () => el.classList.remove("on");
+  }
+
+  function bars(el, vals, labels, o) {
+    const W = el.clientWidth || 400, H = el.clientHeight || 200, pl = 52, pr = 8, pt = 10, pb = 24, n = vals.length;
+    const v = vals.filter((x) => x !== null);
+    const lim = Math.max(Math.abs(Math.min(...v)), Math.abs(Math.max(...v))) * 1.1;
+    const y = (val) => pt + (H - pt - pb) * (1 - (val + lim) / (2 * lim));
+    const bw = (W - pl - pr) / n * 0.6;
+    const cx = (i) => pl + ((W - pl - pr) * (i + 0.5)) / n;
+    let s = "";
+    [-lim, -lim / 2, 0, lim / 2, lim].forEach((t) => {
+      const yy = y(t).toFixed(1);
+      s += `<line class="gl" x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}" ${t === 0 ? 'stroke="#2E2E2E"' : ""}/><text class="ax" x="${pl - 8}" y="${(+yy + 4).toFixed(1)}" text-anchor="end">${t.toFixed(1)}</text>`;
+    });
+    [0, 1, 2, 3].forEach((k) => {
+      const i = Math.round(((n - 1) * k) / 3);
+      const anchor = k === 0 ? "start" : k === 3 ? "end" : "middle";
+      s += `<text class="ax" x="${(cx(i)).toFixed(1)}" y="${H - 6}" text-anchor="${anchor}">${labels[i]}</text>`;
+    });
+    vals.forEach((val, i) => {
+      if (val === null) return;
+      const y0 = y(0), y1 = y(val);
+      s += `<rect x="${(cx(i) - bw / 2).toFixed(1)}" y="${Math.min(y0, y1).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1, Math.abs(y1 - y0)).toFixed(1)}" fill="${val >= 0 ? "#FFFFFF" : "#EF4444"}" fill-opacity="${val >= 0 ? 0.85 : 0.85}"/>`;
+    });
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label}">${s}</svg><div class="tip"></div>`;
+    const tip = el.querySelector(".tip");
+    el.onpointermove = (e) => {
+      const r = el.getBoundingClientRect();
+      const px = e.clientX - r.left;
+      const i = Math.max(0, Math.min(n - 1, Math.floor(((px - pl) / (W - pl - pr)) * n)));
+      if (vals[i] === null) { el.classList.remove("on"); return; }
+      tip.innerHTML = `<span>${labels[i]}</span><b>${vals[i] >= 0 ? "+" : ""}${vals[i].toFixed(2)} pp</b>`;
+      tip.style.left = Math.max(0, Math.min(W - 130, cx(i) - 60)) + "px";
+      el.classList.add("on");
+    };
+    el.onpointerleave = () => el.classList.remove("on");
+  }
+
+  const CHARTS = {
+    cpi: (k) => ({ lines: [{ vals: S.cpi, color: "#FFF", name: "Headline", fmt: pct }, { vals: S.core, color: "#A3A3A3", dash: true, name: "Core", fmt: pct }] }),
+    pce: () => ({ lines: [{ vals: S.cpce, color: "#22C55E", name: "Core PCE", fmt: pct }, { vals: S.pce, color: "#A3A3A3", dash: true, name: "Headline PCE", fmt: pct }] }),
+    ppi: () => ({ lines: [{ vals: S.ppi, color: "#EF4444", name: "PPI", fmt: pct }, { vals: S.cpiYoy, color: "#A3A3A3", dash: true, name: "CPI YoY", fmt: pct }] }),
+    be: () => ({ lines: [{ vals: S.be, color: "#22C55E", name: "10Y BE", fmt: pct }, { vals: S.f55, color: "#A3A3A3", dash: true, name: "5Y5Y", fmt: pct }] }),
+  };
+
+  function drawAll() {
+    const n = RANGE[st.range];
+    const labels = Array.from({ length: N }, (_, i) => mLabel(i)).slice(N - n);
+    document.querySelectorAll("[data-chart]").forEach((el) => {
+      const k = el.dataset.chart;
+      if (k === "mom") {
+        bars(el, S.mom.slice(N - n), labels, { label: "Monthly momentum" });
+        return;
+      }
+      const c = CHARTS[k]();
+      const lines = c.lines.map((l) => ({ ...l, vals: l.vals.slice(N - n) }));
+      chart(el, lines, labels, { label: k, target: k === "cpi" ? 2.0 : undefined });
+    });
+  }
+
+  function statics() {
+    document.getElementById("range").innerHTML = Object.keys(RANGE).map((r) =>
+      `<button type="button" data-r="${r}" aria-pressed="${r === st.range}">${r}</button>`).join("");
+
+    document.getElementById("kpis").innerHTML = KPI.map((k) => {
+      const up = k.d > 0;
+      return `<section class="panel kpi" aria-label="${k.name}">
+        <div class="ch"><h3>${k.name} <span class="info">i</span></h3><span class="code">${k.freq}</span></div>
+        <div class="tags"><span class="badge">${k.freq}</span><span class="badge ${k.status === "CURRENT" ? "solid" : ""}">${k.status}</span></div>
+        <div class="val"><b>${pct(k.v)}</b><small class="${up ? "up" : "flat"}">${up ? "+" : ""}${k.d.toFixed(2)} pp</small></div>
+        <dl>
+          <div><dt>Prev</dt><dd>${pct(k.prev)}</dd></div>
+          <div><dt>Cons</dt><dd>${k.cons}</dd></div>
+          <div><dt>Surprise</dt><dd>${k.surp}</dd></div>
+        </dl>
+        <footer><span>${k.src}</span><span>${k.obs}</span></footer>
+      </section>`;
+    }).join("");
+
+    document.getElementById("prov").innerHTML = PROV.map(([n, f, s]) => `
+      <div class="prov-item">
+        <header><span>${n}</span><span class="code">${f}</span></header>
+        <div class="src"><span>${s}</span><span class="live"><i></i>LIVE</span></div>
+      </div>`).join("");
+
+    document.getElementById("cpiRows").innerHTML = CPI_ROWS.map(rowHTML).join("");
+    document.getElementById("pipeRows").innerHTML = PIPE_ROWS.map(rowHTML).join("");
+
+    document.getElementById("disp").innerHTML = DISP.map(([n, v]) => {
+      const max = 7;
+      return `<div class="hb"><span>${n}</span><div class="track"><div class="fill ${v > 2 ? "hot" : ""}" style="width:${(v / max * 100).toFixed(1)}%"></div><div class="tgt" style="left:${(2 / max * 100).toFixed(1)}%"></div></div><b>${v.toFixed(2)}%</b></div>`;
+    }).join("") + `<p class="note" style="margin-top:14px">Dashed tick marks the 2.00% FOMC mandate reference.</p>`;
+
+    const gC = S.cpi[34] - S.core[34], gP = S.pce[34] - S.cpce[34];
+    document.getElementById("gapCpi").textContent = gap(S.cpi[34], S.core[34]);
+    document.getElementById("gapCpiSub").textContent = `Headline ${pct(S.cpi[34])} · Core ${pct(S.core[34])} · computed from KPI values`;
+    document.getElementById("gapPce").textContent = gap(S.pce[34], S.cpce[34]);
+    document.getElementById("gapPceSub").textContent = `Headline ${pct(S.pce[34])} · Core ${pct(S.cpce[34])} · computed from KPI values`;
+
+    document.getElementById("reg").innerHTML = [
+      ["Headline CPI YoY", "Avg 2.82%", "0.00–4.17%"],
+      ["Core CPI YoY", "Avg 2.91%", "0.00–4.02%"],
+      ["Core PCE YoY", "Avg 2.85%", "0.00–3.44%"],
+      ["10Y breakeven", "Avg 0.32%", "0.00–2.36%"],
+    ].map(([a, b, c]) => `<div><span>${a}</span><b>${b}</b><small>Range ${c}</small></div>`).join("");
+
+    document.getElementById("xa").innerHTML = XA.map((x) => `
+      <section class="panel">
+        <h4>${x.t}</h4>
+        <div class="line">${x.l}</div>
+        <div class="sub">${x.s}</div>
+        <span class="tag ${x.tone}">${x.tag}</span>
+        <footer><span>${x.src}</span><span class="live"><i></i>LIVE</span></footer>
+      </section>`).join("");
+
+    document.getElementById("dq").innerHTML = DQ.map(([t, d]) => `<li><b>${t}</b><span>${d}</span></li>`).join("");
+
+    const R = [["CPI", 74], ["CCPI", 60], ["PCE", 80], ["CPCE", 70], ["BE10", 53]];
+    const cx = 110, cy = 110, RR = 78;
+    const ang = (i) => -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+    const ring = (k) => R.map((_, i) => (cx + RR * k * Math.cos(ang(i))).toFixed(1) + "," + (cy + RR * k * Math.sin(ang(i))).toFixed(1)).join(" ");
+    const poly = R.map(([, v], i) => { const r = (RR * v) / 100; return (cx + r * Math.cos(ang(i))).toFixed(1) + "," + (cy + r * Math.sin(ang(i))).toFixed(1); }).join(" ");
+    const labels = R.map(([nm], i) => `<text class="ax" x="${(cx + (RR + 24) * Math.cos(ang(i))).toFixed(1)}" y="${(cy + (RR + 24) * Math.sin(ang(i)) + 4).toFixed(1)}" text-anchor="middle">${nm}</text>`).join("");
+    document.getElementById("radar").innerHTML = `<svg viewBox="-30 0 280 220" role="img" aria-label="Inflation radar">
+      <polygon points="${ring(0.5)}" fill="none" stroke="#1C1C1C"/><polygon points="${ring(1)}" fill="none" stroke="#1C1C1C"/>
+      <polygon points="${poly}" fill="rgba(239,68,68,.14)" stroke="#EF4444" stroke-width="1.5"/>${labels}</svg>`;
+    document.getElementById("radarVals").innerHTML = [["CPI", 74, "—"], ["CCPI", 60, "+2"], ["PCE", 80, "+4"], ["CPCE", 70, "+1"], ["BE10", 53, "0"]]
+      .map(([nm, v, d]) => `<li>${nm}<b>${v}</b><span>${d}</span></li>`).join("");
+  }
+
+  document.getElementById("range").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-r]");
+    if (!b) return;
+    st.range = b.dataset.r;
+    document.querySelectorAll("#range button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.r === st.range)));
+    drawAll();
+  });
+
+  let raf = 0;
+  new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(drawAll); })
+    .observe(document.querySelector(".main-inner"));
+
+  statics();
+  drawAll();
+})();
+</script>
+</body>
+</html>
+
+</body></html>

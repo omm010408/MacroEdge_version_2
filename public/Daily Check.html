@@ -1,0 +1,739 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Daily Check</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #000; --surface: #0A0A0A; --surface-2: #151515; --line: #1F1F1F; --line-strong: #333;
+  --fg: #FFFFFF; --fg-2: #D4D4D4; --fg-3: #9A9A9A;
+  --pos: #22C55E; --neg: #EF4444; --warn: #E0A93B;
+  --ui: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --num: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --acc: #D4B45A; --acc-rgb: 212, 180, 90; --acc-ink: #111;
+}
+body[data-lens="stocks"] { --acc: #3DDC84; --acc-rgb: 61, 220, 132; }
+body[data-lens="gold"] { --acc: #F05A5A; --acc-rgb: 240, 90, 90; }
+body[data-lens="dollar"] { --acc: #3DDC84; --acc-rgb: 61, 220, 132; }
+body[data-lens="oil"] { --acc: #FFFFFF; --acc-rgb: 255, 255, 255; --acc-ink: #000; }
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 14px/1.5 var(--ui); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; border-radius: 4px; }
+
+/* top bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: #000; border-bottom: 1px solid var(--line); }
+.topbar-in { display: flex; align-items: center; gap: 20px; height: 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.mark { display: grid; place-items: center; width: 52px; height: 34px; border: 1px solid var(--line-strong); border-radius: 7px; font: 700 17px var(--ui); letter-spacing: -0.04em; }
+.brand b { font-weight: 600; font-size: 16px; }
+.brand small { font: 500 11px var(--num); color: var(--fg-2); border: 1px solid var(--line-strong); border-radius: 4px; padding: 3px 7px; letter-spacing: .04em; }
+.nav { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--line-strong); border-radius: 9px; margin: 0 auto; }
+.nav a { padding: 7px 14px; border-radius: 6px; color: var(--fg-2); font-size: 14px; white-space: nowrap; }
+.nav a[aria-current="page"] { background: var(--surface-2); color: var(--fg); }
+.tools { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.pillbtn, .chip, .user { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--fg-2); font-size: 14px; white-space: nowrap; }
+.pillbtn kbd { font: 500 12px var(--num); color: var(--fg-3); border: 1px solid var(--line-strong); border-radius: 4px; padding: 1px 5px; }
+.bell { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--fg-2); }
+.bell::after { content: ""; position: absolute; top: 8px; right: 9px; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+.user { padding: 0 10px 0 6px; }
+.avatar { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 5px; background: var(--surface-2); font: 600 11px var(--num); color: var(--fg); }
+
+/* layout */
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); }
+.side { position: sticky; top: calc(60px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 60px); overflow-y: auto; display: flex; flex-direction: column; padding: 16px 14px 20px max(14px, env(safe-area-inset-left, 0px)); border-right: 1px solid var(--line); }
+.side nav { display: flex; flex-direction: column; gap: 2px; }
+.side a, .side summary { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 8px; color: var(--fg-2); font-size: 14.5px; list-style: none; cursor: pointer; }
+.side summary::-webkit-details-marker { display: none; }
+.side a:hover, .side summary:hover { color: var(--fg); }
+.side [aria-current="page"] { background: var(--surface-2); color: var(--fg); border: 1px solid var(--line-strong); }
+details.grp > div { display: flex; flex-direction: column; margin: 2px 0 8px 18px; padding-left: 10px; border-left: 1px solid var(--line-strong); }
+details.grp > div a { padding: 7px 10px; font-size: 14px; }
+.side-label { margin: 24px 12px 8px; font: 500 12px var(--num); letter-spacing: .08em; color: var(--fg-3); }
+.radar-card { margin-top: auto; padding: 14px; border: 1px solid var(--line-strong); border-radius: 12px; }
+.radar-card header { display: flex; justify-content: space-between; align-items: center; font: 500 12px var(--num); color: var(--fg-2); letter-spacing: .04em; }
+.radar-card header .n { color: var(--fg-3); }
+.badge { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: 5px; font: 500 11px var(--num); letter-spacing: .04em; color: var(--fg-2); }
+.radar-card svg { display: block; width: 100%; height: auto; margin-top: 4px; }
+.mini { display: grid; grid-template-columns: repeat(5, 1fr); margin: 6px 0 0; padding: 8px 0 0; border-top: 1px solid var(--line); list-style: none; text-align: center; font: 400 10.5px var(--num); color: var(--fg-3); }
+.mini b { display: block; margin-top: 2px; font-weight: 500; font-size: 13px; color: var(--fg); }
+.mini span { display: block; font-size: 10.5px; }
+
+.main { min-width: 0; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-bottom: 24px; }
+.main-in { max-width: 1400px; margin: 0 auto; padding-top: 20px; }
+
+/* hero */
+.hero { border: 1px solid var(--line-strong); border-radius: 16px; background: radial-gradient(120% 90% at 60% 40%, rgba(var(--acc-rgb), .08), transparent 60%), var(--surface); padding: 22px 28px 22px; }
+.lens-wrap { text-align: center; }
+.eyebrow { font: 500 12px var(--num); letter-spacing: .14em; color: var(--fg-2); }
+.lens { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 12px; padding: 4px; border: 1px solid var(--line-strong); border-radius: 12px; background: #000; }
+.lens button { height: 40px; padding: 0 20px; border-radius: 9px; font-size: 15px; font-weight: 500; color: var(--fg-2); }
+.lens button:hover { color: var(--fg); }
+.lens button[aria-pressed="true"] { background: var(--acc); color: var(--acc-ink); font-weight: 600; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, .9fr); gap: 28px; margin-top: 24px; align-items: center; }
+.kicker { font: 600 14px var(--ui); color: var(--acc); }
+.title { margin: 8px 0 0; font-size: 40px; line-height: 1.08; font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; }
+.desc { margin: 14px 0 0; color: var(--fg-2); font-size: 15px; max-width: 44ch; }
+.verdict { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; margin-top: 18px; }
+.pill { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 7px; font: 600 12.5px var(--num); letter-spacing: .05em; border: 1px solid var(--line-strong); color: var(--fg-2); }
+.pill.bull { background: var(--pos); border-color: var(--pos); color: #000; }
+.pill.bear { background: var(--neg); border-color: var(--neg); color: #000; }
+.pill.mixed, .pill.neutral { color: var(--fg); }
+.tick { font: 400 14px var(--num); color: var(--fg-2); }
+.tick b { color: var(--fg); font-weight: 600; font-size: 15px; }
+.up { color: var(--pos); }
+.dn { color: var(--neg); }
+.confirm { margin: 16px 0 0; font: 400 14px var(--num); color: var(--fg-2); }
+.confirm b { color: var(--fg); font-weight: 600; }
+.see { margin-top: 10px; display: inline-flex; gap: 6px; color: var(--acc); font-weight: 500; font-size: 14.5px; }
+.radar-wrap svg { display: block; width: 100%; height: auto; max-width: 440px; margin: 0 auto; }
+.legend { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px 20px; margin-top: 4px; font: 500 12.5px var(--num); color: var(--fg-2); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend i { display: inline-block; width: 24px; border-top: 3px solid var(--acc); }
+.legend i.d { border-top: 2px dashed var(--fg-2); }
+.replay { height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; font-size: 13px; color: var(--fg); }
+.details h4 { margin: 0 0 12px; font-size: 16px; font-weight: 600; }
+.det { display: flex; justify-content: space-between; align-items: center; padding: 13px 16px; margin-top: 8px; border: 1px solid var(--line-strong); border-radius: 10px; background: #050505; font-size: 15px; }
+.det .dm { display: inline-block; width: 14px; height: 2px; background: var(--fg-3); margin-right: 12px; vertical-align: middle; }
+.tag { font: 600 12px var(--num); color: #000; border-radius: 5px; padding: 4px 9px; letter-spacing: .04em; }
+.tag.up { background: var(--pos); }
+.tag.dn { background: var(--neg); }
+.more { margin: 14px 0 0; text-align: center; font-size: 14px; color: var(--fg-2); }
+.hero-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px 20px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.hero-foot p { margin: 0; font-size: 13.5px; color: var(--fg-3); }
+.score { display: inline-flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; padding: 10px 16px; border: 1px solid var(--line-strong); border-radius: 999px; font: 500 13px var(--num); color: var(--fg-2); }
+.score b { color: var(--fg); font-weight: 600; }
+.score .st { color: var(--fg); }
+
+/* tabs */
+.tabs2 { display: flex; align-items: flex-end; gap: 28px; margin-top: 34px; border-bottom: 1px solid var(--line-strong); flex-wrap: wrap; }
+.tabs2 button { padding: 12px 0 14px; color: var(--fg-2); font-size: 16px; font-weight: 500; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+.tabs2 button:hover { color: var(--fg); }
+.tabs2 button[aria-selected="true"] { color: var(--fg); border-bottom-color: #fff; }
+.tab-meta { margin-left: auto; padding-bottom: 14px; font: 500 13px var(--num); color: var(--fg-2); }
+
+/* panels */
+.panel { margin-top: 22px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 14px; padding: 24px 26px; }
+.ph { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.panel h3 { margin: 0; font-size: 21px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.panel .sub { margin: 6px 0 0; color: var(--fg-2); font-size: 15px; }
+.info { display: inline-grid; place-items: center; width: 18px; height: 18px; border: 1.5px solid var(--fg-3); border-radius: 50%; font: 600 11px var(--num); color: var(--fg-3); }
+.state { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 7px; border: 1px solid var(--line-strong); color: var(--fg-2); font: 600 12.5px var(--num); letter-spacing: .05em; white-space: nowrap; }
+.state.ok { border-color: var(--pos); color: var(--pos); }
+.state.hot { border-color: var(--neg); color: var(--neg); }
+
+/* regime table */
+.fwrap { margin-top: 18px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 820px; }
+th { text-align: left; font: 600 12px var(--num); color: var(--fg-2); letter-spacing: .05em; padding: 12px; border-bottom: 1px solid var(--line-strong); white-space: nowrap; }
+td { padding: 18px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: #0E0E0E; }
+.fname { font-size: 17px; font-weight: 600; }
+.fsub { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 13.5px; color: var(--fg-2); }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: #fff; }
+.dot.pos { background: var(--pos); }
+.dot.warn { background: var(--warn); }
+.num { font: 500 17px var(--num); font-variant-numeric: tabular-nums; color: var(--fg); }
+.num.up { color: var(--pos); }
+.num.dn { color: var(--neg); }
+.rng { position: relative; width: 260px; height: 46px; }
+.rng .track { position: absolute; left: 0; right: 0; top: 10px; height: 4px; border-radius: 4px; background: linear-gradient(90deg, #4a1f1f, #2a2a2a 50%, #1b4a2e); }
+.rng .mk { position: absolute; top: 2px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #fff; border: 3px solid #000; box-shadow: 0 0 0 1px #fff; }
+.rng .pc { position: absolute; top: 26px; transform: translateX(-50%); font: 500 12px var(--num); color: var(--fg); white-space: nowrap; }
+.rng .lo, .rng .hi { position: absolute; top: 26px; font: 500 11px var(--num); color: var(--fg-3); }
+.rng .lo { left: 0; }
+.rng .hi { right: 0; }
+.chev { color: var(--fg-2); font-size: 18px; }
+
+/* confirmation */
+.cgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
+.ccard { min-width: 0; border: 1px solid var(--line-strong); border-radius: 12px; padding: 18px 18px 16px; background: #050505; }
+.ctop { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.csym { font: 600 16px var(--num); }
+.cname { margin-top: 2px; font-size: 13.5px; color: var(--fg-2); }
+.vtag { font: 600 11.5px var(--num); letter-spacing: .05em; border: 1px solid var(--pos); color: var(--pos); border-radius: 6px; padding: 4px 9px; white-space: nowrap; }
+.vtag.div { border-color: var(--neg); color: var(--neg); }
+.cval { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-top: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.cval strong { font: 500 26px var(--num); font-variant-numeric: tabular-nums; min-width: 0; overflow-wrap: anywhere; }
+.cval span { font: 500 13px var(--num); color: var(--fg-2); white-space: nowrap; }
+.cexp { margin-top: 12px; font: 400 13px var(--num); color: var(--fg-3); }
+.csrc { margin-top: 4px; font-size: 13.5px; color: var(--fg-2); }
+
+/* trigger */
+.cat { margin-top: 22px; max-width: 380px; border: 1px solid var(--line-strong); border-radius: 12px; padding: 18px 20px; background: #050505; }
+.cat header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.cat h4 { margin: 0; font-size: 17px; font-weight: 600; }
+.cat p { margin: 12px 0 0; color: var(--fg-2); font-size: 14.5px; }
+.cat footer { display: flex; justify-content: space-between; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); font: 400 13px var(--num); color: var(--fg-2); }
+.sched { margin-top: 22px; border: 1px solid var(--line-strong); border-radius: 12px; padding: 18px 20px; background: #050505; }
+.sh { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sh .t { font: 600 13px var(--num); letter-spacing: .06em; color: var(--fg-2); }
+.sh .s { font-size: 13.5px; color: var(--fg-3); }
+.ev { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 13px 0; border-top: 1px solid var(--line); }
+.ev .cc { font: 500 12px var(--num); color: var(--fg-2); border: 1px solid var(--line-strong); border-radius: 5px; padding: 3px 7px; }
+.ev .en { flex: 1 1 240px; min-width: 0; font-size: 15px; }
+.ev .et, .ev .ec { font: 400 13px var(--num); color: var(--fg-2); white-space: nowrap; }
+.ev .ec { color: var(--fg-3); }
+.imp { font: 600 11.5px var(--num); letter-spacing: .05em; border: 1px solid var(--line-strong); color: var(--fg-2); border-radius: 5px; padding: 4px 8px; }
+.imp.high { background: var(--neg); border-color: var(--neg); color: #000; }
+
+/* checklist */
+.comp { display: flex; flex-wrap: wrap; gap: 18px 22px; align-items: flex-end; padding: 20px 22px; border: 1px solid var(--line-strong); border-radius: 12px; background: #050505; }
+.lbl { font: 500 12px var(--num); letter-spacing: .08em; color: var(--fg-2); }
+.score-big { margin-top: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font: 600 34px var(--num); }
+.score-big small { font-size: 20px; color: var(--fg-3); }
+.field { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.field input { width: 100%; height: 44px; border: 1px solid var(--line-strong); border-radius: 8px; background: #000; color: var(--fg); padding: 0 14px; font: inherit; font-size: 15px; }
+.field input::placeholder { color: var(--fg-3); }
+.acts { display: flex; gap: 10px; }
+.btn { height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--line-strong); font-size: 14px; display: inline-flex; align-items: center; gap: 8px; color: var(--fg); }
+.btn.primary { background: #fff; border-color: #fff; color: #000; font-weight: 600; }
+.empty { margin-top: 18px; border: 1px solid var(--line-strong); border-radius: 12px; padding: 40px 24px; text-align: center; background: #050505; }
+.empty .ico { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto; border: 1px solid var(--line-strong); border-radius: 12px; color: var(--fg-2); }
+.empty h4 { margin: 18px 0 0; font-size: 17px; font-weight: 600; }
+.empty p { margin: 8px auto 0; max-width: 52ch; color: var(--fg-2); font-size: 14.5px; }
+.empty .btn { margin-top: 20px; }
+.hist { margin-top: 26px; }
+.hh { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.hh h4 { margin: 0; font: 600 14px var(--num); letter-spacing: .08em; color: var(--fg-2); }
+.hh span { font: 400 13px var(--num); color: var(--fg-3); }
+.hwrap { margin-top: 14px; border: 1px solid var(--line-strong); border-radius: 12px; overflow-x: auto; background: #050505; }
+.hwrap table { min-width: 640px; }
+.hwrap th { padding: 14px 16px; border-bottom: 1px solid var(--line-strong); }
+.hwrap td { padding: 14px 16px; }
+.hwrap tbody tr[data-i] { cursor: pointer; }
+.hwrap tbody tr[data-i]:hover td { background: #101010; }
+.hwrap .none { text-align: center; color: var(--fg-2); padding: 44px 16px; }
+.sortbtn { font: 600 12px var(--num); letter-spacing: .05em; color: var(--fg-2); }
+
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 16px; margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--line-strong); font: 400 13px var(--num); color: var(--fg-2); }
+.live { display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 6px; font: 500 12px var(--num); color: var(--fg); }
+.live i { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); display: inline-block; }
+
+@media (max-width: 1199px) {
+  .side { display: none; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .title { font-size: 34px; }
+  .cgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .nav, .chip, .user, .bell, .pillbtn kbd { display: none; }
+  .topbar-in { gap: 12px; }
+  .brand small, .brand b { display: none; }
+  .lens button { padding: 0 12px; font-size: 13px; }
+  .title { font-size: 30px; }
+  .hero { padding: 18px 16px; }
+  .cgrid { grid-template-columns: minmax(0, 1fr); }
+  .tab-meta { display: none; }
+  .tabs2 { gap: 20px; }
+  .comp { padding: 16px; }
+  .sched, .panel { padding-left: 16px; padding-right: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#" aria-label="MacroEdge home"><span class="mark">ME</span><b>MacroEdge</b><small>TERMINAL</small></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#" aria-current="page">Terminal</a>
+      <a href="#">Command</a>
+      <a href="#">AI Bias</a>
+      <a href="#">Data Ops</a>
+      <a href="#">Incidents</a>
+    </nav>
+    <div class="tools">
+      <button class="pillbtn" type="button" aria-label="Search"><span>Search</span><kbd>⌘K</kbd></button>
+      <span class="chip">Tier I · Analyst</span>
+      <span class="bell" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 21h4"/></svg></span>
+      <span class="user"><span class="avatar">RO</span><span>Rosuz</span><span aria-hidden="true">⌄</span></span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <nav aria-label="Statistics">
+      <a href="#">Macro overview</a>
+      <details class="grp">
+        <summary>Positioning</summary>
+        <div><a href="#">Commitments of traders</a><a href="#">Correlation matrix</a></div>
+      </details>
+      <details class="grp">
+        <summary>Liquidity</summary>
+        <div><a href="#">Monetary policy</a><a href="#">Primary dealer stats</a></div>
+      </details>
+      <a href="#">Credit and risk</a>
+      <details class="grp" open>
+        <summary>Economy <span aria-hidden="true">⌄</span></summary>
+        <div><a href="#">Economy &amp; Labor</a><a href="#">Inflation</a><a href="#">Fixed Income &amp; Rates</a><a href="#">International</a><a href="#">G10 Indicators</a></div>
+      </details>
+    </nav>
+    <div class="side-label">TOOLS</div>
+    <nav aria-label="Tools">
+      <a href="#">Comparator</a>
+      <a href="#">Watch List</a>
+      <a href="#" aria-current="page">Daily Check</a>
+      <a href="#">AI Bias Engine</a>
+      <a href="#">Data Operations</a>
+      <a href="#">Incident Response</a>
+    </nav>
+    <section class="radar-card" aria-label="Macro radar">
+      <header><span>MACRO RADAR <span class="n">5/5</span></span><span class="badge" id="radarTag">OIL</span></header>
+      <div id="sideRadar"></div>
+      <ul class="mini" id="sideVals"></ul>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div class="main-in">
+      <section class="hero" aria-label="Regime">
+        <div class="lens-wrap">
+          <div class="eyebrow">READ THE PAGE FOR</div>
+          <div class="lens" id="lens" role="group" aria-label="Lens"></div>
+        </div>
+
+        <div class="hero-grid">
+          <div>
+            <div class="kicker" id="kicker"></div>
+            <h2 class="title" id="title"></h2>
+            <p class="desc" id="desc"></p>
+            <div class="verdict"><span class="pill" id="verdict"></span><span class="tick" id="tick"></span></div>
+            <p class="confirm" id="confirm"></p>
+            <a class="see" href="#">See the markets <span aria-hidden="true">›</span></a>
+          </div>
+
+          <div>
+            <div class="radar-wrap" id="bigRadar"></div>
+            <div class="legend">
+              <span><i></i>TODAY</span>
+              <span><i class="d"></i>LAST WEEK</span>
+              <button class="replay" id="replay" type="button">↻ Replay</button>
+            </div>
+          </div>
+
+          <div class="details">
+            <h4>Regime details</h4>
+            <div id="details"></div>
+            <p class="more">More details below ⌄</p>
+          </div>
+        </div>
+
+        <div class="hero-foot">
+          <p id="note"></p>
+          <div class="score" id="score"></div>
+        </div>
+      </section>
+
+      <div class="tabs2" role="tablist" id="tabs">
+        <button type="button" role="tab" data-t="regime" aria-selected="true">Regime</button>
+        <button type="button" role="tab" data-t="confirm" aria-selected="false">Confirmation</button>
+        <button type="button" role="tab" data-t="trigger" aria-selected="false">Trigger</button>
+        <button type="button" role="tab" data-t="checklist" aria-selected="false">Checklist &amp; Log (0/10)</button>
+        <span class="tab-meta" id="lensMeta"></span>
+      </div>
+
+      <section class="panel" id="pane-regime" aria-label="The five forces">
+        <div class="ph">
+          <div>
+            <h3>The five forces <span class="info" aria-hidden="true">i</span></h3>
+            <p class="sub">Which forces are pushing, and in which direction?</p>
+          </div>
+        </div>
+        <div class="fwrap">
+          <table aria-label="Five forces">
+            <thead><tr><th>FORCE</th><th>TODAY</th><th>WEEK</th><th>POSITION IN 1Y RANGE</th><th>STATE</th><th></th></tr></thead>
+            <tbody id="forces"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" id="pane-confirm" aria-label="Confirmation" hidden>
+        <div class="ph">
+          <div>
+            <h3 id="confTitle"></h3>
+            <p class="sub" id="confSub"></p>
+          </div>
+          <span class="state" id="confBadge"></span>
+        </div>
+        <div class="cgrid" id="cgrid"></div>
+      </section>
+
+      <section class="panel" id="pane-trigger" aria-label="Trigger" hidden>
+        <div class="ph">
+          <div>
+            <h3 id="trTitle"></h3>
+            <p class="sub" id="trSub"></p>
+          </div>
+        </div>
+        <article class="cat" id="cat"></article>
+        <div class="sched">
+          <div class="sh"><span class="t">NEAR-TERM EVENT RISK SCHEDULE</span><span class="s">High &amp; Medium Impact</span></div>
+          <div id="events"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="pane-checklist" aria-label="Checklist and log" hidden>
+        <div class="comp">
+          <div>
+            <div class="lbl">COMPUTED REGIME COMPOSITE</div>
+            <div class="score-big"><span>0</span><small>/ 10</small><span class="state">Mixed / Selective</span></div>
+          </div>
+          <label class="field">
+            <span class="lbl">SESSION SUMMARY LINE</span>
+            <input id="summary" type="text" placeholder="Concise pre-market macro regime summary...">
+          </label>
+          <div class="acts">
+            <button class="btn" id="reset" type="button">↺ Reset</button>
+            <button class="btn primary" id="save" type="button">✓ Save Log</button>
+          </div>
+        </div>
+
+        <div class="empty">
+          <div class="ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 2h6l1-2h5"/></svg></div>
+          <h4>Macro Checklist Pillars Awaiting Live Sync</h4>
+          <p>Configure API keys and trigger Data Operations sync to prefill live macro pillars, or load a saved daily review below.</p>
+          <a class="btn primary" href="#">Open Data Operations ↗</a>
+        </div>
+
+        <div class="hist">
+          <div class="hh"><h4>HISTORICAL DAILY REVIEWS</h4><span>Click row to load snapshot</span></div>
+          <div class="hwrap">
+            <table aria-label="Historical daily reviews">
+              <thead><tr>
+                <th><button class="sortbtn" id="sortDate" type="button">Date ⇅</button></th>
+                <th>Regime Assessment</th>
+                <th>Net Bias</th>
+                <th>Observation Note</th>
+              </tr></thead>
+              <tbody id="hist"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <span>Live Multi-Asset &amp; FRED Feeds · Obs 2026-11-16 · Rel 2026-11-13 · Freq: LIVE · Units: Index</span>
+        <span class="live"><i></i>LIVE API</span>
+        <span>Sync 2026-11-15 13:58Z</span>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const MINUS = "−";
+  const AXES = ["GROWTH", "INFL", "STRESS", "POLICY", "LIQ"];
+  const FORCE_SUB = {
+    Growth: "Above-trend vs below-trend national activity",
+    Inflation: "Pipeline & realized price momentum vs 2.0% target.",
+    Liquidity: "Central bank net liquidity, TGA flows, and RRP drain.",
+    Policy: "Real policy stance and front-end OIS rate expectations.",
+    Stress: "Cross-asset volatility, funding strain, and credit spreads.",
+  };
+  const OK_STATES = ["EXPANSIVE", "SUPPORTIVE", "CALM", "EASY"];
+  const HERO = { S: 420, C: 210, R: 150, off: 46, fs: 13, fv: 14 };
+  const SIDE = { S: 440, C: 220, R: 128, off: 62, fs: 26, fv: 27 };
+
+  const LENSES = {
+    general: {
+      name: "General", color: "#D4B45A", regime: "cross-asset", kicker: "General macro regime",
+      title: "Cautious cross-asset regime",
+      desc: "Computed directly from live synced yields, volatility, credit spreads, and macro observations.",
+      verdict: ["MIXED", "mixed"], tick: ["SPX", "7,561.67", "+2.51%", true],
+      note: "Signals reflect only synced live provider observations.",
+      radar: [70, 70, 52, 88, 69], last: [66, 68, 55, 84, 70],
+      forces: [
+        ["Growth", "+1.13", "+1.20", "pos", "EXPANSIVE"], ["Inflation", "+0.42", "+0.31", "warn", "ELEVATED"],
+        ["Liquidity", "+0.18", MINUS + "0.05", "neu", "NEUTRAL"], ["Policy", MINUS + "0.36", MINUS + "0.12", "neu", "RESTRICTIVE"],
+        ["Stress", "+0.22", "+0.10", "warn", "ELEVATED"],
+      ],
+      conf: [
+        ["SPX", "S&P 500 Index", "7,561.67", 2.51, "Higher", "Derived from live market quote.", "CONFIRMS"],
+        ["US 10Y", "US Treasury 10-year", "4.12%", null, "Higher", "Derived from FRED DGS10 sync.", "CONFIRMS"],
+        ["VIX", "CBOE Volatility Index", "18.70", 6.92, "Lower", "Derived from live CBOE VIX feed.", "CONFIRMS"],
+        ["HY OAS", "US High Yield Spreads", "320 bps", null, "Tighter", "Derived from ICE BofA HY OAS sync.", "CONFIRMS"],
+        ["DXY", "US Dollar Index", "103.41", 1.16, "Lower", "Derived from live DXY feed.", "DIVERGES"],
+        ["XAUUSD", "Gold Spot / USD", "$3,886.30", 0, "Higher", "Derived from live XAUUSD feed.", "CONFIRMS"],
+      ],
+      catalyst: { name: "Policy Pivot Watch", desc: "Front-end repricing ahead of the next policy decision.", foot: "US 10Y 4.12%" },
+    },
+    stocks: {
+      name: "Stocks", color: "#3DDC84", regime: "equity", kicker: "Equities regime",
+      title: "Low-vol equity support",
+      desc: "Derived from live implied volatility, credit spreads, and Treasury yield levels.",
+      verdict: ["BULLISH", "bull"], tick: ["SPX", "7,561.67", "+2.51%", true],
+      note: "Equity signals require live SPX, VIX, and US10Y sync.",
+      radar: [78, 63, 60, 95, 77], last: [74, 61, 62, 92, 75],
+      forces: [
+        ["Growth", "+1.27", "+1.20", "pos", "EXPANSIVE"], ["Inflation", "+0.30", "+0.22", "warn", "RISING"],
+        ["Liquidity", "+0.41", "+0.19", "pos", "EASY"], ["Policy", MINUS + "0.10", MINUS + "0.04", "neu", "NEUTRAL"],
+        ["Stress", MINUS + "0.28", MINUS + "0.15", "pos", "CALM"],
+      ],
+      conf: [
+        ["SPX", "S&P 500 Index", "7,561.67", 2.51, "Higher", "Derived from live market quote.", "CONFIRMS"],
+        ["VIX", "CBOE Volatility Index", "18.70", 6.92, "Lower", "Derived from live CBOE VIX feed.", "DIVERGES"],
+        ["HY OAS", "US High Yield Spreads", "320 bps", null, "Tighter", "Derived from ICE BofA HY OAS sync.", "CONFIRMS"],
+        ["US 10Y", "US Treasury 10-year", "4.12%", null, "Stable", "Derived from FRED DGS10 sync.", "CONFIRMS"],
+        ["DXY", "US Dollar Index", "103.41", 1.16, "Firm", "Derived from live DXY feed.", "CONFIRMS"],
+        ["XAUUSD", "Gold Spot / USD", "$3,886.30", 0, "Lower", "Derived from live XAUUSD feed.", "CONFIRMS"],
+      ],
+      catalyst: { name: "Breadth Watch", desc: "Equal-weight versus cap-weight index spread.", foot: "VIX 18.70" },
+    },
+    gold: {
+      name: "Gold", color: "#F05A5A", regime: "gold", kicker: "Gold regime",
+      title: "Real yield headwind",
+      desc: "Evaluated against live DXY, 10Y TIPS real yields, and VIX haven demand.",
+      verdict: ["BEARISH", "bear"], tick: ["GOLD", "$3,886.30", "0.00%", null],
+      note: "Gold sensitivity tracks DXY and 10Y TIPS real yields.",
+      radar: [61, 79, 58, 86, 79], last: [58, 77, 60, 84, 77],
+      forces: [
+        ["Growth", "+0.50", "+1.20", "pos", "EXPANSIVE"], ["Inflation", "+0.66", "+0.48", "warn", "RISING"],
+        ["Liquidity", MINUS + "0.12", MINUS + "0.20", "neu", "TIGHT"], ["Policy", "+0.58", "+0.25", "neu", "RESTRICTIVE"],
+        ["Stress", "+0.09", "+0.04", "warn", "ELEVATED"],
+      ],
+      conf: [
+        ["DXY", "US Dollar Index", "103.41", 1.16, "Lower", "Derived from live DXY feed.", "DIVERGES"],
+        ["10Y TIPS", "Real yield", "1.84%", null, "Lower", "Derived from FRED DFII10 sync.", "CONFIRMS"],
+        ["VIX", "CBOE Volatility Index", "18.70", 6.92, "Higher", "Derived from live CBOE VIX feed.", "CONFIRMS"],
+        ["SPX", "S&P 500 Index", "7,561.67", 2.51, "Lower", "Derived from live market quote.", "CONFIRMS"],
+        ["HY OAS", "US High Yield Spreads", "320 bps", null, "Tighter", "Derived from ICE BofA HY OAS sync.", "CONFIRMS"],
+        ["XAUUSD", "Gold Spot / USD", "$3,886.30", 0, "Higher", "Derived from live XAUUSD feed.", "CONFIRMS"],
+      ],
+      catalyst: { name: "Real Yield Watch", desc: "10Y TIPS real yield direction against the gold price.", foot: "10Y TIPS 1.84%" },
+    },
+    dollar: {
+      name: "Dollar", color: "#3DDC84", regime: "dollar", kicker: "Dollar regime",
+      title: "Rate differential bid",
+      desc: "Tracks live US 10Y nominal and real yields alongside DXY spot momentum.",
+      verdict: ["BULLISH", "bull"], tick: ["DXY", "103.41", "+1.16%", true],
+      note: "Requires live DXY WebSocket feed and FRED rates sync.",
+      radar: [75, 75, 58, 95, 62], last: [72, 73, 60, 92, 60],
+      forces: [
+        ["Growth", "+1.18", "+1.20", "pos", "EXPANSIVE"], ["Inflation", "+0.52", "+0.37", "warn", "RISING"],
+        ["Liquidity", "+0.06", MINUS + "0.02", "neu", "NEUTRAL"], ["Policy", "+0.44", "+0.20", "neu", "RESTRICTIVE"],
+        ["Stress", "+0.12", "+0.06", "warn", "ELEVATED"],
+      ],
+      conf: [
+        ["DXY", "US Dollar Index", "103.41", 1.16, "Firm", "Derived from live DXY feed.", "CONFIRMS"],
+        ["US 10Y", "US Treasury 10-year", "4.12%", null, "Higher", "Derived from FRED DGS10 sync.", "CONFIRMS"],
+        ["10Y TIPS", "Real yield", "1.84%", null, "Higher", "Derived from FRED DFII10 sync.", "CONFIRMS"],
+        ["Rate gap", "FRED rate differential", "+2.28 pp", null, "Widening", "Derived from FRED policy-rate sync.", "CONFIRMS"],
+        ["VIX", "CBOE Volatility Index", "18.70", 6.92, "Lower", "Derived from live CBOE VIX feed.", "DIVERGES"],
+        ["XAUUSD", "Gold Spot / USD", "$3,886.30", 0, "Lower", "Derived from live XAUUSD feed.", "CONFIRMS"],
+      ],
+      catalyst: { name: "Rate Differential Watch", desc: "US against peer policy-rate gap.", foot: "DXY 103.41" },
+    },
+    oil: {
+      name: "Oil", color: "#FFFFFF", regime: "cross-asset commodity backdrop", kicker: "Crude oil regime",
+      title: "Cross-asset commodity backdrop",
+      desc: "Monitors USD, breakeven inflation, and credit spreads around energy demand.",
+      verdict: ["NEUTRAL", "neutral"], tick: ["WTI", "—", "—", null],
+      note: "Direct WTI futures spot feed requires market WS configuration.",
+      radar: [75, 79, 48, 81, 73], last: [68, 78, 45, 81, 73],
+      forces: [
+        ["Growth", "+1.14", "+1.20", "pos", "EXPANSIVE"], ["Inflation", "+1.32", "+0.04", "warn", "ELEVATED"],
+        ["Liquidity", "+1.05", "+0.05", "pos", "SUPPORTIVE"], ["Policy", "+1.41", "+0.08", "neu", "RESTRICTIVE"],
+        ["Stress", MINUS + "0.09", "+0.06", "neu", "MODERATE"],
+      ],
+      conf: [
+        ["DXY", "US Dollar Index", "103.41", 1.16, "Firm", "Derived from live DXY feed.", "CONFIRMS"],
+        ["10Y BE", "10Y Breakeven Inflation", "2.24%", null, "Flat / lower", "Derived from FRED T10YIE breakeven sync.", "CONFIRMS"],
+        ["SPX", "S&P 500 Index", "7,561.67", 2.51, "Higher", "Derived from live market quote.", "CONFIRMS"],
+        ["HY OAS", "US High Yield Spreads", "320 bps", null, "Tighter", "Derived from ICE BofA HY OAS sync.", "CONFIRMS"],
+        ["XAUUSD", "Gold Spot / USD", "$3,886.30", 0, "Directional confirmation", "Derived from live XAUUSD feed.", "DIVERGES"],
+        ["VIX", "CBOE Volatility Index", "18.70", 6.92, "Lower", "Derived from live CBOE VIX feed.", "CONFIRMS"],
+      ],
+      catalyst: { name: "Inflation Breakeven Watch", desc: "10Y Breakeven Inflation directional shift.", foot: "10Y BE 2.24%" },
+    },
+  };
+
+  const EVENTS = [
+    ["US", "Fed H.4.1 Reserve Balances & Balance Sheet", "2026-11-27 · 21:30 UTC", "MEDIUM"],
+    ["US", "Fed H.15 Selected Interest Rates", "2026-11-27 · 21:15 UTC", "LOW"],
+    ["US", "Initial Jobless Claims (DOL)", "2026-11-27 · 13:30 UTC", "MEDIUM"],
+    ["US", "Fed H.15 Selected Interest Rates", "2026-11-25 · 21:15 UTC", "LOW"],
+    ["US", "US Gross Domestic Product (BEA)", "2026-11-25 · 13:30 UTC", "HIGH"],
+  ];
+
+  const st = { lens: "general", history: [], sort: -1 };
+  const L = () => LENSES[st.lens];
+  const $ = (id) => document.getElementById(id);
+
+  const isNeg = (s) => typeof s === "string" && (s.startsWith(MINUS) || s.startsWith("-"));
+  const cls = (v) => (typeof v === "number" ? (v > 0 ? "up" : v < 0 ? "dn" : "") : isNeg(v) ? "dn" : "up");
+  const fmtPct = (n) => (n > 0 ? "+" : n < 0 ? MINUS : "") + Math.abs(n).toFixed(2) + "%";
+  const ord = (n) => n + (n % 10 === 1 && n % 100 !== 11 ? "st" : n % 10 === 2 && n % 100 !== 12 ? "nd" : n % 10 === 3 && n % 100 !== 13 ? "rd" : "th");
+
+  function pts(arr, o, k) {
+    return AXES.map((_, i) => {
+      const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+      const r = (o.R * k * arr[i]) / 100;
+      return (o.C + r * Math.cos(a)).toFixed(1) + "," + (o.C + r * Math.sin(a)).toFixed(1);
+    }).join(" ");
+  }
+
+  function radarSVG(o) {
+    const l = L(), c = l.color;
+    let s = "";
+    [25, 50, 75, 100].forEach((ring) => {
+      s += `<polygon points="${pts(Array(5).fill(ring), o, 1)}" fill="none" stroke="#2E2E2E" stroke-width="1"/>`;
+    });
+    AXES.forEach((_, i) => {
+      const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+      s += `<line x1="${o.C}" y1="${o.C}" x2="${(o.C + o.R * Math.cos(a)).toFixed(1)}" y2="${(o.C + o.R * Math.sin(a)).toFixed(1)}" stroke="#2E2E2E"/>`;
+    });
+    s += `<polygon points="${pts(l.last, o, 1)}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="6 5" opacity=".7"/>`;
+    s += `<polygon class="today" points="${pts(l.radar, o, 1)}" fill="${c}" fill-opacity=".2" stroke="${c}" stroke-width="3" stroke-linejoin="round"/>`;
+    AXES.forEach((n, i) => {
+      const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+      const lx = o.C + (o.R + o.off) * Math.cos(a), ly = o.C + (o.R + o.off) * Math.sin(a);
+      s += `<text x="${lx.toFixed(1)}" y="${(ly - 2).toFixed(1)}" text-anchor="middle" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="${o.fs}" font-weight="600">${n}</text>`;
+      s += `<text x="${lx.toFixed(1)}" y="${(ly + o.fv).toFixed(1)}" text-anchor="middle" fill="${c}" font-family="IBM Plex Mono, monospace" font-size="${o.fv}" font-weight="600">${l.radar[i]}</text>`;
+    });
+    return `<svg viewBox="0 0 ${o.S} ${o.S}" role="img" aria-label="${l.name} five-force radar">${s}</svg>`;
+  }
+
+  function animateRadar() {
+    const el = document.querySelector("#bigRadar polygon.today");
+    if (!el) return;
+    const t0 = performance.now(), dur = 650;
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / dur);
+      el.setAttribute("points", pts(L().radar, HERO, 1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  function renderHero() {
+    const l = L();
+    document.body.dataset.lens = st.lens;
+    $("lens").innerHTML = Object.entries(LENSES).map(([k, v]) =>
+      `<button type="button" data-l="${k}" aria-pressed="${k === st.lens}">${v.name}</button>`).join("");
+    $("kicker").textContent = l.kicker;
+    $("title").textContent = l.title;
+    $("desc").textContent = l.desc;
+    const v = $("verdict");
+    v.textContent = l.verdict[0];
+    v.className = "pill " + l.verdict[1];
+    const [sym, px, chg, up] = l.tick;
+    $("tick").innerHTML = `${sym} <b>${px}</b> ${up === null ? `<span>${chg}</span>` : `<span class="${up ? "up" : "dn"}">${chg}</span>`}`;
+    const n = l.conf.filter((c) => c[6] === "CONFIRMS").length;
+    $("confirm").innerHTML = `${n} of 6 markets confirm <b>${n >= 5 ? "CONFIRMED" : n >= 3 ? "PARTIAL" : "NOT CONFIRMED"}</b>`;
+    $("note").textContent = l.note;
+    const gDelta = l.radar[0] - l.last[0];
+    $("score").innerHTML = `<span>GROWTH <b>${l.forces[0][1]}</b> (${l.radar[0]}/100)</span><span class="${gDelta >= 0 ? "up" : "dn"}">1W ${gDelta >= 0 ? "+" : MINUS}${Math.abs(gDelta)}</span><span class="st">${l.forces[0][4]}</span>`;
+    $("bigRadar").innerHTML = radarSVG(HERO);
+    $("details").innerHTML = ["Growth", "Inflation", "Liquidity", "Policy", "Stress"].map((d, i) => {
+      const wk = l.forces[i][2];
+      return `<div class="det"><span><span class="dm"></span>${d}</span><span class="tag ${isNeg(wk) ? "dn" : "up"}">${isNeg(wk) ? "DOWN" : "UP"}</span></div>`;
+    }).join("");
+    $("lensMeta").textContent = `Lens: ${l.name} · 5 Forces`;
+    $("radarTag").textContent = l.name.toUpperCase();
+    $("sideRadar").innerHTML = radarSVG(SIDE);
+    $("sideVals").innerHTML = ["GRO", "INF", "STR", "POL", "LIQ"].map((s, i) => {
+      const d = l.radar[i] - l.last[i];
+      return `<li>${s}<b>${i === 0 ? "" : l.radar[i]}</b><span class="${d > 0 ? "up" : d < 0 ? "dn" : ""}">${d > 0 ? "+" : d < 0 ? MINUS : ""}${Math.abs(d)}</span></li>`;
+    }).join("");
+  }
+
+  function renderForces() {
+    const l = L();
+    $("forces").innerHTML = l.forces.map(([name, today, week, tone, state], i) => {
+      const pct = l.radar[i];
+      return `<tr>
+        <td><div class="fname">${name}</div><div class="fsub"><i class="dot ${tone}"></i>${FORCE_SUB[name]}</div></td>
+        <td><span class="num ${cls(today)}">${today}</span></td>
+        <td><span class="num ${cls(week)}">${week}</span></td>
+        <td><div class="rng"><div class="track"></div><div class="mk" style="left:${pct}%"></div><span class="pc" style="left:${pct}%">${ord(pct)} pct</span><span class="lo">LOW</span><span class="hi">HIGH</span></div></td>
+        <td><span class="state ${OK_STATES.includes(state) ? "ok" : ""}">${state}</span></td>
+        <td><span class="chev" aria-hidden="true">⌄</span></td>
+      </tr>`;
+    }).join("");
+  }
+
+  function renderConfirm() {
+    const l = L();
+    const n = l.conf.filter((c) => c[6] === "CONFIRMS").length;
+    $("confTitle").textContent = `Cross-Market Confirmation (${l.name})`;
+    $("confSub").textContent = `${n} of 6 markets confirm the active ${l.regime} regime.`;
+    $("confBadge").textContent = n >= 5 ? "CONFIRMED" : n >= 3 ? "PARTIAL" : "NOT CONFIRMED";
+    $("confBadge").className = "state " + (n >= 5 ? "ok" : "");
+    $("cgrid").innerHTML = l.conf.map(([sym, name, value, chg, expected, source, v]) => `
+      <article class="ccard">
+        <div class="ctop"><div><div class="csym">${sym}</div><div class="cname">${name}</div></div>
+          <span class="vtag ${v === "DIVERGES" ? "div" : ""}">${v}</span></div>
+        <div class="cval"><strong>${value}</strong><span class="${chg === null ? "" : chg > 0 ? "up" : chg < 0 ? "dn" : ""}">1W: ${chg === null ? "—" : fmtPct(chg)}</span></div>
+        <div class="cexp">Expected: ${expected}</div>
+        <div class="csrc">${source}</div>
+      </article>`).join("");
+  }
+
+  function renderTrigger() {
+    const l = L();
+    $("trTitle").textContent = `Regime Triggers & Invalidation (${l.name})`;
+    $("trSub").textContent = "Macro levels and scheduled releases that flip or accelerate the current regime posture.";
+    $("cat").innerHTML = `
+      <header><h4>${l.catalyst.name}</h4><span class="badge">CATALYST</span></header>
+      <p>${l.catalyst.desc}</p>
+      <footer><span>${l.catalyst.foot}</span><span>—</span></footer>`;
+    $("events").innerHTML = EVENTS.map(([c, name, when, imp]) => `
+      <div class="ev"><span class="cc">${c}</span><span class="en">${name}</span><span class="et">${when}</span><span class="ec">Cons: —</span><span class="imp ${imp === "HIGH" ? "high" : ""}">${imp}</span></div>`).join("");
+  }
+
+  function renderHistory() {
+    const rows = st.history.slice().sort((a, b) => st.sort * a.date.localeCompare(b.date));
+    $("hist").innerHTML = rows.length
+      ? rows.map((r, i) => `<tr data-i="${i}"><td>${r.date}</td><td>${r.assess}</td><td>${r.bias}</td><td>${r.note}</td></tr>`).join("")
+      : `<tr><td class="none" colspan="4">No records match the active filter.</td></tr>`;
+    $("hist").querySelectorAll("tr[data-i]").forEach((tr) => {
+      tr.addEventListener("click", () => { $("summary").value = rows[+tr.dataset.i].note; $("summary").focus(); });
+    });
+  }
+
+  function renderAll() {
+    renderHero();
+    renderForces();
+    renderConfirm();
+    renderTrigger();
+  }
+
+  $("lens").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-l]");
+    if (!b) return;
+    st.lens = b.dataset.l;
+    renderAll();
+  });
+  $("replay").addEventListener("click", animateRadar);
+  $("tabs").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-t]");
+    if (!b) return;
+    const tab = b.dataset.t;
+    $("tabs").querySelectorAll("[data-t]").forEach((x) => x.setAttribute("aria-selected", String(x.dataset.t === tab)));
+    ["regime", "confirm", "trigger", "checklist"].forEach((k) => { $("pane-" + k).hidden = k !== tab; });
+  });
+  $("save").addEventListener("click", () => {
+    const note = $("summary").value.trim();
+    if (!note) { $("summary").focus(); return; }
+    const l = L();
+    st.history.push({ date: "2026-11-15", assess: `${l.name} · ${l.verdict[0]}`, bias: "—", note });
+    $("summary").value = "";
+    renderHistory();
+  });
+  $("reset").addEventListener("click", () => { $("summary").value = ""; });
+  $("sortDate").addEventListener("click", () => { st.sort = -st.sort; renderHistory(); });
+
+  renderAll();
+  renderHistory();
+})();
+</script>
+
+</body></html>

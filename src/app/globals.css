@@ -1,0 +1,457 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-terminal-bg: #000000;
+  --color-terminal-bg-alt: #0A0A0A;
+  --color-terminal-sidebar: #0A0A0A;
+  --color-terminal-card: #0A0A0A;
+  --color-terminal-card-alt: #141414;
+  --color-terminal-elevated: #141414;
+
+  --color-terminal-text: #FFFFFF;
+  --color-terminal-text-secondary: #A3A3A3;
+  --color-terminal-text-muted: #6B6B6B;
+
+  --color-terminal-blue: #FFFFFF;
+  --color-terminal-cyan: #FFFFFF;
+  --color-terminal-green: #22C55E;
+  --color-terminal-red: #EF4444;
+  --color-terminal-yellow: #A3A3A3;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --bg-main: #000000;
+    --bg-secondary: #0A0A0A;
+    --bg-sidebar: #0A0A0A;
+    --card-primary: #0A0A0A;
+    --card-secondary: #0A0A0A;
+    --card-elevated: #141414;
+    --card-border: #1C1C1C;
+    --card-divider: #1C1C1C;
+  }
+
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+    border-color: var(--card-border);
+  }
+
+  html,
+  body {
+    background-color: var(--bg-main);
+    color: #FFFFFF;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 1.5px solid #FFFFFF;
+    outline-offset: 2px;
+  }
+
+  /* Subtle institutional terminal scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #060709;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.36);
+  }
+}
+
+@utility font-mono-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+@utility terminal-card {
+  background-color: #0A0A0A;
+}
+
+@utility precision-bar-track {
+  height: 6px;
+  background-color: #090C11;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.75);
+  border-radius: 9999px;
+  position: relative;
+}
+
+/* Dashboard accents use the shared terminal palette without adding color noise. */
+.dashboard-shell .dashboard-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-shell .dashboard-panel::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  content: "";
+  opacity: 0.9;
+}
+
+.dashboard-shell .dashboard-panel--green::before {
+  background: #22C55E;
+}
+
+.dashboard-shell .dashboard-panel--violet::before {
+  background: #FFFFFF;
+}
+
+.dashboard-shell .dashboard-panel--amber::before {
+  background: #FFFFFF;
+}
+
+.dashboard-shell .dashboard-panel--cyan::before,
+.dashboard-shell .dashboard-panel--news::before {
+  background: #FFFFFF;
+}
+
+.dashboard-shell .dashboard-panel {
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.dashboard-shell .dashboard-panel--green:hover {
+  border-color: #2E2E2E;
+}
+
+.dashboard-shell .dashboard-panel--violet:hover {
+  border-color: #2E2E2E;
+}
+
+.dashboard-shell .dashboard-panel--amber:hover {
+  border-color: #2E2E2E;
+}
+
+.dashboard-shell .dashboard-panel--cyan:hover,
+.dashboard-shell .dashboard-panel--news:hover {
+  border-color: #2E2E2E;
+}
+
+.dashboard-icon {
+  display: inline-flex;
+  height: 24px;
+  width: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  border-radius: 6px;
+}
+
+.dashboard-icon--green {
+  border-color: #22C55E;
+  background: #0A0A0A;
+  color: #22C55E;
+}
+
+.dashboard-icon--violet {
+  border-color: #1C1C1C;
+  background: #0A0A0A;
+  color: #FFFFFF;
+}
+
+.dashboard-icon--amber {
+  border-color: #1C1C1C;
+  background: #0A0A0A;
+  color: #FFFFFF;
+}
+
+.dashboard-icon--cyan {
+  border-color: #1C1C1C;
+  background: #0A0A0A;
+  color: #FFFFFF;
+}
+
+.dashboard-telemetry-card {
+  border-top: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-telemetry-card:nth-child(3n + 1) {
+  border-top-color: #FFFFFF;
+}
+
+.dashboard-telemetry-card:nth-child(3n + 2) {
+  border-top-color: #1C1C1C;
+}
+
+.dashboard-telemetry-card:nth-child(3n) {
+  border-top-color: #1C1C1C;
+}
+
+.dashboard-telemetry-card:hover {
+  background-color: #141414;
+}
+
+/* Dense dashboard metadata remains readable against the terminal surface. */
+.dashboard-readable .text-\[\#7D8694\] {
+  color: #9AA3B0 !important;
+}
+
+.dashboard-readable .text-\[\#636B78\] {
+  color: #7D8694 !important;
+}
+
+/* Inflation route follows the standalone terminal specification while
+   retaining its live data components and route-level interactions. */
+.inflation-terminal {
+  --inflation-bg: #000000;
+  --inflation-surface: #0A0A0A;
+  --inflation-hover: #141414;
+  --inflation-line: #1C1C1C;
+  --inflation-muted: #6B6B6B;
+  --inflation-secondary: #A3A3A3;
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .inflation-terminal,
+.light .inflation-terminal {
+  --inflation-bg: #F4F6F9;
+  --inflation-surface: #FFFFFF;
+  --inflation-hover: #EDF2F7;
+  --inflation-line: rgba(15, 23, 42, 0.09);
+  --inflation-muted: #64748B;
+  --inflation-secondary: #475569;
+  color: #0F172A;
+}
+
+.inflation-terminal .terminal-card {
+  background-image: none;
+  background-color: var(--inflation-surface);
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   MacroEdge Institutional Light Theme
+   Clean, high-precision typography and surfaces calibrated for daytime research.
+   ========================================================================== */
+
+[data-theme="light"],
+.light {
+  color-scheme: light;
+  --bg-main: #F4F6F9;
+  --bg-secondary: #EBF0F5;
+  --bg-sidebar: #EBF0F5;
+  --card-primary: #FFFFFF;
+  --card-secondary: #F8FAFC;
+  --card-elevated: #EDF2F7;
+  --card-border: rgba(15, 23, 42, 0.1);
+  --card-divider: rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] html,
+[data-theme="light"] body,
+.light body {
+  background-color: #F4F6F9 !important;
+  color: #0F172A !important;
+}
+
+/* Base Structural Backgrounds in Light Theme */
+[data-theme="light"] .bg-\[\#050608\],
+[data-theme="light"] .bg-\[\#060709\] {
+  background-color: #F4F6F9 !important;
+}
+
+[data-theme="light"] .bg-\[\#070809\],
+[data-theme="light"] .bg-\[\#07090D\],
+[data-theme="light"] .bg-\[\#080A0D\] {
+  background-color: #EBF0F5 !important;
+}
+
+[data-theme="light"] .bg-\[\#0A0A0A\],
+[data-theme="light"] .bg-\[\#0A0D12\],
+[data-theme="light"] .bg-\[\#0B0D10\],
+[data-theme="light"] .bg-\[\#06080B\],
+[data-theme="light"] .bg-\[\#06080B\]\/95,
+[data-theme="light"] aside,
+[data-theme="light"] header {
+  background-color: #FFFFFF !important;
+}
+
+[data-theme="light"] .bg-\[\#141414\],
+[data-theme="light"] .bg-\[\#12161B\],
+[data-theme="light"] .bg-\[\#181B20\],
+[data-theme="light"] .bg-\[\#161B22\],
+[data-theme="light"] .bg-\[\#1F242C\] {
+  background-color: #EDF2F7 !important;
+}
+
+/* Modals & Dialog Backdrops */
+[data-theme="light"] .bg-black\/75,
+[data-theme="light"] .bg-black\/80 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+}
+
+[data-theme="light"] kbd {
+  background-color: #E2E8F0 !important;
+  color: #475569 !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Card aesthetics in Light Mode */
+[data-theme="light"] .terminal-card {
+  background-image: none !important;
+  background-color: #FFFFFF !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* Borders & Dividers in Light Mode */
+[data-theme="light"] .border-\[\#1C1C1C\],
+[data-theme="light"] .border-\[\#2E2E2E\],
+[data-theme="light"] [class*="border-white/"],
+[data-theme="light"] [class*="border-white\["] {
+  border-color: rgba(15, 23, 42, 0.09) !important;
+}
+
+[data-theme="light"] .divide-\[\#1C1C1C\] > * + *,
+[data-theme="light"] [class*="divide-white/"] > * + * {
+  border-color: rgba(15, 23, 42, 0.07) !important;
+}
+
+/* Precision Reticle Track in Light Mode */
+[data-theme="light"] .precision-bar-track {
+  background-color: #E2E8F0 !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.1) !important;
+}
+
+/* Typography Overrides */
+[data-theme="light"] .text-\[\#F0F2F5\],
+[data-theme="light"] .text-\[\#FFFFFF\]:not(.keep-white) {
+  color: #0F172A !important;
+}
+
+[data-theme="light"] .text-\[\#A3A3A3\],
+[data-theme="light"] .text-\[\#9AA3B0\],
+[data-theme="light"] .text-\[\#9299A3\] {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .text-\[\#6B6B6B\],
+[data-theme="light"] .text-\[\#7D8694\],
+[data-theme="light"] .text-\[\#7A8390\],
+[data-theme="light"] .text-\[\#555D68\] {
+  color: #64748B !important;
+}
+
+/* Primary Action Buttons (Inverted: Dark on Light) */
+[data-theme="light"] .bg-\[\#FFFFFF\].text-\[\#050608\],
+[data-theme="light"] .bg-white.text-black {
+  background-color: #0F172A !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="light"] .bg-\[\#FFFFFF\].text-\[\#050608\]:hover,
+[data-theme="light"] .bg-white.text-black:hover {
+  background-color: #1E293B !important;
+}
+
+/* Active Nav & Tab Pills */
+[data-theme="light"] nav a[aria-current="page"],
+[data-theme="light"] button.bg-\[\#181B20\] {
+  background-color: #EDF2F7 !important;
+  color: #0F172A !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Input / Select / Dropdown Fields */
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-theme="light"] option {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+/* Monogram Logo in Light Mode (Deep Obsidian Ink) */
+[data-theme="light"] img[alt="MacroEdge Logo"] {
+  filter: invert(1) hue-rotate(180deg) brightness(0.25) contrast(1.2) drop-shadow(0 0 1px rgba(0, 0, 0, 0.3)) !important;
+}
+
+/* Institutional Status Tones (High-contrast on light background) */
+[data-theme="light"] .text-\[\#22C55E\],
+[data-theme="light"] .text-\[\#00C985\] {
+  color: #059669 !important;
+}
+
+[data-theme="light"] .text-\[\#EF4444\],
+[data-theme="light"] .text-\[\#F05454\],
+[data-theme="light"] .text-\[\#E5485D\] {
+  color: #DC2626 !important;
+}
+
+[data-theme="light"] .text-\[\#D9B45C\] {
+  color: #B45309 !important;
+}
+
+[data-theme="light"] .bg-\[\#22C55E\]\/12,
+[data-theme="light"] .bg-\[\#22C55E\]\/10,
+[data-theme="light"] .bg-\[\#00C985\]\/12,
+[data-theme="light"] .bg-\[\#00C985\]\/10,
+[data-theme="light"] .bg-\[\#00C985\]\/8 {
+  background-color: rgba(5, 150, 105, 0.12) !important;
+}
+
+[data-theme="light"] .bg-\[\#EF4444\]\/12,
+[data-theme="light"] .bg-\[\#EF4444\]\/10,
+[data-theme="light"] .bg-\[\#F05454\]\/12,
+[data-theme="light"] .bg-\[\#F05454\]\/10,
+[data-theme="light"] .bg-\[\#F05454\]\/8 {
+  background-color: rgba(220, 38, 38, 0.12) !important;
+}
+
+[data-theme="light"] .bg-\[\#D9B45C\]\/12,
+[data-theme="light"] .bg-\[\#D9B45C\]\/10 {
+  background-color: rgba(180, 83, 9, 0.12) !important;
+}
+
+/* Scrollbars in Light Mode */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #F1F5F9 !important;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18) !important;
+  border-radius: 3px;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.35) !important;
+}
+
+/* Focus outline in Light Mode */
+[data-theme="light"] a:focus-visible,
+[data-theme="light"] button:focus-visible,
+[data-theme="light"] input:focus-visible,
+[data-theme="light"] select:focus-visible,
+[data-theme="light"] textarea:focus-visible {
+  outline: 1.5px solid #0F172A !important;
+  outline-offset: 2px;
+}

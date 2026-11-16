@@ -1,0 +1,988 @@
+[
+  {
+    "uuid": "bacd9dff-4872-4644-ba33-6d8addc59986",
+    "title": "Tech and Retail Sectors Lead as Markets Eye Key Economic Data and Upcoming Earnings",
+    "description": "U.S. stock futures and premarket activity showed modest gains on Friday, November 13th, 2026, as investors navigated a landscape of stabilizing bond yields",
+    "snippet": "This update was written automatically with AI from market data and news wire reports, and published without review by a person.\n\nU.S. stock futures and premarke...",
+    "url": "https://www2.stockmarketwatch.com/stock-market-news/tech-and-retail-sectors-lead-as-markets-eye-key-economic-data-and-upcoming-earnings/74630/",
+    "imageUrl": "https://www2.stockmarketwatch.com/stock-market-news/wp-content/uploads/2025/07/smw-icon-1000x700-logo.png",
+    "language": "en",
+    "publishedAt": "2026-11-13T11:07:13.000000Z",
+    "source": "thestockmarketwatch.com",
+    "sentimentScore": 0.33945192307692307,
+    "entities": [
+      {
+        "symbol": "DIA",
+        "name": "SPDR Dow Jones Industrial Average ETF Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 65.2854,
+        "sentimentScore": 0.7717
+      },
+      {
+        "symbol": "IWM",
+        "name": "iShares Russell 2000 ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 43.36336,
+        "sentimentScore": 0.7893
+      },
+      {
+        "symbol": "XRT",
+        "name": "SPDR S&P Retail ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 45.757298,
+        "sentimentScore": 0.891
+      },
+      {
+        "symbol": "USO",
+        "name": "United States Oil Fund, LP",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 41.14744,
+        "sentimentScore": 0.743
+      },
+      {
+        "symbol": "SPY",
+        "name": "SPDR S&P 500 ETF Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 51.56569,
+        "sentimentScore": 0.7717
+      },
+      {
+        "symbol": "DISB34.SA",
+        "name": "The Walt Disney Company",
+        "type": "equity",
+        "industry": "Communication Services",
+        "matchScore": 28.515871,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "TGTB34.SA",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 12.165022,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "LOWC34.SA",
+        "name": "Lowe's Companies, Inc.",
+        "type": "equity",
+        "industry": "Consumer Cyclical",
+        "matchScore": 27.504875,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "SATS",
+        "name": "EchoStar Corporation",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 24.446537,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "MSFT.MI",
+        "name": "MICROSOFT CORP",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 13.755999,
+        "sentimentScore": -0.0516
+      },
+      {
+        "symbol": "DIS",
+        "name": "The Walt Disney Company",
+        "type": "equity",
+        "industry": "Communication Services",
+        "matchScore": 28.515982,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "TGT",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 8.593764,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "LOW",
+        "name": "Lowe's Companies, Inc.",
+        "type": "equity",
+        "industry": "Consumer Cyclical",
+        "matchScore": 27.504232,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "MFG",
+        "name": "Mizuho Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 26.833145,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "SMFG",
+        "name": "Sumitomo Mitsui Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 43.52556,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "GP",
+        "name": "GreenPower Motor Company Inc.",
+        "type": "equity",
+        "industry": "Consumer Cyclical",
+        "matchScore": 38.1005,
+        "sentimentScore": 0.2415
+      },
+      {
+        "symbol": "QQQ",
+        "name": "Invesco QQQ Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 38.01809,
+        "sentimentScore": 0.8261
+      },
+      {
+        "symbol": "MSFTD.BA",
+        "name": "MICROSOFT CORP",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 13.756431,
+        "sentimentScore": -0.0516
+      },
+      {
+        "symbol": "TGT.BA",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 12.165079,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "MSFTB.BA",
+        "name": "MICROSOFT CORP",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 13.756431,
+        "sentimentScore": -0.0516
+      },
+      {
+        "symbol": "MSFTC.BA",
+        "name": "MICROSOFT CORP",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 13.756431,
+        "sentimentScore": -0.0516
+      },
+      {
+        "symbol": "HDD.BA",
+        "name": "HOME DEPOT INC",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 23.107319,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "DIS.SN",
+        "name": "The Walt Disney Company",
+        "type": "equity",
+        "industry": "Communication Services",
+        "matchScore": 28.515757,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "DISCL.SN",
+        "name": "THE WALT DISNEY COMPANY",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 28.515757,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "TGT.SN",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 12.165079,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "IWM.SN",
+        "name": "iShares Russell 2000 ETF",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 43.362465,
+        "sentimentScore": 0.7893
+      },
+      {
+        "symbol": "MSFTCL.SN",
+        "name": "MICROSOFT CORP",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 13.756431,
+        "sentimentScore": -0.0516
+      },
+      {
+        "symbol": "TGTCL.SN",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 12.165082,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "HDCL.SN",
+        "name": "HOME DEPOT INC",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 23.107162,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "8316.T",
+        "name": "Sumitomo Mitsui Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 43.525314,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "8411.T",
+        "name": "Mizuho Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 26.83353,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "SMFNF",
+        "name": "Sumitomo Mitsui Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 43.523964,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "MZHOF",
+        "name": "Mizuho Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 26.8333,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "GPV.V",
+        "name": "GreenPower Motor Company Inc.",
+        "type": "equity",
+        "industry": "Consumer Cyclical",
+        "matchScore": 38.050285,
+        "sentimentScore": 0.2415
+      },
+      {
+        "symbol": "BITC-U.TO",
+        "name": "Bitcoin Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 19.050596,
+        "sentimentScore": 0.8555
+      },
+      {
+        "symbol": "WDP.DE",
+        "name": "The Walt Disney Company",
+        "type": "equity",
+        "industry": "Communication Services",
+        "matchScore": 28.515324,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "DYH.DE",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 8.593859,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "DIS.MX",
+        "name": "The Walt Disney Company",
+        "type": "equity",
+        "industry": "Communication Services",
+        "matchScore": 28.515715,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "QQQ.MX",
+        "name": "Invesco QQQ Trust, Series 1",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 47.985764,
+        "sentimentScore": 0.8261
+      },
+      {
+        "symbol": "USO.MX",
+        "name": "United States Oil Fund, LP",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 41.148407,
+        "sentimentScore": 0.743
+      },
+      {
+        "symbol": "DIA.MX",
+        "name": "SPDR Dow Jones Industrial Average ETF Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 65.28513,
+        "sentimentScore": 0.7717
+      },
+      {
+        "symbol": "LOW.MX",
+        "name": "Lowe's Companies, Inc.",
+        "type": "equity",
+        "industry": "Consumer Cyclical",
+        "matchScore": 27.499142,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "TGT.MX",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 8.594055,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "IWM.MX",
+        "name": "iShares Russell 2000 ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 43.362083,
+        "sentimentScore": 0.7893
+      },
+      {
+        "symbol": "0KZF.L",
+        "name": "SPDR Gold Trust",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 31.36562,
+        "sentimentScore": 0.7003
+      },
+      {
+        "symbol": "0JVQ.L",
+        "name": "Lowe's Companies, Inc.",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 27.497725,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "0LD8.L",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 12.165649,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "0YIK.L",
+        "name": "Invesco QQQ Trust, Series 1",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 47.985394,
+        "sentimentScore": 0.8261
+      },
+      {
+        "symbol": "0KZC.L",
+        "name": "SPDR S&P 500 ETF Trust",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 51.56566,
+        "sentimentScore": 0.7717
+      },
+      {
+        "symbol": "0LJ5.L",
+        "name": "United States Oil Fund, LP",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 41.148808,
+        "sentimentScore": 0.743
+      },
+      {
+        "symbol": "0LAF.L",
+        "name": "Sumitomo Mitsui Financial Group, Inc.",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 43.52315,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "DIA.AS",
+        "name": "SPDR Dow Jones Industrial Average ETF Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 65.28547,
+        "sentimentScore": 0.7717
+      }
+    ]
+  },
+  {
+    "uuid": "f5412453-fd3e-4886-a34a-0a0c0ee32205",
+    "title": "Markets Edge Higher Following Inflation Data; Applied Materials and Nu Holdings in Focus After Hours",
+    "description": "U.S. equity markets maintained a steady, upward trajectory on Thursday, November 12th, 2026, as investors processed the latest Producer Price Index (PPI)",
+    "snippet": "This update was written automatically with AI from market data and news wire reports, and published without review by a person.\n\nU.S. equity markets maintained ...",
+    "url": "https://www2.stockmarketwatch.com/stock-market-news/markets-edge-higher-following-inflation-data-applied-materials-and-nu-holdings-in-focus-after-hours/74603/",
+    "imageUrl": "https://www2.stockmarketwatch.com/stock-market-news/wp-content/uploads/2025/07/smw-icon-1000x700-logo.png",
+    "language": "en",
+    "publishedAt": "2026-11-12T22:07:16.000000Z",
+    "source": "thestockmarketwatch.com",
+    "sentimentScore": 0.3609843749999999,
+    "entities": [
+      {
+        "symbol": "IEF",
+        "name": "iShares 7-10 Year Treasury Bond ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 56.249367,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "QQQ",
+        "name": "Invesco QQQ Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 38.01515,
+        "sentimentScore": 0.802
+      },
+      {
+        "symbol": "DIA",
+        "name": "SPDR Dow Jones Industrial Average ETF Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 65.273605,
+        "sentimentScore": 0.802
+      },
+      {
+        "symbol": "IWM",
+        "name": "iShares Russell 2000 ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 43.35658,
+        "sentimentScore": 0.3818
+      },
+      {
+        "symbol": "URA",
+        "name": "Global X Uranium ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 36.549934,
+        "sentimentScore": 0.6705
+      },
+      {
+        "symbol": "SPY",
+        "name": "SPDR S&P 500 ETF Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 51.55741,
+        "sentimentScore": 0.9657
+      },
+      {
+        "symbol": "DIA.MX",
+        "name": "SPDR Dow Jones Industrial Average ETF Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 65.27298,
+        "sentimentScore": 0.802
+      },
+      {
+        "symbol": "MU.MX",
+        "name": "Micron Technology, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 24.654766,
+        "sentimentScore": 0.34
+      },
+      {
+        "symbol": "AMAT.MX",
+        "name": "Applied Materials, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 62.018517,
+        "sentimentScore": -0.064
+      },
+      {
+        "symbol": "IEF.MX",
+        "name": "iShares 7-10 Year Treasury Bond ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 56.248917,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "TLT.MX",
+        "name": "iShares 20+ Year Treasury Bond ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 52.419434,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "IWM.MX",
+        "name": "iShares Russell 2000 ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 43.35616,
+        "sentimentScore": 0.3818
+      },
+      {
+        "symbol": "AMAT",
+        "name": "Applied Materials, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 62.016495,
+        "sentimentScore": -0.064
+      },
+      {
+        "symbol": "SATS",
+        "name": "EchoStar Corporation",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 24.46407,
+        "sentimentScore": 0.5994
+      },
+      {
+        "symbol": "MU",
+        "name": "Micron Technology, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 24.654749,
+        "sentimentScore": 0.34
+      },
+      {
+        "symbol": "TPC",
+        "name": "Tutor Perini Corporation",
+        "type": "equity",
+        "industry": "Industrials",
+        "matchScore": 38.319305,
+        "sentimentScore": -0.25
+      },
+      {
+        "symbol": "MFG",
+        "name": "Mizuho Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 26.830502,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "SMFG",
+        "name": "Sumitomo Mitsui Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 43.5248,
+        "sentimentScore": 0.5994
+      },
+      {
+        "symbol": "0KZC.L",
+        "name": "SPDR S&P 500 ETF Trust",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 51.556732,
+        "sentimentScore": 0.9657
+      },
+      {
+        "symbol": "TLT",
+        "name": "iShares 20+ Year Treasury Bond ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 52.41909,
+        "sentimentScore": 0.2023
+      },
+      {
+        "symbol": "0LAF.L",
+        "name": "Sumitomo Mitsui Financial Group, Inc.",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 43.52424,
+        "sentimentScore": 0.5994
+      },
+      {
+        "symbol": "DIA.AS",
+        "name": "SPDR Dow Jones Industrial Average ETF Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 65.27237,
+        "sentimentScore": 0.802
+      },
+      {
+        "symbol": "4336.HK",
+        "name": "Applied Materials, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 62.01308,
+        "sentimentScore": -0.064
+      },
+      {
+        "symbol": "SMFNF",
+        "name": "Sumitomo Mitsui Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 43.523895,
+        "sentimentScore": 0.5994
+      },
+      {
+        "symbol": "MUTC34.SA",
+        "name": "Micron Technology, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 24.654377,
+        "sentimentScore": 0.34
+      },
+      {
+        "symbol": "A1MT34.SA",
+        "name": "Applied Materials, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 62.012283,
+        "sentimentScore": -0.064
+      },
+      {
+        "symbol": "MZHOF",
+        "name": "Mizuho Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 26.830196,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "IWM.SN",
+        "name": "iShares Russell 2000 ETF",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 43.35605,
+        "sentimentScore": 0.3818
+      },
+      {
+        "symbol": "8316.T",
+        "name": "Sumitomo Mitsui Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 43.523926,
+        "sentimentScore": 0.5994
+      },
+      {
+        "symbol": "8411.T",
+        "name": "Mizuho Financial Group, Inc.",
+        "type": "equity",
+        "industry": "Financial Services",
+        "matchScore": 26.830574,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "MTE.DE",
+        "name": "Micron Technology, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 24.654734,
+        "sentimentScore": 0.34
+      },
+      {
+        "symbol": "AP2.DE",
+        "name": "Applied Materials, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 62.00785,
+        "sentimentScore": -0.064
+      }
+    ]
+  },
+  {
+    "uuid": "2c5cb162-e585-41c8-b731-17b42238bcfb",
+    "title": "Energy Stocks Surge as Oil Prices Climb; Major Indexes Mixed in Afternoon Trading",
+    "description": "U.S. equity markets displayed a bifurcated performance during Thursday afternoon trading, as a significant rally in energy commodities and rising Treasury",
+    "snippet": "This update was written automatically with AI from market data and news wire reports, and published without review by a person.\n\nU.S. equity markets displayed a...",
+    "url": "https://www2.stockmarketwatch.com/stock-market-news/energy-stocks-surge-as-oil-prices-climb-major-indexes-mixed-in-afternoon-trading/74593/",
+    "imageUrl": "https://www2.stockmarketwatch.com/stock-market-news/wp-content/uploads/2025/07/smw-icon-1000x700-logo.png",
+    "language": "en",
+    "publishedAt": "2026-11-12T19:07:13.000000Z",
+    "source": "thestockmarketwatch.com",
+    "sentimentScore": 0.25661470588235297,
+    "entities": [
+      {
+        "symbol": "TGT",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 8.210866,
+        "sentimentScore": 0.0258
+      },
+      {
+        "symbol": "AMAT.MX",
+        "name": "Applied Materials, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 22.190695,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "TPC",
+        "name": "Tutor Perini Corporation",
+        "type": "equity",
+        "industry": "Industrials",
+        "matchScore": 36.47898,
+        "sentimentScore": -0.3818
+      },
+      {
+        "symbol": "TGT.MX",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 8.210866,
+        "sentimentScore": 0.0258
+      },
+      {
+        "symbol": "TLT.MX",
+        "name": "iShares 20+ Year Treasury Bond ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 49.840492,
+        "sentimentScore": 0.4767
+      },
+      {
+        "symbol": "IWM.MX",
+        "name": "iShares Russell 2000 ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 41.232452,
+        "sentimentScore": 0.2732
+      },
+      {
+        "symbol": "SLV.MX",
+        "name": "iShares Silver Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 30.939857,
+        "sentimentScore": 0.4215
+      },
+      {
+        "symbol": "TLT",
+        "name": "iShares 20+ Year Treasury Bond ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 55.1403,
+        "sentimentScore": 0.4767
+      },
+      {
+        "symbol": "0KZF.L",
+        "name": "SPDR Gold Trust",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 29.838924,
+        "sentimentScore": 0.4215
+      },
+      {
+        "symbol": "IWM",
+        "name": "iShares Russell 2000 ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 41.23232,
+        "sentimentScore": 0.2732
+      },
+      {
+        "symbol": "XOP",
+        "name": "SPDR S&P Oil & Gas Exploration & Production ETF",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 67.799706,
+        "sentimentScore": 0.5859
+      },
+      {
+        "symbol": "0LD8.L",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 11.602233,
+        "sentimentScore": 0.0258
+      },
+      {
+        "symbol": "SLV",
+        "name": "iShares Silver Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 30.939781,
+        "sentimentScore": 0.4215
+      },
+      {
+        "symbol": "0JKC.L",
+        "name": "iShares Silver Trust",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 30.939728,
+        "sentimentScore": 0.4215
+      },
+      {
+        "symbol": "AMD",
+        "name": "Advanced Micro Devices, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 19.377577,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "AMAT",
+        "name": "Applied Materials, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 27.490494,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "NVDA",
+        "name": "NVIDIA Corporation",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 10.930344,
+        "sentimentScore": 0.6326
+      },
+      {
+        "symbol": "4336.HK",
+        "name": "Applied Materials, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 22.19063,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "TGTB34.SA",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 11.602139,
+        "sentimentScore": 0.0258
+      },
+      {
+        "symbol": "A1MT34.SA",
+        "name": "Applied Materials, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 22.19065,
+        "sentimentScore": 0
+      },
+      {
+        "symbol": "BSLV39.SA",
+        "name": "Ishares Silver Trust",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 30.939995,
+        "sentimentScore": 0.4215
+      },
+      {
+        "symbol": "NVDA.MI",
+        "name": "NVIDIA CORP",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 14.496666,
+        "sentimentScore": 0.6326
+      },
+      {
+        "symbol": "NVDAD.BA",
+        "name": "NVIDIA CORP",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 14.495634,
+        "sentimentScore": 0.6326
+      },
+      {
+        "symbol": "TGT.BA",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 11.602259,
+        "sentimentScore": 0.0258
+      },
+      {
+        "symbol": "HDD.BA",
+        "name": "HOME DEPOT INC",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 21.994804,
+        "sentimentScore": 0.3818
+      },
+      {
+        "symbol": "NVDAC.BA",
+        "name": "NVIDIA CORP",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 14.495634,
+        "sentimentScore": 0.6326
+      },
+      {
+        "symbol": "SLV.SN",
+        "name": "iShares Silver Trust",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 30.94041,
+        "sentimentScore": 0.4215
+      },
+      {
+        "symbol": "TGT.SN",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 11.602251,
+        "sentimentScore": 0.0258
+      },
+      {
+        "symbol": "IWM.SN",
+        "name": "iShares Russell 2000 ETF",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 41.23318,
+        "sentimentScore": 0.2732
+      },
+      {
+        "symbol": "TGTCL.SN",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 11.602251,
+        "sentimentScore": 0.0258
+      },
+      {
+        "symbol": "HDCL.SN",
+        "name": "HOME DEPOT INC",
+        "type": "equity",
+        "industry": "N/A",
+        "matchScore": 21.994762,
+        "sentimentScore": 0.3818
+      },
+      {
+        "symbol": "BITC-U.TO",
+        "name": "Bitcoin Trust",
+        "type": "etf",
+        "industry": "N/A",
+        "matchScore": 18.142124,
+        "sentimentScore": 0.7184
+      },
+      {
+        "symbol": "DYH.DE",
+        "name": "Target Corporation",
+        "type": "equity",
+        "industry": "Consumer Defensive",
+        "matchScore": 8.211079,
+        "sentimentScore": 0.0258
+      },
+      {
+        "symbol": "AP2.DE",
+        "name": "Applied Materials, Inc.",
+        "type": "equity",
+        "industry": "Technology",
+        "matchScore": 22.190578,
+        "sentimentScore": 0
+      }
+    ]
+  }
+]

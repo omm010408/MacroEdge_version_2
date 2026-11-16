@@ -1,0 +1,42 @@
+services:
+  - type: worker
+    name: macroedge-sync-worker
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm install --no-save tsx
+    startCommand: npx tsx scripts/sync-worker.ts
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: FRED_API_KEY
+        sync: false
+      - key: BLS_API_KEY
+        sync: false
+      - key: BEA_API_KEY
+        sync: false
+      - key: ENABLE_PUBLIC_CFTC_LIVE
+        value: "true"
+      - key: ENABLE_PUBLIC_TREASURY_LIVE
+        value: "true"
+      - key: ENABLE_PUBLIC_MARKET_WS
+        value: "true"
+      - key: MARKET_WS_PROVIDER
+        sync: false
+      - key: TWELVE_DATA_API_KEY
+        sync: false
+      - key: FINNHUB_API_KEY
+        sync: false
+      - key: POLYGON_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: SYNC_ADMIN_TOKEN
+        sync: false

@@ -1,0 +1,81 @@
+[
+  {
+    "id": "maux_bacd9dff",
+    "uuid": "bacd9dff-4872-4644-ba33-6d8addc59986",
+    "title": "Tech and Retail Sectors Lead as Markets Eye Key Economic Data and Upcoming Earnings",
+    "summary": "U.S. stock futures and premarket activity showed modest gains on Friday, November 13th, 2026, as investors navigated a landscape of stabilizing bond yields",
+    "url": "https://www2.stockmarketwatch.com/stock-market-news/tech-and-retail-sectors-lead-as-markets-eye-key-economic-data-and-upcoming-earnings/74630/",
+    "source": "thestockmarketwatch.com",
+    "publishedAt": "2026-11-13T11:07:13.000000Z",
+    "targetAsset": "US30",
+    "relevanceScore": 40,
+    "transmissionChannel": "Credit Easing & Industrial Capex Expansion",
+    "goldImpact": null,
+    "us30Impact": "BULLISH",
+    "aiRationale": "Accommodative policy or resilient corporate earnings support Dow industrials and large-cap financials.",
+    "keyDrivers": [],
+    "sentimentScore": 0.33945192307692307,
+    "entities": [
+      "DIA",
+      "IWM",
+      "XRT",
+      "USO",
+      "SPY",
+      "DISB34.SA"
+    ]
+  },
+  {
+    "id": "maux_f5412453",
+    "uuid": "f5412453-fd3e-4886-a34a-0a0c0ee32205",
+    "title": "Markets Edge Higher Following Inflation Data; Applied Materials and Nu Holdings in Focus After Hours",
+    "summary": "U.S. equity markets maintained a steady, upward trajectory on Thursday, November 12th, 2026, as investors processed the latest Producer Price Index (PPI)",
+    "url": "https://www2.stockmarketwatch.com/stock-market-news/markets-edge-higher-following-inflation-data-applied-materials-and-nu-holdings-in-focus-after-hours/74603/",
+    "source": "thestockmarketwatch.com",
+    "publishedAt": "2026-11-12T22:07:16.000000Z",
+    "targetAsset": "BOTH",
+    "relevanceScore": 94,
+    "transmissionChannel": "Safe-Haven & Inflation Hedge Bid",
+    "goldImpact": "BULLISH",
+    "us30Impact": "BULLISH",
+    "aiRationale": "Macro geopolitical/credit stress or stubborn inflation prints enhance bullion's monetary premium as an unhedged portfolio anchor.",
+    "keyDrivers": [
+      "inflation",
+      "producer price index",
+      "ppi"
+    ],
+    "sentimentScore": 0.3609843749999999,
+    "entities": [
+      "IEF",
+      "QQQ",
+      "DIA",
+      "IWM",
+      "URA",
+      "SPY"
+    ]
+  },
+  {
+    "id": "maux_2c5cb162",
+    "uuid": "2c5cb162-e585-41c8-b731-17b42238bcfb",
+    "title": "Energy Stocks Surge as Oil Prices Climb; Major Indexes Mixed in Afternoon Trading",
+    "summary": "U.S. equity markets displayed a bifurcated performance during Thursday afternoon trading, as a significant rally in energy commodities and rising Treasury",
+    "url": "https://www2.stockmarketwatch.com/stock-market-news/energy-stocks-surge-as-oil-prices-climb-major-indexes-mixed-in-afternoon-trading/74593/",
+    "source": "thestockmarketwatch.com",
+    "publishedAt": "2026-11-12T19:07:13.000000Z",
+    "targetAsset": "BOTH",
+    "relevanceScore": 40,
+    "transmissionChannel": "Precious Metals Inflow Sentiment",
+    "goldImpact": "BULLISH",
+    "us30Impact": "BULLISH",
+    "aiRationale": "Positive commodity sentiment and ETF accumulation support spot gold support levels.",
+    "keyDrivers": [],
+    "sentimentScore": 0.25661470588235297,
+    "entities": [
+      "TGT",
+      "AMAT.MX",
+      "TPC",
+      "TGT.MX",
+      "TLT.MX",
+      "IWM.MX"
+    ]
+  }
+]

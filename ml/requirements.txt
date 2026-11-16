@@ -1,0 +1,13 @@
+numpy>=2.0.0
+pandas>=2.2.0
+scipy>=1.14.0
+scikit-learn>=1.5.0
+xgboost>=2.1.0
+joblib>=1.4.0
+requests>=2.32.0
+yfinance>=0.2.50
+beautifulsoup4>=4.12.0
+feedparser>=6.0.11
+python-dotenv>=1.0.1
+transformers>=4.46.0
+torch>=2.5.0

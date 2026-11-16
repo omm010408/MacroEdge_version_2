@@ -1,0 +1,2088 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MacroEdge Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ==========================================================================
+   MacroEdge Overview — Minimal, Calm, Pure Black Terminal
+   Color Palette: Pure #000000, Panels #0A0A0A, Borders #1C1C1C, Hover #141414
+   Accent: #FFFFFF, Positive: #22C55E, Negative: #EF4444
+   ========================================================================== */
+:root {
+  color-scheme: dark;
+  --bg: #000000;
+  --panel: #0A0A0A;
+  --panel-hover: #141414;
+  --border: #1C1C1C;
+  --border-subtle: #1C1C1C;
+  --border-strong: #2E2E2E;
+  --fg: #FFFFFF;
+  --fg-2: #A3A3A3;
+  --fg-3: #6B6B6B;
+  --accent: #FFFFFF;
+  --pos: #22C55E;
+  --neg: #EF4444;
+  --ui: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --num: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r-panel: 14px;
+  --r-sm: 6px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 14px/1.5 var(--ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+button, a {
+  font: inherit;
+  color: inherit;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid #FFFFFF !important;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.num {
+  font-family: var(--num);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.up { color: var(--pos); }
+.down { color: var(--neg); }
+
+/* ==========================================================================
+   1. Top Navigation Bar
+   ========================================================================== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 56px;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font: 600 11px/1 var(--num);
+  letter-spacing: 0.04em;
+  color: var(--fg);
+}
+
+.topnav {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.topnav::-webkit-scrollbar { display: none; }
+
+.topnav a {
+  padding: 6px 12px;
+  border-radius: var(--r-sm);
+  color: var(--fg-2);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.12s ease;
+}
+
+.topnav a:hover {
+  color: var(--fg);
+}
+
+.topnav a[aria-current="page"] {
+  background: var(--panel-hover);
+  color: var(--fg);
+}
+
+.top-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  min-width: 160px;
+  padding: 0 8px 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+  color: var(--fg-3);
+  font-size: 13px;
+  transition: border-color 0.12s ease;
+}
+
+.search:hover {
+  border-color: var(--border-strong);
+  color: var(--fg-2);
+}
+
+.search kbd {
+  margin-left: auto;
+  padding: 1px 5px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  font: 500 11px/1.4 var(--num);
+  color: var(--fg-3);
+}
+
+.role {
+  font-size: 12px;
+  color: var(--fg-2);
+  white-space: nowrap;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--panel-hover);
+  border: 1px solid var(--border);
+  font: 600 11px var(--num);
+  color: var(--fg);
+}
+
+/* ==========================================================================
+   2. Layout & Sidebar
+   ========================================================================== */
+.layout {
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+}
+
+.side {
+  position: sticky;
+  top: 56px;
+  align-self: start;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  padding: 20px 12px 24px max(12px, env(safe-area-inset-left, 0px));
+  border-right: 1px solid var(--border);
+}
+
+.side nav a,
+.side summary {
+  display: block;
+  padding: 7px 10px;
+  border-radius: var(--r-sm);
+  color: var(--fg-2);
+  font-size: 13px;
+  font-weight: 500;
+  list-style: none;
+  transition: color 0.12s ease;
+}
+
+.side summary {
+  cursor: pointer;
+}
+.side summary::-webkit-details-marker { display: none; }
+.side summary::after {
+  content: "+";
+  float: right;
+  color: var(--fg-3);
+  font-family: var(--num);
+  font-size: 12px;
+}
+.side details[open] > summary::after {
+  content: "−";
+}
+
+.side nav a:hover,
+.side summary:hover {
+  color: var(--fg);
+}
+
+.side nav a[aria-current="page"] {
+  background: var(--panel-hover);
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.side details {
+  margin-top: 2px;
+}
+.side details a {
+  padding-left: 22px;
+  font-size: 12.5px;
+}
+
+/* ==========================================================================
+   3. Main Container & Page Header
+   ========================================================================== */
+.main {
+  min-width: 0;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 64px max(24px, env(safe-area-inset-left, 0px));
+}
+
+.main-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px 32px;
+  flex-wrap: wrap;
+  padding-top: 32px;
+}
+
+.page-head h1 {
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--fg);
+}
+
+.page-head p {
+  margin: 8px 0 0;
+  max-width: 62ch;
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--fg-3);
+}
+
+.pill-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--fg);
+  font-weight: 600;
+}
+.pill-live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #FFFFFF;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.timer {
+  min-width: 3ch;
+  margin-right: 4px;
+  text-align: right;
+  font: 500 12px/1 var(--num);
+  color: var(--fg-3);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+  white-space: nowrap;
+  transition: background-color 0.12s ease;
+}
+
+.btn:hover {
+  background: var(--panel-hover);
+}
+
+.btn-primary {
+  background: #FFFFFF;
+  border-color: #FFFFFF;
+  color: #000000;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: #E5E5E5;
+}
+
+.refresh {
+  height: 2px;
+  margin-top: 20px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.refresh i {
+  display: block;
+  height: 100%;
+  background: #FFFFFF;
+  transform-origin: left center;
+  animation: tick 60s linear infinite;
+}
+
+@keyframes tick {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ==========================================================================
+   4. AI Bias Band (One Row, No Box)
+   ========================================================================== */
+.bias {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 28px;
+  margin-top: 24px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.bias-k {
+  font-size: 13px;
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.bias-v {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.bias-score {
+  font: 500 15px var(--num);
+  color: var(--fg);
+}
+
+.bias-note {
+  font-size: 13px;
+  color: var(--fg-2);
+}
+
+.bias-conf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--fg-2);
+  white-space: nowrap;
+}
+
+.meter {
+  width: 120px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--panel-hover);
+  overflow: hidden;
+}
+
+.meter i {
+  display: block;
+  height: 100%;
+  width: var(--v, 58%);
+  background: #FFFFFF;
+}
+
+.bias-link {
+  font-weight: 500;
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   5. Telemetry Strip (8 Hairline Cells)
+   ========================================================================== */
+.tele {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 24px;
+  overflow: hidden;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--r-panel);
+}
+
+@media (min-width: 1440px) {
+  .tele { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px 16px 14px;
+  border: 0;
+  background: var(--panel);
+  text-align: left;
+  transition: background-color 0.12s ease;
+}
+
+.tile:hover {
+  background: var(--panel-hover);
+}
+
+.tile[aria-pressed="true"] {
+  background: var(--panel-hover);
+}
+
+.tile[aria-pressed="true"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #FFFFFF;
+}
+
+.tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tile-sym {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-2);
+}
+
+.tile-state {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--fg-3);
+}
+
+.tile-state::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fg-3);
+}
+
+.tile-state.live::before {
+  background: #FFFFFF;
+}
+
+.tile-val {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 500 21px/1 var(--num);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+
+.tile-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px 8px;
+  font-size: 12px;
+  color: var(--fg-3);
+}
+
+.tile-foot .num {
+  font-size: 12px;
+}
+
+/* ==========================================================================
+   6. Panels & Layout Grids
+   ========================================================================== */
+.grid-main {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.panel {
+  min-width: 0;
+  padding: 20px 22px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-panel);
+}
+
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 16px;
+}
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.panel-sub {
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--fg-3);
+}
+
+.seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--panel-hover);
+  border: 1px solid var(--border);
+}
+
+.seg button {
+  padding: 5px 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-3);
+  white-space: nowrap;
+  transition: all 0.12s ease;
+}
+
+.seg button:hover {
+  color: var(--fg);
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--panel);
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+
+/* ==========================================================================
+   7. Chart Panel
+   ========================================================================== */
+.panel-chart {
+  display: flex;
+  flex-direction: column;
+}
+
+.quote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 14px;
+  margin-top: 18px;
+}
+
+.quote-val {
+  font: 500 40px/1 var(--num);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+
+.quote-chg {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font: 500 14px var(--num);
+}
+
+.quote-chg small {
+  font: 400 13px var(--ui);
+  color: var(--fg-3);
+}
+
+.chart {
+  position: relative;
+  min-height: 300px;
+  margin-top: 10px;
+  flex: 1 1 auto;
+}
+
+.chart svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.gl {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.ax {
+  fill: var(--fg-3);
+  font: 500 11px var(--num);
+}
+
+.ln {
+  fill: none;
+  stroke: #FFFFFF;
+  stroke-width: 1.75;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.xh {
+  stroke: var(--border-strong);
+  stroke-dasharray: 3 4;
+}
+
+.pt {
+  fill: #FFFFFF;
+  stroke: var(--panel);
+  stroke-width: 2;
+}
+
+.tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  white-space: nowrap;
+  font: 500 12px/1.45 var(--num);
+  z-index: 10;
+}
+
+.tip b {
+  display: block;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.tip span {
+  color: var(--fg-3);
+  font-size: 11px;
+}
+
+.foot-note {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 12px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--fg-3);
+}
+
+/* ==========================================================================
+   8. Five Forces Panel
+   ========================================================================== */
+.radar {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  margin: 6px auto 0;
+  overflow: visible;
+}
+
+.rg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.rx {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.rs {
+  fill: rgba(255, 255, 255, 0.08);
+  stroke: #FFFFFF;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.rd {
+  fill: #FFFFFF;
+}
+
+.rl {
+  fill: var(--fg-2);
+  font: 500 11px var(--ui);
+}
+
+.rv {
+  fill: var(--fg);
+  font: 600 12px var(--num);
+}
+
+.forces {
+  margin-top: 12px;
+  list-style: none;
+}
+
+.force {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "name z tag" "track track track";
+  align-items: center;
+  gap: 9px 14px;
+  padding: 13px 0;
+  border-top: 1px solid var(--border);
+}
+
+.force-name {
+  grid-area: name;
+  min-width: 0;
+}
+
+.force-name b {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.force-name small {
+  font-size: 12px;
+  color: var(--fg-3);
+}
+
+.force-z {
+  grid-area: z;
+  text-align: right;
+}
+
+.force-z b {
+  display: block;
+  font: 500 14px/1.3 var(--num);
+  color: var(--fg);
+}
+
+.force-z small {
+  font: 500 11px/1.3 var(--num);
+}
+
+.force .tag {
+  grid-area: tag;
+}
+
+.force-track {
+  grid-area: track;
+  position: relative;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--panel-hover);
+}
+
+.force-track::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  bottom: -4px;
+  width: 1px;
+  background: var(--border-strong);
+}
+
+.force-track i {
+  position: absolute;
+  top: 50%;
+  left: var(--p, 50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 2px var(--panel);
+  transform: translate(-50%, -50%);
+}
+
+/* ==========================================================================
+   Tags
+   ========================================================================== */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-self: end;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fg-2);
+  white-space: nowrap;
+}
+
+.tag.pos {
+  color: var(--pos);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.tag.neg {
+  color: var(--neg);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+/* ==========================================================================
+   9. Correlation Panel
+   ========================================================================== */
+.corr-val {
+  margin-top: 20px;
+  font: 500 44px/1 var(--num);
+  letter-spacing: -0.03em;
+  color: var(--fg);
+}
+
+.corr-scale {
+  position: relative;
+  height: 4px;
+  margin: 28px 4px 8px;
+  border-radius: 4px;
+  background: var(--panel-hover);
+}
+
+.corr-scale::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  bottom: -5px;
+  width: 1px;
+  background: var(--border-strong);
+}
+
+.corr-scale i {
+  position: absolute;
+  top: 50%;
+  left: calc((var(--r, 0.28) + 1) * 50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 2px var(--panel);
+  transform: translate(-50%, -50%);
+}
+
+.corr-ends {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 4px;
+  font: 500 11px var(--num);
+  color: var(--fg-3);
+}
+
+.corr-note {
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--fg-3);
+}
+
+/* ==========================================================================
+   10. Economic Calendar
+   ========================================================================== */
+.docket {
+  margin-top: 18px;
+  padding: 36px 20px;
+  border-radius: var(--r-panel);
+  background: var(--panel-hover);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.docket h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.docket p {
+  max-width: 46ch;
+  margin: 6px auto 0;
+  font-size: 13px;
+  color: var(--fg-3);
+}
+
+/* ==========================================================================
+   11. Desks
+   ========================================================================== */
+.section-title {
+  margin: 44px 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.desks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--r-panel);
+}
+
+.desk {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 18px 20px;
+  background: var(--panel);
+  transition: background-color 0.12s ease;
+}
+
+.desk:hover {
+  background: var(--panel-hover);
+}
+
+.desk-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.desk-top svg {
+  flex-shrink: 0;
+  color: var(--fg-3);
+}
+
+.desk-metric {
+  font-size: 15px;
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+
+.desk-note {
+  font-size: 13px;
+  color: var(--fg-3);
+  line-height: 1.4;
+}
+
+.desk .tag {
+  justify-self: start;
+  margin-top: auto;
+}
+
+/* ==========================================================================
+   12. News Intelligence
+   ========================================================================== */
+.news-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 24px;
+  margin-top: 48px;
+}
+
+.news-head h2 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+}
+
+.news-head p {
+  margin-top: 4px;
+  max-width: 62ch;
+  font-size: 13px;
+  color: var(--fg-3);
+}
+
+.news-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  font-size: 13px;
+  color: var(--fg-3);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  margin-top: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  font: 500 11.5px var(--num);
+  color: var(--fg-2);
+  transition: all 0.12s ease;
+}
+
+.chip:hover {
+  color: var(--fg);
+  border-color: var(--border-strong);
+}
+
+.chip[aria-pressed="true"] {
+  background: #FFFFFF;
+  border-color: #FFFFFF;
+  color: #000000;
+}
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.news {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px 22px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-panel);
+}
+
+.news-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.news-match {
+  font-size: 12px;
+  color: var(--fg-3);
+}
+
+.news-theme {
+  margin-top: -8px;
+  font-size: 12.5px;
+  color: var(--fg-3);
+}
+
+.news h3 {
+  font-size: 17px;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+
+.signals {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+  font-size: 12px;
+  color: var(--fg-3);
+}
+
+.sig {
+  font: 600 12px var(--num);
+}
+.sig.bull { color: var(--pos); }
+.sig.bear { color: var(--neg); }
+.sig.neu { color: var(--fg-2); }
+
+.more summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--fg-2);
+  list-style: none;
+}
+.more summary::-webkit-details-marker { display: none; }
+.more summary::before {
+  content: "+ ";
+  font-family: var(--num);
+  color: var(--fg-3);
+}
+.more[open] summary::before {
+  content: "− ";
+}
+.more[open] summary {
+  color: var(--fg);
+}
+
+.more-body {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 10px 14px;
+  font-size: 13px;
+}
+
+.kv dt {
+  color: var(--fg-3);
+}
+
+.kv dd {
+  color: var(--fg-2);
+  max-width: 66ch;
+}
+
+.news-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 12px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--fg-3);
+}
+
+.ghost {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  font-size: 12px;
+  color: var(--fg-2);
+  transition: all 0.12s ease;
+}
+
+.ghost:hover {
+  background: var(--panel-hover);
+  color: var(--fg);
+}
+
+.skel {
+  display: block;
+  height: 9px;
+  border-radius: 4px;
+  background: var(--panel-hover);
+}
+.skel + .skel {
+  margin-top: 8px;
+}
+
+.pending {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--fg-3);
+}
+
+.empty {
+  margin-top: 16px;
+  padding: 32px 16px;
+  border-radius: var(--r-panel);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  text-align: center;
+  font-size: 13px;
+  color: var(--fg-3);
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 1199px) {
+  .side { display: none; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .main { padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+  .grid-main { grid-template-columns: minmax(0, 1fr); }
+  .desks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 999px) {
+  .grid-2 { grid-template-columns: minmax(0, 1fr); }
+  .news-grid { grid-template-columns: minmax(0, 1fr); }
+  .role { display: none; }
+}
+
+@media (max-width: 699px) {
+  .tele { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bias { grid-template-columns: minmax(0, 1fr); }
+  .search { display: none; }
+  .topbar-inner { gap: 12px; }
+  .page-head h1 { font-size: 26px; }
+  .panel { padding: 18px; }
+  .news { padding: 18px; }
+  .chart { min-height: 240px; }
+  .quote-val { font-size: 32px; }
+  .desks { grid-template-columns: minmax(0, 1fr); }
+  .kv { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .kv dt { margin-top: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- 1. Top Navigation Bar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#" aria-label="MacroEdge home">
+        <span class="mark">ME</span>
+        <span>MacroEdge</span>
+      </a>
+      <nav class="topnav" aria-label="Sections">
+        <a href="#" aria-current="page">Terminal</a>
+        <a href="#">Command</a>
+        <a href="#">AI bias</a>
+        <a href="#">Data ops</a>
+        <a href="#">Incidents</a>
+      </nav>
+      <div class="top-tools">
+        <button class="search" type="button" aria-label="Search">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="7" cy="7" r="4.6" />
+            <path d="M10.5 10.5 14 14" stroke-linecap="round" />
+          </svg>
+          <span>Search</span>
+          <kbd>⌘K</kbd>
+        </button>
+        <span class="role">Tier I analyst</span>
+        <span class="avatar" aria-hidden="true">RO</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- 2. Sidebar (Desktop Only) -->
+    <aside class="side">
+      <nav aria-label="Statistics">
+        <a href="#" aria-current="page">Macro overview</a>
+        <details open>
+          <summary>Positioning</summary>
+          <a href="#">Commitments of traders</a>
+          <a href="#">Correlation matrix</a>
+        </details>
+        <a href="#">Liquidity</a>
+        <a href="#">Credit and risk</a>
+        <details open>
+          <summary>Economy</summary>
+          <a href="#">Economy and labor</a>
+          <a href="#">Inflation</a>
+          <a href="#">Fixed income and rates</a>
+          <a href="#">International</a>
+          <a href="#">G10 indicators</a>
+        </details>
+      </nav>
+    </aside>
+
+    <!-- Main Content Stream -->
+    <main class="main">
+      <div class="main-inner">
+
+        <!-- 3. Header -->
+        <header class="page-head">
+          <div>
+            <h1>Macroeconomic overview</h1>
+            <p>Cross-asset telemetry, regime scoring, the risk docket and rolling correlation, in one view.</p>
+            <div class="status">
+              <span class="pill-live">Live</span>
+              <span class="num">13 Nov 2026</span>
+              <span>Updated <span id="stamp">05:47 PM</span></span>
+            </div>
+          </div>
+          <div class="tools">
+            <span class="timer" id="timer" aria-hidden="true">60s</span>
+            <button class="btn" id="sync" type="button">Sync now</button>
+            <a class="btn btn-primary" href="#">Daily check</a>
+          </div>
+        </header>
+        <div class="refresh" aria-hidden="true"><i id="refreshBar"></i></div>
+
+        <!-- 4. AI Bias Band -->
+        <section class="bias" aria-label="AI bias">
+          <span class="bias-k">AI bias</span>
+          <span class="bias-v">XAUUSD neutral</span>
+          <p class="bias-note"><span class="bias-score num">−7</span>&ensp;State 3: low volatility, expansion, tight policy and yields</p>
+          <span class="bias-conf">
+            <span class="meter" aria-hidden="true"><i style="--v: 58%"></i></span>
+            58% confidence
+            <a class="bias-link" href="#">Details</a>
+          </span>
+        </section>
+
+        <!-- 5. Telemetry Strip -->
+        <section class="tele" id="tele" aria-label="Cross-asset benchmarks">
+          <button class="tile" type="button" data-key="DXY" aria-pressed="false">
+            <span class="tile-top"><span class="tile-sym">DXY</span><span class="tile-state live">Live</span></span>
+            <span class="tile-val">103.17</span>
+            <span class="tile-foot"><span>FX</span><span class="num up">+0.02%</span></span>
+          </button>
+          <button class="tile" type="button" data-key="US10Y" aria-pressed="true">
+            <span class="tile-top"><span class="tile-sym">US10Y</span><span class="tile-state">Daily</span></span>
+            <span class="tile-val">4.98%</span>
+            <span class="tile-foot"><span>Rates</span><span class="num up">+10 bps</span></span>
+          </button>
+          <button class="tile" type="button" data-key="US02Y" aria-pressed="false">
+            <span class="tile-top"><span class="tile-sym">US02Y</span><span class="tile-state">Daily</span></span>
+            <span class="tile-val">4.73%</span>
+            <span class="tile-foot"><span>Rates</span><span class="num up">+17 bps</span></span>
+          </button>
+          <button class="tile" type="button" data-key="US10YR" aria-pressed="false">
+            <span class="tile-top"><span class="tile-sym">US10YR</span><span class="tile-state">Daily</span></span>
+            <span class="tile-val">2.78%</span>
+            <span class="tile-foot"><span>Rates</span><span class="num up">+12 bps</span></span>
+          </button>
+          <button class="tile" type="button" data-key="VIX" aria-pressed="false">
+            <span class="tile-top"><span class="tile-sym">VIX</span><span class="tile-state">Daily</span></span>
+            <span class="tile-val">17.49</span>
+            <span class="tile-foot"><span>Volatility</span><span class="num down">−10.12%</span></span>
+          </button>
+          <button class="tile" type="button" data-key="XAUUSD" aria-pressed="false">
+            <span class="tile-top"><span class="tile-sym">XAUUSD</span><span class="tile-state live">Live</span></span>
+            <span class="tile-val">3,885.30</span>
+            <span class="tile-foot"><span>Commodities</span><span>Awaiting</span></span>
+          </button>
+          <button class="tile" type="button" data-key="SPX" aria-pressed="false">
+            <span class="tile-top"><span class="tile-sym">SPX</span><span class="tile-state live">Live</span></span>
+            <span class="tile-val">7,619.38</span>
+            <span class="tile-foot"><span>Equities</span><span class="num up">+1.31%</span></span>
+          </button>
+          <button class="tile" type="button" data-key="BTCUSD" aria-pressed="false">
+            <span class="tile-top"><span class="tile-sym">BTCUSD</span><span class="tile-state live">Live</span></span>
+            <span class="tile-val">68,726</span>
+            <span class="tile-foot"><span>Crypto</span><span class="num down">−3.70%</span></span>
+          </button>
+        </section>
+
+        <!-- 6 & 7. Main Grid: Hero Chart + Five Forces -->
+        <div class="grid-main">
+          <!-- 6. Chart Panel -->
+          <section class="panel panel-chart" aria-labelledby="chartTitle">
+            <div class="panel-head">
+              <div>
+                <h2 class="panel-title" id="chartTitle">US10Y yield</h2>
+                <p class="panel-sub" id="chartSub">Rates, daily</p>
+              </div>
+              <div class="seg" id="ranges" role="group" aria-label="Range">
+                <button type="button" data-r="1M" aria-pressed="false">1M</button>
+                <button type="button" data-r="3M" aria-pressed="false">3M</button>
+                <button type="button" data-r="6M" aria-pressed="false">6M</button>
+                <button type="button" data-r="1Y" aria-pressed="true">1Y</button>
+              </div>
+            </div>
+            <div class="quote">
+              <span class="quote-val" id="qVal">4.98%</span>
+              <span class="quote-chg"><span id="qPct" class="down">−4.96%</span><small id="qRange">over 1Y</small></span>
+            </div>
+            <div class="chart" id="chart"></div>
+            <div class="foot-note">
+              <span>Daily closes, selected benchmark</span>
+              <span>Sample path until the feed is connected</span>
+            </div>
+          </section>
+
+          <!-- 7. Five Forces Panel -->
+          <section class="panel" aria-labelledby="forcesTitle">
+            <div class="panel-head">
+              <div>
+                <h2 class="panel-title" id="forcesTitle">Five forces</h2>
+                <p class="panel-sub">Regime scores out of 100, with z-scores and weekly change</p>
+              </div>
+            </div>
+            <svg class="radar" id="radar" viewBox="0 0 320 250" role="img" aria-label="Five-force regime radar"></svg>
+            <ul class="forces">
+              <li class="force">
+                <div class="force-name"><b>Growth</b><small>67th percentile</small></div>
+                <div class="force-z"><b>+1.13σ</b><small class="up">+1.2 this week</small></div>
+                <span class="tag pos">Expansive</span>
+                <div class="force-track" style="--p: 67%" aria-hidden="true"><i></i></div>
+              </li>
+              <li class="force">
+                <div class="force-name"><b>Inflation</b><small>70th percentile</small></div>
+                <div class="force-z"><b>+0.67σ</b><small class="up">+0.04 this week</small></div>
+                <span class="tag">Elevated</span>
+                <div class="force-track" style="--p: 70%" aria-hidden="true"><i></i></div>
+              </li>
+              <li class="force">
+                <div class="force-name"><b>Stress</b><small>50th percentile</small></div>
+                <div class="force-z"><b>0.00σ</b><small class="down">−0.1 this week</small></div>
+                <span class="tag">Moderate</span>
+                <div class="force-track" style="--p: 50%" aria-hidden="true"><i></i></div>
+              </li>
+              <li class="force">
+                <div class="force-name"><b>Policy</b><small>87th percentile</small></div>
+                <div class="force-z"><b>+0.64σ</b><small class="up">+0.12 this week</small></div>
+                <span class="tag neg">Restrictive</span>
+                <div class="force-track" style="--p: 87%" aria-hidden="true"><i></i></div>
+              </li>
+              <li class="force">
+                <div class="force-name"><b>Liquidity</b><small>69th percentile</small></div>
+                <div class="force-z"><b>+0.95σ</b><small class="up">+0.05 this week</small></div>
+                <span class="tag pos">Supportive</span>
+                <div class="force-track" style="--p: 69%" aria-hidden="true"><i></i></div>
+              </li>
+            </ul>
+          </section>
+        </div>
+
+        <!-- 8 & 9. Second Grid: Correlation + Economic Calendar -->
+        <div class="grid-2">
+          <!-- 8. Correlation Panel -->
+          <section class="panel" aria-labelledby="corrTitle">
+            <div class="panel-head">
+              <div>
+                <h2 class="panel-title" id="corrTitle">Correlation</h2>
+                <p class="panel-sub">US10Y and SPX, 90-day rolling</p>
+              </div>
+            </div>
+            <p class="corr-val">0.28</p>
+            <div class="corr-scale" style="--r: 0.28" aria-hidden="true"><i></i></div>
+            <div class="corr-ends" aria-hidden="true"><span>−1</span><span>0</span><span>+1</span></div>
+            <p class="corr-note">The full 5 × 5 matrix loads from the correlation desk.</p>
+          </section>
+
+          <!-- 9. Economic Calendar -->
+          <section class="panel" aria-labelledby="docketTitle">
+            <div class="panel-head">
+              <div>
+                <h2 class="panel-title" id="docketTitle">Economic calendar</h2>
+                <p class="panel-sub">Tier 1 and tier 2 releases with consensus</p>
+              </div>
+              <div class="seg" id="docketTabs" role="group" aria-label="Release window">
+                <button type="button" data-d="today" aria-pressed="true">Today 0</button>
+                <button type="button" data-d="week" aria-pressed="false">This week 11</button>
+                <button type="button" data-d="next" aria-pressed="false">Next week 10</button>
+                <button type="button" data-d="all" aria-pressed="false">All 21</button>
+              </div>
+            </div>
+            <div class="docket" id="docket" role="status"></div>
+          </section>
+        </div>
+
+        <!-- 10. Desks -->
+        <h2 class="section-title" id="desksTitle">Desks</h2>
+        <nav class="desks" aria-labelledby="desksTitle">
+          <a class="desk" href="#">
+            <span class="desk-top">Positioning (COT)
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>
+            </span>
+            <span class="desk-metric num">Commercials +14.2k</span>
+            <span class="desk-note">Asset manager vs leveraged money net positioning percentiles.</span>
+            <span class="tag pos">Bullish</span>
+          </a>
+          <a class="desk" href="#">
+            <span class="desk-top">Central bank liquidity
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>
+            </span>
+            <span class="desk-metric num">TGA $782B, RRP $145B</span>
+            <span class="desk-note">Primary dealer balance sheet, TGA drain, and currency in circulation.</span>
+            <span class="tag pos">Expanding</span>
+          </a>
+          <a class="desk" href="#">
+            <span class="desk-top">Credit and risk
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>
+            </span>
+            <span class="desk-metric num">HY OAS 284 bp (−6 bp)</span>
+            <span class="desk-note">Cross-asset volatility strain, financial conditions, and default risk.</span>
+            <span class="tag">Tight</span>
+          </a>
+          <a class="desk" href="#">
+            <span class="desk-top">AI macro bias
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>
+            </span>
+            <span class="desk-metric num">Confidence 58.4%</span>
+            <span class="desk-note">Statistical probability drift and regime distribution forecast.</span>
+            <span class="tag pos">Upward</span>
+          </a>
+        </nav>
+
+        <!-- 11. News Intelligence -->
+        <section class="news-section" aria-labelledby="newsTitle">
+          <div class="news-head">
+            <div>
+              <h2 id="newsTitle">News intelligence</h2>
+              <p>Financial news parsed into structured signals for spot gold and Dow Jones. Unrelated items are filtered out.</p>
+            </div>
+            <div class="news-meta">
+              <span class="pill-live">Live feed</span>
+              <span>Strict causal NLP filter</span>
+              <span>Updated <span id="newsStamp">05:47 PM</span>, 4 records</span>
+              <button class="btn" id="syncNews" type="button">Sync news</button>
+            </div>
+          </div>
+
+          <div class="filters">
+            <div class="seg" id="assetTabs" role="group" aria-label="Asset">
+              <button type="button" data-a="all" aria-pressed="true">All 4</button>
+              <button type="button" data-a="XAU" aria-pressed="false">Gold (XAUUSD) 2</button>
+              <button type="button" data-a="US30" aria-pressed="false">Dow Jones (US30) 3</button>
+            </div>
+            <div class="chips" id="tickers" role="group" aria-label="Filter by ticker"></div>
+          </div>
+
+          <div class="news-grid" id="newsGrid">
+            <!-- News Card a -->
+            <article class="news" data-assets="US30" data-tickers="DIA SPY TLT IEF QQQ">
+              <div class="news-top">
+                <span class="tag">Dow Jones (US30)</span>
+                <span class="news-match num">92% AI match</span>
+              </div>
+              <p class="news-theme">Producer inflation and corporate discount rates</p>
+              <h3>Markets edge higher following inflation data; Dow Jones (DIA) and Treasuries in focus</h3>
+              <div class="signals">
+                <span>AI signal</span>
+                <span class="sig neu">XAUUSD neutral</span>
+                <span class="sig bull">US30 bullish</span>
+                <span>Sentiment +0.36</span>
+              </div>
+              <details class="more">
+                <summary>Catalyst and transmission</summary>
+                <div class="more-body">
+                  <dl class="kv">
+                    <dt>Catalyst</dt>
+                    <dd>U.S. equity markets held a steady trajectory as institutional investors digested the latest Producer Price Index print. The tech-heavy QQQ and the Dow Jones Industrial Average (DIA) reacted to shifts in long-duration Treasury yields.</dd>
+                    <dt>Transmission</dt>
+                    <dd>In-line producer inflation figures eased fears of renewed Federal Reserve tightening, reducing discount-rate drag on Dow blue-chip earnings.</dd>
+                    <dt>Drivers</dt>
+                    <dd>Producer price index, Dow Jones, Treasury yields</dd>
+                  </dl>
+                </div>
+              </details>
+              <div class="news-foot">
+                <span>The Stock Market Watch, 13 Nov, 03:37 AM</span>
+                <button class="ghost" type="button" data-copy>Copy</button>
+              </div>
+            </article>
+
+            <!-- News Card b -->
+            <article class="news" data-assets="XAU US30" data-tickers="GLD DXY DIA SPY US10Y">
+              <div class="news-top">
+                <span class="tag">Dual impact (XAU and US30)</span>
+                <span class="news-match num">96% AI match</span>
+              </div>
+              <p class="news-theme">US real yields and dollar pressure</p>
+              <h3>Treasury yields and the US dollar break out as yield curve tightens</h3>
+              <div class="signals">
+                <span>AI signal</span>
+                <span class="sig bear">XAUUSD bearish</span>
+                <span class="sig bear">US30 bearish</span>
+                <span>Sentiment −0.22</span>
+              </div>
+              <details class="more">
+                <summary>Catalyst and transmission</summary>
+                <div class="more-body">
+                  <dl class="kv">
+                    <dt>Catalyst</dt>
+                    <dd>Equity volatility rose as Treasury yields surged. The US 10-year touched 5.13%, the 2-year held near 4.90%, and the US Dollar Index broke out toward key resistance. Gold spot faced technical headwinds on dollar strength.</dd>
+                    <dt>Transmission</dt>
+                    <dd>10-year Treasury yields above 5.10%, combined with a firmer dollar, raise the cost of holding gold and the financing costs for cyclical Dow industrials.</dd>
+                    <dt>Drivers</dt>
+                    <dd>10-year yield, dollar index, gold price, Treasury yields</dd>
+                  </dl>
+                </div>
+              </details>
+              <div class="news-foot">
+                <span>Mott Capital Management, 13 Nov, 03:29 AM</span>
+                <button class="ghost" type="button" data-copy>Copy</button>
+              </div>
+            </article>
+
+            <!-- News Card c -->
+            <article class="news" data-assets="XAU" data-tickers="">
+              <div class="news-top">
+                <span class="tag">Gold (XAUUSD)</span>
+                <span class="news-match num">94% AI match</span>
+              </div>
+              <p class="news-theme">Central bank allocation and monetary premium</p>
+              <h3>Gold bullion supported by central bank reserves and geopolitical hedging demand</h3>
+              <div>
+                <span class="skel" style="width: 92%"></span>
+                <span class="skel" style="width: 74%"></span>
+                <p class="pending">Signal details load from the feed.</p>
+              </div>
+              <div class="news-foot">
+                <span>Source and time load from the feed</span>
+                <button class="ghost" type="button" data-copy>Copy</button>
+              </div>
+            </article>
+
+            <!-- News Card d -->
+            <article class="news" data-assets="US30" data-tickers="">
+              <div class="news-top">
+                <span class="tag">Dow Jones (US30)</span>
+                <span class="news-match num">95% AI match</span>
+              </div>
+              <p class="news-theme">Industrial capex and blue-chip order books</p>
+              <h3>Caterpillar and Boeing lead industrial order rebound amid resilient infrastructure spending</h3>
+              <div>
+                <span class="skel" style="width: 88%"></span>
+                <span class="skel" style="width: 66%"></span>
+                <p class="pending">Signal details load from the feed.</p>
+              </div>
+              <div class="news-foot">
+                <span>Source and time load from the feed</span>
+                <button class="ghost" type="button" data-copy>Copy</button>
+              </div>
+            </article>
+          </div>
+          <p class="empty" id="newsEmpty" hidden>No items match this filter.</p>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const END = new Date(2026, 10, 13);
+
+  // Benchmarks telemetry dictionary
+  const ASSETS = {
+    DXY:    { name: "DXY",          cls: "FX",          v: 103.17,  dec: 2, unit: "",  drift: 0.012 },
+    US10Y:  { name: "US10Y yield",  cls: "Rates",       v: 4.98,    dec: 2, unit: "%", drift: -0.0496 },
+    US02Y:  { name: "US02Y yield",  cls: "Rates",       v: 4.73,    dec: 2, unit: "%", drift: -0.0312 },
+    US10YR: { name: "US10YR",       cls: "Rates",       v: 2.78,    dec: 2, unit: "%", drift: 0.0215 },
+    VIX:    { name: "VIX",          cls: "Volatility",  v: 17.49,   dec: 2, unit: "",  drift: -0.12 },
+    XAUUSD: { name: "XAUUSD",       cls: "Commodities", v: 3885.30, dec: 2, unit: "",  drift: 0.18 },
+    SPX:    { name: "S&P 500",      cls: "Equities",    v: 7619.38, dec: 2, unit: "",  drift: 0.1034 },
+    BTCUSD: { name: "BTCUSD",       cls: "Crypto",      v: 68726,   dec: 0, unit: "",  drift: 0.0821 },
+  };
+
+  const RANGES = {
+    "1M": { n: 30, days: 30 },
+    "3M": { n: 46, days: 90 },
+    "6M": { n: 53, days: 182 },
+    "1Y": { n: 53, days: 364 },
+  };
+
+  let asset = "US10Y";
+  let range = "1Y";
+
+  const nf = (n, d) => n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const fmtVal = (a, v) => (a.unit === "%" ? v.toFixed(2) + "%" : nf(v, a.dec));
+  const hhmm = () => new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
+  const seedOf = (s) => {
+    let h = 2166136261;
+    for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+    return h >>> 0;
+  };
+  const rnd = (seed) => () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
+
+  function series(key, r) {
+    const a = ASSETS[key], R = RANGES[r], span = R.days / 364;
+    const start = a.v / (1 + a.drift * span);
+    const rand = rnd(seedOf(key + r));
+    const ph = [rand() * 6.28, rand() * 6.28, rand() * 6.28];
+    const amp = a.v * 0.0045 * Math.sqrt(span) + Math.abs(a.v - start) * 0.12;
+    const out = [];
+    for (let i = 0; i < R.n; i++) {
+      const t = i / (R.n - 1);
+      const wob = Math.sin(t * 7.1 + ph[0]) * 0.55 + Math.sin(t * 19.3 + ph[1]) * 0.3 + Math.sin(t * 43.7 + ph[2]) * 0.15;
+      out.push(start + (a.v - start) * t + wob * amp);
+    }
+    out[0] = start;
+    out[out.length - 1] = a.v;
+    return out;
+  }
+
+  function dates(r) {
+    const R = RANGES[r], out = [];
+    for (let i = 0; i < R.n; i++) {
+      const d = new Date(END);
+      d.setDate(END.getDate() - Math.round(R.days * (1 - i / (R.n - 1))));
+      out.push(d);
+    }
+    return out;
+  }
+
+  // Smooth curve through points (Catmull-Rom converted to cubic Bezier segments)
+  function curve(p) {
+    let d = `M${p[0][0].toFixed(1)},${p[0][1].toFixed(1)}`;
+    for (let i = 0; i < p.length - 1; i++) {
+      const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
+      const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+      const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += `C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+    }
+    return d;
+  }
+
+  const host = $("#chart");
+  let geo = null;
+
+  function drawChart() {
+    const W = host.clientWidth, H = host.clientHeight;
+    if (!W || !H) return;
+    const a = ASSETS[asset], vals = series(asset, range), ds = dates(range), n = vals.length;
+    const pr = 58, pt = 10, pb = 26;
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    const pad = (hi - lo) * 0.12 || 0.01;
+    lo -= pad;
+    hi += pad;
+    const x = (i) => (W - pr) * i / (n - 1);
+    const y = (v) => pt + (H - pt - pb) * (1 - (v - lo) / (hi - lo));
+    const pts = vals.map((v, i) => [x(i), y(v)]);
+
+    let grid = "";
+    for (let k = 0; k <= 4; k++) {
+      const v = lo + ((hi - lo) / 4) * k, yy = y(v).toFixed(1);
+      grid += `<line class="gl" x1="0" x2="${W - pr}" y1="${yy}" y2="${yy}"/>`;
+      grid += `<text class="ax" x="${W - pr + 10}" y="${(+yy + 4).toFixed(1)}">${fmtVal(a, v)}</text>`;
+    }
+
+    let xl = "";
+    [0, 0.25, 0.5, 0.75, 1].forEach((f, k) => {
+      const idx = Math.round(f * (n - 1)), d = ds[idx];
+      const anchor = k === 0 ? "start" : k === 4 ? "end" : "middle";
+      xl += `<text class="ax" x="${x(idx).toFixed(1)}" y="${H - 6}" text-anchor="${anchor}">${MON[d.getMonth()]} ${d.getDate()}</text>`;
+    });
+
+    const line = curve(pts);
+    const base = (H - pb).toFixed(1);
+    const area = `${line}L${x(n - 1).toFixed(1)},${base}L${x(0).toFixed(1)},${base}Z`;
+    const last = pts[n - 1];
+
+    host.innerHTML = `
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${a.name} over ${range}">
+        ${grid}${xl}
+        <path d="${area}" fill="rgba(255, 255, 255, 0.04)"/>
+        <path class="ln" d="${line}"/>
+        <line class="xh" id="xh" x1="0" x2="0" y1="${pt}" y2="${H - pb}" visibility="hidden"/>
+        <circle class="pt" id="hp" r="4" cx="0" cy="0" visibility="hidden"/>
+        <circle class="pt" cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="4.5"/>
+      </svg>
+      <div class="tip" id="tip" hidden></div>`;
+
+    geo = { W, plot: W - pr, n, pts, vals, ds, a };
+  }
+
+  function hover(cx) {
+    const xh = $("#xh"), hp = $("#hp"), tip = $("#tip");
+    if (!geo || !xh || cx === null) {
+      if (xh) xh.setAttribute("visibility", "hidden");
+      if (hp) hp.setAttribute("visibility", "hidden");
+      if (tip) tip.hidden = true;
+      return;
+    }
+    const box = host.getBoundingClientRect();
+    const px = Math.max(0, Math.min(geo.plot, cx - box.left));
+    const i = Math.round((px / geo.plot) * (geo.n - 1));
+    const [xs, ys] = geo.pts[i];
+    xh.setAttribute("x1", xs.toFixed(1));
+    xh.setAttribute("x2", xs.toFixed(1));
+    xh.setAttribute("visibility", "visible");
+    hp.setAttribute("cx", xs.toFixed(1));
+    hp.setAttribute("cy", ys.toFixed(1));
+    hp.setAttribute("visibility", "visible");
+    const d = geo.ds[i];
+    tip.hidden = false;
+    tip.innerHTML = `<b>${fmtVal(geo.a, geo.vals[i])}</b><span>${MON[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}</span>`;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    const left = Math.max(0, Math.min(geo.W - tw, xs - tw / 2));
+    const top = Math.max(0, ys - th - 12);
+    tip.style.transform = `translate(${left.toFixed(1)}px, ${top.toFixed(1)}px)`;
+  }
+
+  function renderHead() {
+    const a = ASSETS[asset], vals = series(asset, range);
+    const chg = (vals[vals.length - 1] - vals[0]) / vals[0];
+    $("#chartTitle").textContent = a.name;
+    $("#chartSub").textContent = `${a.cls}, daily`;
+    $("#qVal").textContent = fmtVal(a, a.v);
+    const pct = $("#qPct");
+    pct.textContent = (chg >= 0 ? "+" : "−") + Math.abs(chg * 100).toFixed(2) + "%";
+    pct.className = chg >= 0 ? "up" : "down";
+    $("#qRange").textContent = `over ${range}`;
+  }
+
+  function update() {
+    renderHead();
+    drawChart();
+  }
+
+  // Telemetry tiles select the benchmark for the chart
+  $("#tele").addEventListener("click", (e) => {
+    const b = e.target.closest(".tile");
+    if (!b) return;
+    asset = b.dataset.key;
+    $$(".tile").forEach((t) => t.setAttribute("aria-pressed", String(t === b)));
+    update();
+  });
+
+  // Range buttons
+  $("#ranges").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    range = b.dataset.r;
+    $$("#ranges button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    update();
+  });
+
+  // Chart hover
+  let raf = 0;
+  host.addEventListener("pointermove", (e) => {
+    const cx = e.clientX;
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => hover(cx));
+  });
+  host.addEventListener("pointerleave", () => hover(null));
+  new ResizeObserver(() => drawChart()).observe(host);
+
+  // Five-force radar (Growth at top, clockwise)
+  function drawRadar() {
+    const F = [["Growth", 70], ["Inflation", 70], ["Stress", 50], ["Policy", 87], ["Liquidity", 69]];
+    const cx = 160, cy = 124, R = 88;
+    const ang = (i) => ((-90 + i * 72) * Math.PI) / 180;
+    const P = (r, i) => [cx + Math.cos(ang(i)) * r, cy + Math.sin(ang(i)) * r];
+    const pt2 = ([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`;
+    let s = "";
+    [25, 50, 75, 100].forEach((k) => {
+      s += `<polygon class="rg" points="${F.map((_, i) => pt2(P((R * k) / 100, i))).join(" ")}"/>`;
+    });
+    F.forEach((_, i) => {
+      const [x, y] = P(R, i);
+      s += `<line class="rx" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+    });
+    s += `<polygon class="rs" points="${F.map(([, v], i) => pt2(P((R * v) / 100, i))).join(" ")}"/>`;
+    F.forEach(([name, v], i) => {
+      const [x, y] = P((R * v) / 100, i);
+      s += `<circle class="rd" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3"/>`;
+      const [lx, ly] = P(R + 18, i);
+      const c = Math.cos(ang(i)), sn = Math.sin(ang(i));
+      const anchor = c > 0.3 ? "start" : c < -0.3 ? "end" : "middle";
+      const dy = sn < -0.5 ? -4 : sn > 0.5 ? 12 : 4;
+      s += `<text class="rl" x="${lx.toFixed(1)}" y="${(ly + dy).toFixed(1)}" text-anchor="${anchor}">${name}</text>`;
+      s += `<text class="rv" x="${lx.toFixed(1)}" y="${(ly + dy + 14).toFixed(1)}" text-anchor="${anchor}">${v}</text>`;
+    });
+    $("#radar").innerHTML = s;
+  }
+
+  // Economic calendar tabs
+  const DOCKET = {
+    today: { title: "No releases today", note: "11 releases are scheduled this week and 21 across the full docket." },
+    week:  { title: "11 releases this week", note: "Release rows load from the calendar feed." },
+    next:  { title: "10 releases next week", note: "Release rows load from the calendar feed." },
+    all:   { title: "21 releases on the docket", note: "Release rows load from the calendar feed." },
+  };
+
+  function setDocket(k) {
+    const d = DOCKET[k];
+    $("#docket").innerHTML = `<h3>${d.title}</h3><p>${d.note}</p>`;
+    $$("#docketTabs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.d === k)));
+  }
+
+  $("#docketTabs").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (b) setDocket(b.dataset.d);
+  });
+
+  // News desk: asset tabs and ticker chips filter
+  const cards = $$("#newsGrid .news");
+  const TICKERS = ["DIA", "SPY", "TLT", "IEF", "QQQ", "GLD", "DXY", "US10Y", "XAUUSD", "IAU"];
+  let assetFilter = "all";
+  let tickerFilter = null;
+
+  $$("#assetTabs button").forEach((b) => {
+    const k = b.dataset.a;
+    const n = k === "all" ? cards.length : cards.filter((c) => c.dataset.assets.split(" ").includes(k)).length;
+    const label = k === "all" ? "All" : k === "XAU" ? "Gold (XAUUSD)" : "Dow Jones (US30)";
+    b.textContent = `${label} ${n}`;
+  });
+
+  $("#tickers").innerHTML = TICKERS.map((t) => `<button class="chip" type="button" aria-pressed="false" data-t="${t}">${t}</button>`).join("");
+
+  function applyNews() {
+    let shown = 0;
+    cards.forEach((c) => {
+      const okA = assetFilter === "all" || c.dataset.assets.split(" ").includes(assetFilter);
+      const okT = !tickerFilter || c.dataset.tickers.split(" ").includes(tickerFilter);
+      c.hidden = !(okA && okT);
+      if (!c.hidden) shown++;
+    });
+    $("#newsEmpty").hidden = shown > 0;
+  }
+
+  $("#assetTabs").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    assetFilter = b.dataset.a;
+    $$("#assetTabs button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    applyNews();
+  });
+
+  $("#tickers").addEventListener("click", (e) => {
+    const b = e.target.closest(".chip");
+    if (!b) return;
+    tickerFilter = tickerFilter === b.dataset.t ? null : b.dataset.t;
+    $$(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.t === tickerFilter)));
+    applyNews();
+  });
+
+  // News copy headline
+  $("#newsGrid").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-copy]");
+    if (!b) return;
+    const text = b.closest(".news").querySelector("h3").textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      b.textContent = "Copied";
+    } catch {
+      b.textContent = "Copy failed";
+    }
+    setTimeout(() => (b.textContent = "Copy"), 1400);
+  });
+
+  $("#syncNews").addEventListener("click", () => {
+    $("#newsStamp").textContent = hhmm();
+  });
+
+  // Refresh cycle: 60s countdown and progress bar
+  let left = 60;
+  const timer = $("#timer"), bar = $("#refreshBar");
+  function restartCycle() {
+    left = 60;
+    timer.textContent = "60s";
+    bar.style.animation = "none";
+    void bar.offsetWidth;
+    bar.style.animation = "";
+  }
+
+  setInterval(() => {
+    left = left <= 1 ? 60 : left - 1;
+    timer.textContent = left + "s";
+  }, 1000);
+
+  $("#sync").addEventListener("click", () => {
+    restartCycle();
+    $("#stamp").textContent = hhmm();
+  });
+
+  drawRadar();
+  setDocket("today");
+  applyNews();
+  renderHead();
+})();
+</script>
+</body>
+</html>

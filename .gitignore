@@ -1,0 +1,31 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+.next/
+.test-dist/
+out/
+dist/
+
+# Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local runtime state
+.macroedge-*-state.json
+
+# TypeScript and tool caches
+*.tsbuildinfo
+.eslintcache
+
+# OS/editor files
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+
+# Local ML artifacts
+ml/artifacts/

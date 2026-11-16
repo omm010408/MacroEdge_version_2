@@ -1,0 +1,402 @@
+/* ==========================================================================
+   MacroEdge Cross-Asset & Macro Comparator Styles
+   Palette: Pure #000000, Panels #0A0A0A, Lines #1F1F1F, Strong Lines #333333
+   Accent: #FFFFFF, Pos: #22C55E, Neg: #EF4444
+   ========================================================================== */
+
+.comparator-shell {
+  --surface: #0A0A0A;
+  --surface-2: #151515;
+  --line: #1F1F1F;
+  --line-strong: #333333;
+  --fg: #FFFFFF;
+  --fg-2: #D4D4D4;
+  --fg-3: #9A9A9A;
+  --pos: #22C55E;
+  --neg: #EF4444;
+  --ui: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --num: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+.comparator-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.comparator-head h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+
+.comparator-head p {
+  margin: 8px 0 0;
+  color: var(--fg-2);
+  font-size: 14.5px;
+  max-width: 70ch;
+}
+
+.comparator-seg {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: #000000;
+}
+
+.comparator-seg button {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 7px;
+  font: 500 13.5px var(--num);
+  color: var(--fg-2);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.comparator-seg button:hover {
+  color: var(--fg);
+}
+
+.comparator-seg button[aria-pressed="true"] {
+  background: var(--surface-2);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+/* Series Picker */
+.comparator-picker {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.comparator-picker-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.comparator-picker-top .lab {
+  font-size: 15px;
+  color: var(--fg-2);
+}
+
+.comparator-picker-top .lab b {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.comparator-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.comparator-chips button {
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  font: 500 12.5px var(--num);
+  color: var(--fg-2);
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.comparator-chips button:hover:not(:disabled) {
+  color: var(--fg);
+  border-color: var(--fg-3);
+}
+
+.comparator-chips button[aria-pressed="true"] {
+  color: var(--fg);
+  border-color: var(--fg-3);
+  background: var(--surface-2);
+}
+
+.comparator-chips button[aria-pressed="true"]::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--c);
+}
+
+.comparator-chips button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.comparator-hint {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--fg-3);
+  min-height: 1.2em;
+}
+
+/* Chart Card */
+.comparator-card {
+  margin-top: 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: var(--surface);
+  padding: 22px 24px;
+}
+
+.comparator-card h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.comparator-card .sub {
+  margin: 6px 0 0;
+  color: var(--fg-2);
+  font-size: 14px;
+}
+
+.comparator-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin-top: 18px;
+  padding: 12px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: #050505;
+  font: 500 13.5px var(--num);
+  color: var(--fg-2);
+}
+
+.comparator-strip span b {
+  color: var(--fg);
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.comparator-chartwrap {
+  position: relative;
+  margin-top: 16px;
+  user-select: none;
+}
+
+.comparator-chartwrap svg {
+  display: block;
+  width: 100%;
+  height: 360px;
+}
+
+.comparator-tip {
+  position: absolute;
+  top: 8px;
+  pointer-events: none;
+  min-width: 210px;
+  padding: 12px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: #000000;
+  font: 400 13px var(--num);
+  color: var(--fg-2);
+  z-index: 20;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+
+.comparator-tip .d {
+  color: var(--fg-3);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.comparator-tip .r {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 5px;
+}
+
+.comparator-tip .r i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+.comparator-tip .r b {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.comparator-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 14px;
+  font: 500 13px var(--num);
+  color: var(--fg-2);
+}
+
+.comparator-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comparator-legend i {
+  display: inline-block;
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.comparator-window {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font: 400 12.5px var(--num);
+  color: var(--fg-3);
+}
+
+/* Statistics Table */
+.comparator-tblwrap {
+  margin-top: 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: var(--surface);
+  overflow-x: auto;
+}
+
+.comparator-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.comparator-table th {
+  text-align: left;
+  font: 600 12px var(--num);
+  color: var(--fg-2);
+  letter-spacing: .04em;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line-strong);
+  white-space: nowrap;
+}
+
+.comparator-table th button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.comparator-table th button[aria-sort="ascending"]::after {
+  content: "↑";
+  color: var(--fg);
+}
+
+.comparator-table th button[aria-sort="descending"]::after {
+  content: "↓";
+  color: var(--fg);
+}
+
+.comparator-table th button:not([aria-sort])::after {
+  content: "⇅";
+  color: var(--fg-3);
+}
+
+.comparator-table th.n,
+.comparator-table td.n {
+  text-align: right;
+}
+
+.comparator-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+  font: 400 14.5px var(--num);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.comparator-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.comparator-table tbody tr:hover td {
+  background: #0E0E0E;
+}
+
+.comparator-sname {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 500 15px var(--ui);
+}
+
+.comparator-sname i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.comparator-sname small {
+  display: block;
+  font-size: 12px;
+  color: var(--fg-3);
+  font-family: var(--ui);
+}
+
+.comparator-up {
+  color: var(--pos) !important;
+}
+
+.comparator-dn {
+  color: var(--neg) !important;
+}
+
+@media (max-width: 720px) {
+  .comparator-head h1 {
+    font-size: 24px;
+  }
+  .comparator-card,
+  .comparator-picker {
+    padding: 16px;
+  }
+  .comparator-chartwrap svg {
+    height: 280px;
+  }
+  .comparator-tip {
+    min-width: 175px;
+    font-size: 12px;
+  }
+}

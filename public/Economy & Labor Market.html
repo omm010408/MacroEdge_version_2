@@ -1,0 +1,482 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Economy &amp; Labor Market</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #000; --surface: #0A0A0A; --surface-2: #131313; --line: #1C1C1C; --line-strong: #2E2E2E;
+  --fg: #FFF; --fg-2: #A3A3A3; --fg-3: #6B6B6B; --pos: #22C55E; --neg: #EF4444;
+  --ui: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --num: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 14px/1.5 var(--ui); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 4px; }
+.up { color: var(--pos); }
+.down { color: var(--neg); }
+.muted { color: var(--fg-3); }
+
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: #000; border-bottom: 1px solid var(--line); }
+.topbar-inner { display: flex; align-items: center; gap: 20px; height: 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; white-space: nowrap; }
+.mark { display: grid; place-items: center; width: 30px; height: 28px; border: 1px solid var(--line-strong); border-radius: 6px; font: 600 11px var(--num); }
+.brand small { font: 500 11px var(--num); color: var(--fg-3); border: 1px solid var(--line-strong); border-radius: 4px; padding: 2px 6px; }
+.tabs { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.tabs a { padding: 6px 12px; border-radius: 6px; color: var(--fg-2); font-size: 13px; white-space: nowrap; }
+.tabs a[aria-current="page"] { background: var(--surface-2); color: var(--fg); }
+.top-tools { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.pillbtn { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--fg-2); font-size: 13px; white-space: nowrap; }
+.pillbtn kbd { font: 500 11px var(--num); color: var(--fg-3); }
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: 5px; font: 500 11px var(--num); letter-spacing: .04em; color: var(--fg-2); white-space: nowrap; }
+.badge.down { color: var(--neg); border-color: rgba(239,68,68,.45); }
+.badge.solid { color: #000; background: #fff; border-color: #fff; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+.avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2); font: 600 11px var(--num); }
+
+.layout { display: grid; grid-template-columns: 224px minmax(0, 1fr); }
+.side { position: sticky; top: calc(56px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 56px); overflow-y: auto; display: flex; flex-direction: column; padding: 18px 12px 24px max(12px, env(safe-area-inset-left, 0px)); border-right: 1px solid var(--line); }
+.side nav a, .side summary { display: flex; align-items: center; padding: 8px 10px; border-radius: 8px; color: var(--fg-2); font-size: 13.5px; list-style: none; }
+.side summary::-webkit-details-marker { display: none; }
+.side nav a:hover, .side summary:hover { color: var(--fg); }
+.side [aria-current="page"] { background: var(--surface-2); color: var(--fg); box-shadow: inset 2px 0 0 #fff; }
+.side details a { padding-left: 30px; font-size: 13px; }
+.side-label { margin: 22px 10px 8px; font: 500 11px var(--num); letter-spacing: .08em; color: var(--fg-3); }
+.radar { margin-top: auto; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
+.radar header { display: flex; justify-content: space-between; align-items: center; font: 500 11px var(--num); color: var(--fg-3); letter-spacing: .04em; }
+.radar svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+.radar ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; font: 400 10.5px var(--num); color: var(--fg-3); }
+.radar li b { display: block; margin-top: 2px; font-weight: 500; font-size: 12px; color: var(--fg); }
+
+.main { min-width: 0; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-bottom: 40px; }
+.main-inner { max-width: 1480px; margin: 0 auto; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 24px; font-size: 13px; color: var(--fg-3); }
+.crumbs b { color: var(--fg); font-weight: 500; }
+.head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 28px; margin-top: 16px; }
+.head h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.025em; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.head p { margin: 8px 0 0; color: var(--fg-2); max-width: 70ch; }
+.actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); flex-wrap: wrap; }
+.seg button { padding: 6px 11px; border-radius: 6px; color: var(--fg-3); font: 500 12px var(--num); }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line-strong); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; min-width: 0; }
+.ch { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.ch h3 { margin: 0; font-size: 14px; font-weight: 500; color: var(--fg-2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.info { display: inline-grid; place-items: center; width: 14px; height: 14px; border: 1px solid var(--line-strong); border-radius: 50%; font: 500 9px var(--num); color: var(--fg-3); }
+.code { font: 400 11px var(--num); color: var(--fg-3); letter-spacing: .04em; max-width: 100%; }
+.big { margin-top: 10px; font: 500 30px/1.1 var(--num); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.delta { margin-top: 6px; font: 400 12.5px var(--num); font-variant-numeric: tabular-nums; }
+.note { margin: 6px 0 0; font-size: 12.5px; color: var(--fg-3); }
+
+.sec { margin-top: 40px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.sec h2 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: .01em; }
+.sec > span { font: 400 12px var(--num); color: var(--fg-3); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+
+.chart { position: relative; height: 230px; margin-top: 14px; cursor: crosshair; touch-action: pan-y; }
+.chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gl { stroke: var(--line); }
+.ax { fill: var(--fg-3); font: 400 11px var(--num); }
+.guide { stroke: #4A4A4A; display: none; }
+.pdot { display: none; }
+.chart.on .guide, .chart.on .pdot { display: inline; }
+.tip { position: absolute; top: 0; left: 0; display: none; flex-direction: column; gap: 2px; padding: 6px 9px; background: #000; border: 1px solid var(--line-strong); border-radius: 7px; font: 400 11.5px var(--num); color: var(--fg-3); pointer-events: none; white-space: nowrap; }
+.tip b { font-weight: 500; font-size: 13px; color: var(--fg); }
+.chart.on .tip { display: flex; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font: 400 12px var(--num); color: var(--fg-3); }
+.legend i { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 6px; background: currentColor; }
+.legend i.dash { background: none; border-top: 2px dashed currentColor; height: 0; }
+
+.empty { height: 230px; margin-top: 14px; display: grid; place-items: center; text-align: center; border: 1px dashed var(--line-strong); border-radius: 10px; padding: 16px; }
+.empty b { display: block; font-weight: 500; color: var(--fg-2); }
+.empty span { display: block; margin-top: 6px; font: 400 12px var(--num); color: var(--fg-3); }
+.flag { display: inline-block; margin-left: 6px; padding: 1px 6px; border: 1px solid rgba(239,68,68,.5); color: var(--neg); border-radius: 4px; font: 500 10.5px var(--num); letter-spacing: .03em; }
+
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); margin-top: 16px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 760px; }
+.tbl th { text-align: left; font: 500 11px var(--num); color: var(--fg-3); padding: 12px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tbl td { padding: 12px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl tbody tr:hover td { background: #0F0F0F; }
+.tbl .n, .tbl th.n { text-align: right; }
+.tbl .mono { font-family: var(--num); font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; padding: 3px 8px; border-radius: 5px; font: 500 11.5px var(--num); border: 1px solid var(--line-strong); color: var(--fg-2); }
+.pill.ok { color: var(--pos); border-color: rgba(34,197,94,.45); }
+.pill.bad { color: var(--neg); border-color: rgba(239,68,68,.45); }
+
+.dq ul { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.dq li { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 13.5px; color: var(--fg-2); }
+.dq li b { color: var(--fg); font-weight: 500; }
+.dq li span { display: block; margin-top: 4px; font: 400 12px var(--num); color: var(--fg-3); }
+
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--line); font: 400 12px var(--num); color: var(--fg-3); }
+
+@media (max-width: 1199px) {
+  .side { display: none; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .main { padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+}
+@media (max-width: 720px) {
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .tabs, .pillbtn kbd, .pillbtn span, .brand small { display: none; }
+  .top-tools > .badge { display: none; }
+  .head h1 { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#" aria-label="MacroEdge home"><span class="mark">ME</span><span>MacroEdge</span><small>Terminal</small></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#" aria-current="page">Terminal</a>
+      <a href="#">Command</a>
+      <a href="#">AI bias</a>
+      <a href="#">Data ops</a>
+      <a href="#">Incidents</a>
+    </nav>
+    <div class="top-tools">
+      <button class="pillbtn" type="button" aria-label="Search"><span>Search</span><kbd>⌘K</kbd></button>
+      <span class="badge">Tier I · Analyst</span>
+      <span class="avatar" aria-hidden="true">RO</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <nav aria-label="Statistics">
+      <a href="#">Macro overview</a>
+      <details>
+        <summary>Positioning</summary>
+        <a href="#">Commitments of traders</a>
+        <a href="#">Correlation matrix</a>
+      </details>
+      <details>
+        <summary>Liquidity</summary>
+        <a href="#">Monetary policy</a>
+        <a href="#">Primary dealer stats</a>
+      </details>
+      <a href="#">Credit and risk</a>
+      <details open>
+        <summary>Economy</summary>
+        <a href="#" aria-current="page">Economy &amp; labor</a>
+        <a href="#">Inflation</a>
+        <a href="#">Fixed income &amp; rates</a>
+        <a href="#">International</a>
+      </details>
+    </nav>
+    <div class="side-label">TOOLS</div>
+    <nav aria-label="Tools">
+      <a href="#">Comparator</a>
+      <a href="#">Watch list</a>
+      <a href="#">Daily check</a>
+      <a href="#">AI bias engine</a>
+    </nav>
+    <section class="radar" aria-label="Macro radar">
+      <header><span>MACRO RADAR</span><span class="badge">LABOR</span></header>
+      <div id="radar"></div>
+      <ul id="radarVals"></ul>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <nav class="crumbs" aria-label="Breadcrumb"><span>MacroEdge</span><span>›</span><span>Economy</span><span>›</span><b>Economy &amp; labor</b></nav>
+
+      <header class="head">
+        <div>
+          <h1>Economy &amp; labor market <span class="badge"><span class="dot" style="color:#22C55E"></span>Live · 2026Q3</span></h1>
+          <p>Growth momentum indicators and labor-market capacity metrics, with feed status for every series.</p>
+        </div>
+        <div class="actions">
+          <div class="seg" id="filter" role="group" aria-label="Section filter"></div>
+          <div class="seg" id="range" role="group" aria-label="Range"></div>
+        </div>
+      </header>
+
+      <div class="sec" data-sec="growth"><h2>Growth &amp; economic activity</h2><span>BEA · ISM · Census</span></div>
+      <div class="grid2" data-sec="growth">
+        <section class="panel" aria-label="Real GDP growth">
+          <div class="ch"><h3>Real GDP growth (QoQ ann.) <span class="info">i</span></h3><span class="code">A191RL1Q225SBEA</span></div>
+          <div class="big">3.4%</div>
+          <div class="delta up">Prior 3.4% · quarterly, shown as a step</div>
+          <div class="chart" data-chart="gdp"></div>
+        </section>
+        <section class="panel" aria-label="ISM services and manufacturing">
+          <div class="ch"><h3>ISM services vs manufacturing PMI <span class="info">i</span></h3><span class="code">ISM SVC / MFG</span></div>
+          <div class="big">0.0 <span class="flag">FEED ZERO</span></div>
+          <div class="delta down">Mfg 0.0 · 50 = neutral line</div>
+          <div class="empty"><div><b>No ISM readings loaded</b><span>Feed returned 0.0 for both series. Run a sync in Data operations before reading this.</span></div></div>
+        </section>
+        <section class="panel" aria-label="Advance retail sales">
+          <div class="ch"><h3>Advance retail sales (MoM) <span class="info">i</span></h3><span class="code">RSAFS</span></div>
+          <div class="big">+0.00% <span class="flag">FEED ZERO</span></div>
+          <div class="delta muted">Prior +0.00%</div>
+          <div class="empty"><div><b>No retail sales history loaded</b><span>Month-over-month values are zero; treat as missing.</span></div></div>
+        </section>
+        <section class="panel" aria-label="Consumer confidence">
+          <div class="ch"><h3>Consumer confidence index <span class="info">i</span></h3><span class="code">CB / UMICH</span></div>
+          <div class="big">0.0 <span class="flag">FEED ZERO</span></div>
+          <div class="delta muted">+0.0 m/m</div>
+          <div class="empty"><div><b>No confidence readings loaded</b><span>Index and change are both zero.</span></div></div>
+        </section>
+      </div>
+
+      <div class="sec" data-sec="labor" style="margin-top:44px"><h2>Labor market indicators</h2><span>BLS · DOL</span></div>
+      <div class="grid2" data-sec="labor">
+        <section class="panel" aria-label="Nonfarm payrolls">
+          <div class="ch"><h3>Nonfarm payrolls (monthly Δ) <span class="info">i</span></h3><span class="code">PAYEMS</span></div>
+          <div class="big">+165K</div>
+          <div class="delta up">Prior +165K · LFPR 0.0% <span class="flag">LFPR ZERO</span></div>
+          <div class="chart" data-chart="nfp"></div>
+        </section>
+        <section class="panel" aria-label="Unemployment rate">
+          <div class="ch"><h3>Unemployment rate (U-3) <span class="info">i</span></h3><span class="code">UNRATE</span></div>
+          <div class="big">4.1%</div>
+          <div class="delta muted">AHE YoY 0.0% <span class="flag">AHE ZERO</span></div>
+          <div class="chart" data-chart="unrate"></div>
+          <div class="legend"><span style="color:#FFF"><i></i>Unemployment %</span><span style="color:#6B6B6B"><i class="dash"></i>Avg hourly earnings YoY (not loaded)</span></div>
+        </section>
+        <section class="panel" aria-label="Initial jobless claims">
+          <div class="ch"><h3>Initial jobless claims <span class="info">i</span></h3><span class="code">ICSA</span></div>
+          <div class="big">200K</div>
+          <div class="delta up">Continuing claims 0.00M <span class="flag">CONT ZERO</span></div>
+          <div class="chart" data-chart="claims"></div>
+        </section>
+        <section class="panel" aria-label="JOLTS job openings">
+          <div class="ch"><h3>JOLTS job openings <span class="info">i</span></h3><span class="code">JTSJOL</span></div>
+          <div class="big">7.52M</div>
+          <div class="delta muted">+0.00M m/m <span class="flag">M/M ZERO</span></div>
+          <div class="chart" data-chart="jolts"></div>
+        </section>
+      </div>
+
+      <div class="sec" style="margin-top:44px"><h2>Indicator status</h2><span>Every series on this page, with feed state</span></div>
+      <div class="tbl-wrap">
+        <table class="tbl" aria-label="Indicator status">
+          <thead><tr><th>Indicator</th><th>Series</th><th class="n">Latest</th><th class="n">Prior</th><th>Source</th><th>Obs</th><th>Status</th></tr></thead>
+          <tbody id="status"></tbody>
+        </table>
+      </div>
+
+      <div class="sec" style="margin-top:44px"><h2>Data quality &amp; reconciliation</h2><span>Read before using the numbers</span></div>
+      <section class="panel dq" aria-label="Data quality">
+        <ul id="dq"></ul>
+      </section>
+
+      <footer class="foot">
+        <span>BEA · T10101 · Obs 2026Q3 · Rel 2026Q3 · Freq quarterly · Units % QoQ ann.</span>
+        <span>Sample series where noted</span>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const N = 24;
+  const RANGE = { "12M": 12, "18M": 18, "24M": 24 };
+  const st = { range: "24M", filter: "all" };
+  const mLabel = (i) => { const d = new Date(2024, 10 + i, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; };
+
+  // Monthly sample series, ending on the latest printed values.
+  const wave = (f) => Array.from({ length: N }, (_, i) => f(i));
+  const NFP = wave((i) => 110 + 120 * Math.sin(i * 0.9 + 0.5) * (0.6 + 0.4 * Math.cos(i * 0.37)));
+  NFP[N - 1] = 165; NFP[N - 2] = 165;
+  const UNR = wave((i) => 4.3 + 0.22 * Math.sin(i * 0.5 + 1));
+  UNR[N - 1] = 4.1; UNR[N - 2] = 4.1;
+  const CLAIMS = wave((i) => 215 + 14 * Math.sin(i * 0.7));
+  CLAIMS[N - 1] = 200; CLAIMS[N - 2] = 205;
+  const JOLTS = wave((i) => 7.2 + 0.35 * Math.sin(i * 0.6 + 0.3));
+  JOLTS[N - 1] = 7.52; JOLTS[N - 2] = 7.52;
+  const GDP = wave(() => 3.4);
+
+  function chart(el, lines, labels, o) {
+    const W = el.clientWidth || 400, H = el.clientHeight || 230, pl = 56, pr = 8, pt = 8, pb = 24, n = labels.length;
+    const all = lines.flatMap((l) => l.vals).filter((v) => v !== null);
+    let lo = Math.min(...all), hi = Math.max(...all);
+    const pad = (hi - lo) * 0.12 || 0.5;
+    lo = lo - pad; hi = hi + pad;
+    if (o.zeroFloor && lo > 0) lo = 0;
+    const ticks = [0, 1, 2, 3, 4].map((k) => lo + ((hi - lo) * k) / 4);
+    const x = (i) => pl + ((W - pl - pr) * i) / (n - 1);
+    const y = (v) => pt + (H - pt - pb) * (1 - (v - lo) / (hi - lo));
+    let s = "";
+    ticks.forEach((v) => {
+      const yy = y(v).toFixed(1);
+      s += `<line class="gl" x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}"/><text class="ax" x="${pl - 8}" y="${(+yy + 4).toFixed(1)}" text-anchor="end">${o.fmt(v)}</text>`;
+    });
+    [0, 1, 2, 3].forEach((k) => {
+      const i = Math.round(((n - 1) * k) / 3);
+      const anchor = k === 0 ? "start" : k === 3 ? "end" : "middle";
+      s += `<text class="ax" x="${x(i).toFixed(1)}" y="${H - 6}" text-anchor="${anchor}">${labels[i]}</text>`;
+    });
+    const base = (H - pb).toFixed(1);
+    lines.forEach((l, li) => {
+      const pts = l.vals.map((v, i) => [x(i), y(v)]);
+      const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join("");
+      if (li === 0 && l.area !== false) s += `<path d="${d}L${x(n - 1).toFixed(1)},${base}L${x(0).toFixed(1)},${base}Z" fill="${l.color}" fill-opacity=".07"/>`;
+      s += `<path d="${d}" fill="none" stroke="${l.color}" stroke-width="${l.dash ? 1.4 : 1.8}" stroke-linejoin="round" ${l.dash ? 'stroke-dasharray="5 5"' : ""}/>`;
+    });
+    const main = lines[0];
+    s += `<line class="guide" x1="0" x2="0" y1="${pt}" y2="${H - pb}" stroke-width="1"/><circle class="pdot" r="4" cx="0" cy="0" fill="${main.color}" stroke="#0A0A0A" stroke-width="2"/>`;
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label}">${s}</svg><div class="tip"></div>`;
+    const g = el.querySelector(".guide"), dot = el.querySelector(".pdot"), tip = el.querySelector(".tip");
+    el.onpointermove = (e) => {
+      const r = el.getBoundingClientRect();
+      const px = e.clientX - r.left;
+      const i = Math.max(0, Math.min(n - 1, Math.round(((px - pl) / (W - pl - pr)) * (n - 1))));
+      const xx = x(i);
+      g.setAttribute("x1", xx); g.setAttribute("x2", xx);
+      dot.setAttribute("cx", xx); dot.setAttribute("cy", y(main.vals[i]));
+      tip.innerHTML = `<span>${labels[i]}</span><b>${o.fmt(main.vals[i])}</b>`;
+      tip.style.left = Math.max(0, Math.min(W - 130, xx - 60)) + "px";
+      el.classList.add("on");
+    };
+    el.onpointerleave = () => el.classList.remove("on");
+  }
+
+  function bars(el, vals, labels, o) {
+    const W = el.clientWidth || 400, H = el.clientHeight || 230, pl = 56, pr = 8, pt = 10, pb = 24, n = vals.length;
+    const lim = Math.max(Math.abs(Math.min(...vals)), Math.abs(Math.max(...vals))) * 1.1;
+    const y = (v) => pt + (H - pt - pb) * (1 - (v + lim) / (2 * lim));
+    const cx = (i) => pl + ((W - pl - pr) * (i + 0.5)) / n;
+    const bw = ((W - pl - pr) / n) * 0.6;
+    let s = "";
+    [-lim, -lim / 2, 0, lim / 2, lim].forEach((t) => {
+      const yy = y(t).toFixed(1);
+      s += `<line class="gl" x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}" ${t === 0 ? 'stroke="#2E2E2E"' : ""}/><text class="ax" x="${pl - 8}" y="${(+yy + 4).toFixed(1)}" text-anchor="end">${o.fmt(t)}</text>`;
+    });
+    [0, 1, 2, 3].forEach((k) => {
+      const i = Math.round(((n - 1) * k) / 3);
+      const anchor = k === 0 ? "start" : k === 3 ? "end" : "middle";
+      s += `<text class="ax" x="${cx(i).toFixed(1)}" y="${H - 6}" text-anchor="${anchor}">${labels[i]}</text>`;
+    });
+    vals.forEach((v, i) => {
+      const y0 = y(0), y1 = y(v);
+      s += `<rect x="${(cx(i) - bw / 2).toFixed(1)}" y="${Math.min(y0, y1).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1, Math.abs(y1 - y0)).toFixed(1)}" fill="${v >= 0 ? "#FFFFFF" : "#EF4444"}" fill-opacity=".85"/>`;
+    });
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label}">${s}</svg><div class="tip"></div>`;
+    const tip = el.querySelector(".tip");
+    el.onpointermove = (e) => {
+      const r = el.getBoundingClientRect();
+      const i = Math.max(0, Math.min(n - 1, Math.floor(((e.clientX - r.left - pl) / (W - pl - pr)) * n)));
+      tip.innerHTML = `<span>${labels[i]}</span><b>${vals[i] >= 0 ? "+" : ""}${o.fmt(vals[i])}</b>`;
+      tip.style.left = Math.max(0, Math.min(W - 130, cx(i) - 60)) + "px";
+      el.classList.add("on");
+    };
+    el.onpointerleave = () => el.classList.remove("on");
+  }
+
+  const k = (v) => Math.round(v) + "K";
+  const pct = (v) => v.toFixed(1) + "%";
+  const M = (v) => v.toFixed(2) + "M";
+
+  function drawAll() {
+    const n = RANGE[st.range];
+    const labels = Array.from({ length: N }, (_, i) => mLabel(i)).slice(N - n);
+    const sl = (a) => a.slice(N - n);
+    document.querySelectorAll("[data-chart]").forEach((el) => {
+      switch (el.dataset.chart) {
+        case "gdp": chart(el, [{ vals: sl(GDP), color: "#FFF", name: "GDP", fmt: pct }], labels, { label: "GDP", fmt: pct, zeroFloor: true }); break;
+        case "nfp": bars(el, sl(NFP), labels, { label: "NFP", fmt: (v) => Math.round(v) + "K" }); break;
+        case "unrate": chart(el, [{ vals: sl(UNR), color: "#FFF", name: "Unemployment", fmt: pct }], labels, { label: "Unemployment", fmt: pct }); break;
+        case "claims": chart(el, [{ vals: sl(CLAIMS), color: "#FFF", name: "Claims", fmt: k }], labels, { label: "Claims", fmt: (v) => Math.round(v) + "K", zeroFloor: true }); break;
+        case "jolts": chart(el, [{ vals: sl(JOLTS), color: "#FFF", name: "Openings", fmt: M }], labels, { label: "JOLTS", fmt: M }); break;
+      }
+    });
+  }
+
+  const FILTERS = { all: "All sections", growth: "Growth only", labor: "Labor only" };
+  function applyFilter() {
+    document.querySelectorAll("[data-sec]").forEach((el) => {
+      el.hidden = st.filter !== "all" && el.dataset.sec !== st.filter;
+    });
+    document.querySelectorAll("#filter button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.f === st.filter)));
+  }
+
+  const STATUS = [
+    ["Real GDP growth", "A191RL1Q225SBEA", "3.4%", "3.4%", "BEA", "2026Q3", "ok", "Live"],
+    ["ISM services PMI", "ISM SVC", "0.0", "—", "ISM", "2025-11", "bad", "Feed zero"],
+    ["ISM manufacturing PMI", "ISM MFG", "0.0", "—", "ISM", "2025-11", "bad", "Feed zero"],
+    ["Advance retail sales MoM", "RSAFS", "+0.00%", "+0.00%", "Census", "—", "bad", "Feed zero"],
+    ["Consumer confidence", "CB / UMICH", "0.0", "+0.0 m/m", "Conference Board", "—", "bad", "Feed zero"],
+    ["Nonfarm payrolls Δ", "PAYEMS", "+165K", "+165K", "BLS", "2026-10", "ok", "Live · prior matches latest"],
+    ["Labor force participation", "LFPR", "0.0%", "—", "BLS", "—", "bad", "Feed zero"],
+    ["Unemployment rate U-3", "UNRATE", "4.1%", "—", "BLS", "2026-10", "ok", "Live"],
+    ["Avg hourly earnings YoY", "AHE", "0.0%", "—", "BLS", "—", "bad", "Feed zero"],
+    ["Initial jobless claims", "ICSA", "200K", "—", "DOL", "2026-11-07", "ok", "Live"],
+    ["Continuing claims", "CCSA", "0.00M", "—", "DOL", "—", "bad", "Feed zero"],
+    ["JOLTS job openings", "JTSJOL", "7.52M", "+0.00M m/m", "BLS", "2026-09", "ok", "Live · m/m zero"],
+  ];
+
+  const DQ = [
+    ["ISM services and manufacturing read 0.0", "Both series are zero for every month shown. The page shows an empty state instead of a flat zero line, so the 50 neutral line is not compared against real data."],
+    ["Retail sales and consumer confidence are zero", "Retail sales MoM is +0.00% with prior +0.00%, and confidence reads 0.0 with +0.0 m/m. These look like unpopulated feeds, not real readings."],
+    ["Wage growth and participation read 0.0%", "AHE YoY and LFPR are zero, so the unemployment chart does not plot wages. Both need a feed sync before they can be read against unemployment."],
+    ["Nonfarm payrolls current and prior are both +165K", "A repeated value often means the prior month did not load. Check the previous observation before reading the change."],
+    ["Zero placeholders in claims and JOLTS", "Continuing claims are 0.00M and JOLTS month-over-month is +0.00M. The headline levels are kept, but the changes are not reliable."],
+    ["Jobless claims history has a gap in the reference", "The reference chart is near zero until the last three months, which points to a backfill gap. This page uses the sample series for shape and the printed levels for the headline."],
+  ];
+
+  function statics() {
+    document.getElementById("filter").innerHTML = Object.entries(FILTERS).map(([key, lbl]) =>
+      `<button type="button" data-f="${key}" aria-pressed="${key === st.filter}">${lbl}</button>`).join("");
+    document.getElementById("range").innerHTML = Object.keys(RANGE).map((r) =>
+      `<button type="button" data-r="${r}" aria-pressed="${r === st.range}">${r}</button>`).join("");
+    document.getElementById("status").innerHTML = STATUS.map(([a, b, c, d, e, f, tone, label]) =>
+      `<tr><td>${a}</td><td class="mono muted">${b}</td><td class="n mono">${c}</td><td class="n mono muted">${d}</td><td>${e}</td><td class="mono muted">${f}</td><td><span class="pill ${tone === "ok" ? "ok" : "bad"}">${label}</span></td></tr>`).join("");
+    document.getElementById("dq").innerHTML = DQ.map(([t, d]) => `<li><b>${t}</b><span>${d}</span></li>`).join("");
+
+    const R = [["GDP", 70], ["NFP", 60], ["UNEMP", 55], ["ISM", 0], ["CLAIMS", 62]];
+    const cx = 110, cy = 110, RR = 78;
+    const ang = (i) => -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+    const ring = (q) => R.map((_, i) => (cx + RR * q * Math.cos(ang(i))).toFixed(1) + "," + (cy + RR * q * Math.sin(ang(i))).toFixed(1)).join(" ");
+    const poly = R.map(([, v], i) => { const r = (RR * v) / 100; return (cx + r * Math.cos(ang(i))).toFixed(1) + "," + (cy + r * Math.sin(ang(i))).toFixed(1); }).join(" ");
+    const labels = R.map(([nm], i) => `<text class="ax" x="${(cx + (RR + 24) * Math.cos(ang(i))).toFixed(1)}" y="${(cy + (RR + 24) * Math.sin(ang(i)) + 4).toFixed(1)}" text-anchor="middle">${nm}</text>`).join("");
+    document.getElementById("radar").innerHTML = `<svg viewBox="-30 0 280 220" role="img" aria-label="Labor radar">
+      <polygon points="${ring(0.5)}" fill="none" stroke="#1C1C1C"/><polygon points="${ring(1)}" fill="none" stroke="#1C1C1C"/>
+      <polygon points="${poly}" fill="rgba(255,255,255,.12)" stroke="#fff" stroke-width="1.5"/>${labels}</svg>`;
+    document.getElementById("radarVals").innerHTML = [["GDP", "3.4", "—"], ["NFP", "165K", "0"], ["UNR", "4.1", "0"], ["ISM", "—", "—"], ["CLM", "200K", "—"]]
+      .map(([nm, v, d]) => `<li>${nm}<b>${v}</b><span>${d}</span></li>`).join("");
+  }
+
+  document.getElementById("range").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-r]");
+    if (!b) return;
+    st.range = b.dataset.r;
+    document.querySelectorAll("#range button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.r === st.range)));
+    drawAll();
+  });
+  document.getElementById("filter").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-f]");
+    if (!b) return;
+    st.filter = b.dataset.f;
+    applyFilter();
+  });
+
+  let raf = 0;
+  new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(drawAll); })
+    .observe(document.querySelector(".main-inner"));
+
+  statics();
+  applyFilter();
+  drawAll();
+})();
+</script>
+</body>
+</html>
+
+</body></html>

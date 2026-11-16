@@ -1,0 +1,449 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Primary Dealer Stats</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #000; --surface: #0A0A0A; --surface-2: #131313; --line: #1C1C1C; --line-strong: #2E2E2E;
+  --fg: #FFF; --fg-2: #A3A3A3; --fg-3: #6B6B6B; --pos: #22C55E; --neg: #EF4444;
+  --ui: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --num: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 14px/1.5 var(--ui); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 4px; }
+.up { color: var(--pos); }
+.down { color: var(--neg); }
+.muted { color: var(--fg-3); }
+
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: #000; border-bottom: 1px solid var(--line); }
+.topbar-inner { display: flex; align-items: center; gap: 20px; height: 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; white-space: nowrap; }
+.mark { display: grid; place-items: center; width: 30px; height: 28px; border: 1px solid var(--line-strong); border-radius: 6px; font: 600 11px var(--num); }
+.brand small { font: 500 11px var(--num); color: var(--fg-3); border: 1px solid var(--line-strong); border-radius: 4px; padding: 2px 6px; }
+.tabs { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.tabs a { padding: 6px 12px; border-radius: 6px; color: var(--fg-2); font-size: 13px; white-space: nowrap; }
+.tabs a[aria-current="page"] { background: var(--surface-2); color: var(--fg); }
+.top-tools { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.pillbtn { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--fg-2); font-size: 13px; white-space: nowrap; }
+.pillbtn kbd { font: 500 11px var(--num); color: var(--fg-3); }
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: 5px; font: 500 11px var(--num); letter-spacing: .04em; color: var(--fg-2); white-space: nowrap; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2); font: 600 11px var(--num); }
+
+.layout { display: grid; grid-template-columns: 224px minmax(0, 1fr); }
+.side { position: sticky; top: calc(56px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 56px); overflow-y: auto; display: flex; flex-direction: column; padding: 18px 12px 24px max(12px, env(safe-area-inset-left, 0px)); border-right: 1px solid var(--line); }
+.side nav a, .side summary { display: flex; align-items: center; padding: 8px 10px; border-radius: 8px; color: var(--fg-2); font-size: 13.5px; list-style: none; }
+.side summary::-webkit-details-marker { display: none; }
+.side nav a:hover, .side summary:hover { color: var(--fg); }
+.side [aria-current="page"] { background: var(--surface-2); color: var(--fg); box-shadow: inset 2px 0 0 #fff; }
+.side details a { padding-left: 30px; font-size: 13px; }
+.side-label { margin: 22px 10px 8px; font: 500 11px var(--num); letter-spacing: .08em; color: var(--fg-3); }
+.radar { margin-top: auto; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
+.radar header { display: flex; justify-content: space-between; align-items: center; font: 500 11px var(--num); color: var(--fg-3); letter-spacing: .04em; }
+.radar svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+.radar ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; font: 400 10.5px var(--num); color: var(--fg-3); }
+.radar li b { display: block; margin-top: 2px; font-weight: 500; font-size: 12px; color: var(--fg); }
+
+.main { min-width: 0; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-bottom: 40px; }
+.main-inner { max-width: 1480px; margin: 0 auto; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 24px; font-size: 13px; color: var(--fg-3); }
+.crumbs b { color: var(--fg); font-weight: 500; }
+.head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 28px; margin-top: 16px; }
+.head h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.025em; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.head p { margin: 8px 0 0; color: var(--fg-2); max-width: 70ch; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.seg button { padding: 6px 11px; border-radius: 6px; color: var(--fg-3); font: 500 12px var(--num); }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line-strong); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.ch { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.ch h3 { margin: 0; font-size: 14px; font-weight: 500; color: var(--fg-2); display: flex; align-items: center; gap: 8px; }
+.info { display: inline-grid; place-items: center; width: 14px; height: 14px; border: 1px solid var(--line-strong); border-radius: 50%; font: 500 9px var(--num); color: var(--fg-3); }
+.code { font: 400 11px var(--num); color: var(--fg-3); letter-spacing: .04em; white-space: nowrap; }
+.big { margin-top: 10px; font: 500 30px/1.1 var(--num); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.delta { margin-top: 6px; font: 400 12.5px var(--num); font-variant-numeric: tabular-nums; }
+
+.chart { position: relative; height: 220px; margin-top: 14px; cursor: crosshair; touch-action: pan-y; }
+.chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gl { stroke: var(--line); }
+.ax { fill: var(--fg-3); font: 400 11px var(--num); }
+.guide { stroke: #4A4A4A; display: none; }
+.pdot { display: none; }
+.chart.on .guide, .chart.on .pdot { display: inline; }
+.tip { position: absolute; top: 0; left: 0; display: none; flex-direction: column; gap: 2px; padding: 6px 9px; background: #000; border: 1px solid var(--line-strong); border-radius: 7px; font: 400 11.5px var(--num); color: var(--fg-3); pointer-events: none; white-space: nowrap; }
+.tip b { font-weight: 500; font-size: 13px; color: var(--fg); }
+.chart.on .tip { display: flex; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font: 400 12px var(--num); color: var(--fg-3); }
+.legend i { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 6px; background: currentColor; }
+.legend i.dash { background: none; border-top: 2px dashed currentColor; height: 0; }
+
+.sec { margin-top: 36px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.sec h2 { margin: 0; font-size: 18px; font-weight: 600; }
+.sec span { font: 400 12px var(--num); color: var(--fg-3); }
+.empty { margin-top: 16px; padding: 44px 24px; text-align: center; }
+.empty .ico { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line-strong); border-radius: 10px; color: var(--fg-2); }
+.empty h3 { margin: 16px 0 0; font-size: 16px; font-weight: 600; }
+.empty p { margin: 6px auto 0; max-width: 56ch; color: var(--fg-3); font-size: 13.5px; }
+.btn { margin-top: 18px; height: 36px; padding: 0 14px; border-radius: 8px; background: #fff; color: #000; font-weight: 500; font-size: 13.5px; display: inline-flex; align-items: center; gap: 8px; }
+
+.table-wrap { overflow-x: auto; margin-top: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 760px; }
+.tbl th { padding: 0; border-bottom: 1px solid var(--line); text-align: left; font-weight: 500; }
+.tbl th button { width: 100%; display: flex; align-items: center; gap: 6px; padding: 12px 16px; color: var(--fg-3); font: 500 11px var(--num); letter-spacing: .04em; white-space: nowrap; }
+.tbl th button[aria-sort] { color: var(--fg); }
+.tbl th.n button, .tbl td.n { justify-content: flex-end; text-align: right; }
+.tbl td { padding: 13px 16px; border-bottom: 1px solid var(--line); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tbl td.num, .tbl td.n { font-family: var(--num); }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl tbody tr:hover td { background: #0F0F0F; }
+.pill { display: inline-block; padding: 4px 9px; border: 1px solid var(--line-strong); border-radius: 6px; font: 500 12.5px var(--num); color: var(--fg-2); }
+.arrows { font-size: 10px; color: var(--fg-3); }
+.tnote { font: 400 12px var(--num); color: var(--fg-3); }
+
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); font: 400 12px var(--num); color: var(--fg-3); }
+
+@media (max-width: 1199px) {
+  .side { display: none; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .main { padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+}
+@media (max-width: 720px) {
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .tabs, .pillbtn kbd, .pillbtn span, .brand small { display: none; }
+  .top-tools > .badge { display: none; }
+  .head h1 { font-size: 26px; }
+  .big { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#" aria-label="MacroEdge home"><span class="mark">ME</span><span>MacroEdge</span><small>Terminal</small></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#" aria-current="page">Terminal</a>
+      <a href="#">Command</a>
+      <a href="#">AI bias</a>
+      <a href="#">Data ops</a>
+      <a href="#">Incidents</a>
+    </nav>
+    <div class="top-tools">
+      <button class="pillbtn" type="button" aria-label="Search"><span>Search</span><kbd>⌘K</kbd></button>
+      <span class="badge">Tier I · Analyst</span>
+      <span class="avatar" aria-hidden="true">RO</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <nav aria-label="Statistics">
+      <a href="#">Macro overview</a>
+      <details>
+        <summary>Positioning</summary>
+        <a href="#">Commitments of traders</a>
+        <a href="#">Correlation matrix</a>
+      </details>
+      <details open>
+        <summary>Liquidity</summary>
+        <a href="#">Monetary policy</a>
+        <a href="#" aria-current="page">Primary dealer stats</a>
+      </details>
+      <a href="#">Credit and risk</a>
+      <a href="#">Economy</a>
+    </nav>
+    <div class="side-label">TOOLS</div>
+    <nav aria-label="Tools">
+      <a href="#">Comparator</a>
+      <a href="#">Watch list</a>
+      <a href="#">Daily check</a>
+      <a href="#">AI bias engine</a>
+    </nav>
+    <section class="radar" aria-label="Macro radar">
+      <header><span>MACRO RADAR</span><span class="badge">DEALER</span></header>
+      <div id="radar"></div>
+      <ul id="radarVals"></ul>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <nav class="crumbs" aria-label="Breadcrumb"><span>MacroEdge</span><span>›</span><span>Liquidity</span><span>›</span><b>Primary dealer stats</b></nav>
+
+      <header class="head">
+        <div>
+          <h1>Primary dealer stats &amp; liquidity <span class="badge"><span class="dot" style="color:#22C55E"></span>Live · 2026-11-11</span></h1>
+          <p>Dealer Treasury inventories, Fed balance sheet drains, repo funding corridor, and Treasury auction clears.</p>
+        </div>
+        <div class="seg" id="range" role="group" aria-label="Range"></div>
+      </header>
+
+      <div class="grid2">
+        <section class="panel" aria-label="US net liquidity">
+          <div class="ch"><h3>US net liquidity <span class="info">i</span></h3><span class="code">WALCL−TGA−RRP</span></div>
+          <div class="big" id="v-nl"></div>
+          <div class="delta down" id="d-nl"></div>
+          <div class="chart" data-chart="nl"></div>
+          <div class="legend"><span style="color:#EF4444"><i></i>Net liquidity</span><span><i class="dash"></i>Fed assets</span></div>
+        </section>
+        <section class="panel" aria-label="SOFR and IORB">
+          <div class="ch"><h3>Secured Overnight Financing Rate <span class="info">i</span></h3><span class="code">SOFR · IORB</span></div>
+          <div class="big" id="v-sofr"></div>
+          <div class="delta down" id="d-sofr"></div>
+          <div class="chart" data-chart="sofr"></div>
+          <div class="legend"><span style="color:#EF4444"><i></i>SOFR</span><span><i class="dash"></i>IORB</span></div>
+        </section>
+        <section class="panel" aria-label="Fed balance sheet assets">
+          <div class="ch"><h3>Fed balance sheet assets <span class="info">i</span></h3><span class="code">WALCL</span></div>
+          <div class="big" id="v-ta"></div>
+          <div class="delta up" id="d-ta"></div>
+          <div class="chart" data-chart="ta"></div>
+        </section>
+        <section class="panel" aria-label="ON reverse repo facility">
+          <div class="ch"><h3>ON reverse repo facility <span class="info">i</span></h3><span class="code">RRPONTSYD</span></div>
+          <div class="big" id="v-rrp"></div>
+          <div class="delta up" id="d-rrp"></div>
+          <div class="chart" data-chart="rrp"></div>
+        </section>
+      </div>
+
+      <div class="sec"><h2>Primary dealer holdings</h2><span>NY Fed FR 2004</span></div>
+      <section class="panel empty" aria-label="Primary dealer holdings">
+        <span class="ico" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 2h6l1-2h5"/></svg>
+        </span>
+        <h3>Dealer holdings not synced yet</h3>
+        <p>Configure the NY Fed FR 2004 feed, then run a Data Operations sync to inspect dealer inventories by maturity.</p>
+        <button class="btn" type="button">Open Data operations <span aria-hidden="true">↗</span></button>
+      </section>
+
+      <div class="sec"><h2>Recent US Treasury auctions</h2><span>Tail &lt; 0 = stop-through</span></div>
+      <div class="table-wrap">
+        <table class="tbl" aria-label="Recent US Treasury auctions">
+          <thead id="thead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <footer class="foot">
+        <span>FRED · WALCL / RRP / SOFR · Obs 2026-11-11 · Rel 2026-11-11 · Freq weekly · Units $T</span>
+        <span>Sample series, not live market data</span>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const WK = 78;
+  const END = new Date(2026, 10, 11);
+  const RANGE = { "13W": 13, "26W": 26, "52W": 52 };
+  const st = { range: "52W", sort: { key: "date", dir: -1 } };
+
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const weekLabels = (n) => Array.from({ length: n }, (_, i) => iso(new Date(END.getTime() - (n - 1 - i) * 7 * 864e5)));
+  const seed = (s) => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
+  const rnd = (s) => () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
+
+  function wave(start, end, amp, key, back4) {
+    const r = rnd(seed(key)), p = [r() * 6.28, r() * 6.28];
+    const out = [];
+    for (let i = 0; i < WK; i++) {
+      const t = i / (WK - 1);
+      const w = Math.sin(t * 11 + p[0]) * 0.6 + Math.sin(t * 29 + p[1]) * 0.4;
+      out.push(start + (end - start) * t + w * amp * (1 - 0.5 * t));
+    }
+    if (back4 !== undefined) out[WK - 5] = back4;
+    out[WK - 1] = end;
+    return out;
+  }
+
+  const rrp = Array(WK).fill(0);
+  rrp[67] = 4.2; rrp[69] = 12.1; rrp[70] = 3.9;
+  const iorb = Array.from({ length: WK }, (_, i) => (i < 69 ? 3.65 : 3.9));
+  const sofrNoise = wave(0, 0, 0.02, "sofr");
+  const sofr = iorb.map((v, i) => v + (i < 69 ? -0.02 : 0.04) + sofrNoise[i] * 0.4);
+  sofr[WK - 1] = 3.94;
+
+  const FULL = {
+    nl: wave(5760, 5850, 110, "nl", 5880),
+    ta: wave(6480, 6760, 55, "ta", 6760),
+    rrp,
+    sofr,
+    iorb,
+  };
+
+  const T = (v) => "$" + (v / 1000).toFixed(2) + "T";
+  const B = (v) => "$" + Math.round(v).toLocaleString("en-US") + "B";
+  const pct = (v) => v.toFixed(2) + "%";
+
+  // Series: [values, color, dashed]. First is the filled primary line.
+  const CH = {
+    nl: { series: [{ key: "nl", color: "#EF4444" }, { key: "ta", color: "#A3A3A3", dash: true }], fmt: T },
+    sofr: { series: [{ key: "sofr", color: "#EF4444" }, { key: "iorb", color: "#A3A3A3", dash: true }], fmt: pct, step: false },
+    ta: { series: [{ key: "ta", color: "#FFFFFF" }], fmt: B },
+    rrp: { series: [{ key: "rrp", color: "#EF4444" }], fmt: (v) => "$" + v.toFixed(0) + "B", zero: true },
+  };
+
+  function chart(el, lines, labels, o) {
+    const W = el.clientWidth || 400, H = el.clientHeight || 220, pl = 56, pr = 8, pt = 8, pb = 24, n = labels.length;
+    const all = lines.flatMap((l) => l.vals);
+    let lo = Math.min(...all), hi = Math.max(...all);
+    const pad = (hi - lo) * 0.12 || 1;
+    lo = o.zero ? 0 : lo - pad;
+    hi = hi + pad;
+    const ticks = [0, 1, 2, 3, 4].map((k) => lo + ((hi - lo) * k) / 4);
+    const x = (i) => pl + ((W - pl - pr) * i) / (n - 1);
+    const y = (v) => pt + (H - pt - pb) * (1 - (v - lo) / (hi - lo));
+    let s = "";
+    ticks.forEach((v) => {
+      const yy = y(v).toFixed(1);
+      s += `<line class="gl" x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}"/><text class="ax" x="${pl - 8}" y="${(+yy + 4).toFixed(1)}" text-anchor="end">${o.fmt(v)}</text>`;
+    });
+    [0, 1, 2, 3].forEach((k) => {
+      const i = Math.round(((n - 1) * k) / 3);
+      const anchor = k === 0 ? "start" : k === 3 ? "end" : "middle";
+      s += `<text class="ax" x="${x(i).toFixed(1)}" y="${H - 6}" text-anchor="${anchor}">${labels[i]}</text>`;
+    });
+    const base = (H - pb).toFixed(1);
+    lines.forEach((l, li) => {
+      const pts = l.vals.map((v, i) => [x(i), y(v)]);
+      const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join("");
+      if (li === 0) s += `<path d="${d}L${x(n - 1).toFixed(1)},${base}L${x(0).toFixed(1)},${base}Z" fill="${l.color}" fill-opacity=".07"/>`;
+      s += `<path d="${d}" fill="none" stroke="${l.color}" stroke-width="${l.dash ? 1.4 : 1.8}" stroke-linejoin="round" ${l.dash ? 'stroke-dasharray="5 5"' : ""}/>`;
+    });
+    const main = lines[0];
+    s += `<line class="guide" x1="0" x2="0" y1="${pt}" y2="${H - pb}" stroke-width="1"/><circle class="pdot" r="4" cx="0" cy="0" fill="${main.color}" stroke="#0A0A0A" stroke-width="2"/>`;
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label}">${s}</svg><div class="tip"></div>`;
+    const g = el.querySelector(".guide"), dot = el.querySelector(".pdot"), tip = el.querySelector(".tip");
+    el.onpointermove = (e) => {
+      const r = el.getBoundingClientRect();
+      const px = e.clientX - r.left;
+      const i = Math.max(0, Math.min(n - 1, Math.round(((px - pl) / (W - pl - pr)) * (n - 1))));
+      const xx = x(i);
+      g.setAttribute("x1", xx); g.setAttribute("x2", xx);
+      dot.setAttribute("cx", xx); dot.setAttribute("cy", y(main.vals[i]));
+      tip.innerHTML = `<span>${labels[i]}</span><b>${o.fmt(main.vals[i])}</b>`;
+      tip.style.left = Math.max(0, Math.min(W - 130, xx - 60)) + "px";
+      el.classList.add("on");
+    };
+    el.onpointerleave = () => el.classList.remove("on");
+  }
+
+  const slice = (a) => a.slice(-RANGE[st.range]);
+
+  function drawCharts() {
+    document.querySelectorAll("[data-chart]").forEach((el) => {
+      const c = CH[el.dataset.chart];
+      const lines = c.series.map((s) => ({ vals: slice(FULL[s.key]), color: s.color, dash: s.dash }));
+      chart(el, lines, weekLabels(RANGE[st.range]), { fmt: c.fmt, zero: c.zero, label: el.dataset.chart });
+    });
+  }
+
+  function statics() {
+    document.getElementById("range").innerHTML = Object.keys(RANGE).map((r) =>
+      `<button type="button" data-r="${r}" aria-pressed="${r === st.range}">${r}</button>`).join("");
+    const set = (id, text, cls) => { const el = document.getElementById(id); el.textContent = text; if (cls) el.className = cls; };
+    const d1m = (k) => FULL[k][WK - 1] - FULL[k][WK - 5];
+    set("v-nl", T(FULL.nl[WK - 1]));
+    set("d-nl", `${d1m("nl") >= 0 ? "+" : "−"}$${Math.abs(Math.round(d1m("nl")))}B · 1M`, "delta " + (d1m("nl") >= 0 ? "up" : "down"));
+    const spread = Math.round((FULL.sofr[WK - 1] - FULL.iorb[WK - 1]) * 100);
+    set("v-sofr", pct(FULL.sofr[WK - 1]));
+    set("d-sofr", `${spread >= 0 ? "+" : "−"}${Math.abs(spread)} bps vs IORB`, "delta " + (spread >= 0 ? "down" : "up"));
+    set("v-ta", "$" + (FULL.ta[WK - 1] / 1000).toFixed(2) + "T");
+    set("d-ta", `${d1m("ta") >= 0 ? "+" : "−"}$${Math.abs(Math.round(d1m("ta")))}B · 1M`, "delta " + (d1m("ta") >= 0 ? "up" : "down"));
+    set("v-rrp", "$" + FULL.rrp[WK - 1].toFixed(0) + "B");
+    set("d-rrp", `+$${Math.round(d1m("rrp"))}B · 1M`, "delta up");
+
+    const R = [["NET LIQ", 58], ["ON RRP", 62], ["TGA", 10], ["SOFR", 51], ["UST AVG", 55]];
+    const cx = 110, cy = 110, RR = 78;
+    const ang = (i) => -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+    const ring = (k) => R.map((_, i) => (cx + RR * k * Math.cos(ang(i))).toFixed(1) + "," + (cy + RR * k * Math.sin(ang(i))).toFixed(1)).join(" ");
+    const poly = R.map(([, v], i) => { const r = (RR * v) / 100; return (cx + r * Math.cos(ang(i))).toFixed(1) + "," + (cy + r * Math.sin(ang(i))).toFixed(1); }).join(" ");
+    const labels = R.map(([nm], i) => `<text class="ax" x="${(cx + (RR + 24) * Math.cos(ang(i))).toFixed(1)}" y="${(cy + (RR + 24) * Math.sin(ang(i)) + 4).toFixed(1)}" text-anchor="middle">${nm}</text>`).join("");
+    document.getElementById("radar").innerHTML = `<svg viewBox="-30 0 280 220" role="img" aria-label="Macro radar">
+      <polygon points="${ring(0.5)}" fill="none" stroke="#1C1C1C"/><polygon points="${ring(1)}" fill="none" stroke="#1C1C1C"/>
+      <polygon points="${poly}" fill="rgba(255,255,255,.12)" stroke="#fff" stroke-width="1.5"/>${labels}</svg>`;
+    document.getElementById("radarVals").innerHTML = [["NLIQ", 58], ["RRP", 62], ["TGA", 10], ["SOFR", 51], ["UST", 55]]
+      .map(([nm, v]) => `<li>${nm}<b>${v}</b></li>`).join("");
+  }
+
+  // Treasury auctions: [date, tenor, size $B, high yield %, tail bps, bid/cover, indirect %]
+  const AUC = [
+    ["2026-10-15", "3-Year Note", 59.4, 4.932, 0.0, 2.62, 55.3],
+    ["2026-10-15", "9-Year 10-Month Note", 39.9, 5.300, 0.0, 2.77, 77.8],
+    ["2026-10-15", "29-Year 10-Month Bond", 22.5, 5.618, 0.0, 2.54, 70.4],
+    ["2026-09-30", "9-Year 10-Month Note", 21.9, 2.653, 0.0, 2.24, 51.1],
+    ["2026-09-30", "7-Year Note", 50.6, 5.085, 0.0, 2.42, 49.1],
+    ["2026-09-30", "5-Year Note", 80.5, 5.033, 0.0, 2.21, 47.0],
+    ["2026-09-30", "2-Year Note", 79.4, 4.787, 0.0, 2.63, 49.3],
+    ["2026-09-18", "19-Year 11-Month Bond", 13.0, 5.420, 0.0, 2.57, 52.1],
+    ["2026-09-15", "3-Year Note", 58.0, 4.474, 0.0, 2.72, 61.7],
+  ];
+  const COLS = [
+    { key: "date", label: "Auction date", num: false, fmt: (r) => r[0] },
+    { key: "tenor", label: "Tenor", num: false, fmt: (r) => `<span class="pill">${r[1]}</span>` },
+    { key: "size", label: "Size ($B)", num: true, fmt: (r) => "$" + r[2].toFixed(1) + "B" },
+    { key: "yield", label: "High yield", num: true, fmt: (r) => r[3].toFixed(3) + "%" },
+    { key: "tail", label: "Tail / stop", num: true, fmt: (r) => (r[4] === 0 ? "0.0" : r[4].toFixed(1)) + " bps", cls: (r) => (r[4] === 0 ? "" : r[4] < 0 ? "down" : "up") },
+    { key: "btc", label: "Bid / cover", num: true, fmt: (r) => r[5].toFixed(2) + "x" },
+    { key: "ind", label: "Indirect %", num: true, fmt: (r) => r[6].toFixed(1) + "%" },
+  ];
+  const IDX = { date: 0, tenor: 1, size: 2, yield: 3, tail: 4, btc: 5, ind: 6 };
+
+  function renderTable() {
+    const { key, dir } = st.sort;
+    const rows = [...AUC].sort((a, b) => {
+      const va = a[IDX[key]], vb = b[IDX[key]];
+      return (va > vb ? 1 : va < vb ? -1 : 0) * dir;
+    });
+    document.getElementById("thead").innerHTML = `<tr>${COLS.map((c) => {
+      const active = c.key === key;
+      const arrow = active ? (dir > 0 ? "↑" : "↓") : "⇅";
+      return `<th class="${c.num ? "n" : ""}"><button type="button" data-sort="${c.key}" aria-sort="${active ? (dir > 0 ? "ascending" : "descending") : "none"}">${c.label}<span class="arrows">${arrow}</span></button></th>`;
+    }).join("")}</tr>`;
+    document.getElementById("tbody").innerHTML = rows.map((r) => `<tr>${COLS.map((c) =>
+      `<td class="${c.num ? "n" : ""} ${c.cls ? c.cls(r) : ""}">${c.fmt(r)}</td>`).join("")}</tr>`).join("");
+  }
+
+  document.getElementById("range").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-r]");
+    if (!b) return;
+    st.range = b.dataset.r;
+    document.querySelectorAll("#range button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.r === st.range)));
+    drawCharts();
+  });
+  document.getElementById("thead").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-sort]");
+    if (!b) return;
+    const k = b.dataset.sort;
+    st.sort = st.sort.key === k ? { key: k, dir: -st.sort.dir } : { key: k, dir: 1 };
+    renderTable();
+  });
+
+  let raf = 0;
+  new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(drawCharts); })
+    .observe(document.querySelector(".main-inner"));
+
+  statics();
+  drawCharts();
+  renderTable();
+})();
+</script>
+</body>
+</html>
+
+</body></html>

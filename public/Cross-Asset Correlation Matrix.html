@@ -1,0 +1,435 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cross-Asset Correlation Matrix</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #000; --surface: #0A0A0A; --surface-2: #131313; --line: #1C1C1C; --line-strong: #2E2E2E;
+  --fg: #FFF; --fg-2: #A3A3A3; --fg-3: #6B6B6B; --pos: #22C55E; --neg: #EF4444;
+  --ui: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --num: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 14px/1.5 var(--ui); -webkit-font-smoothing: antialiased; }
+button, select { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 4px; }
+.num { font-family: var(--num); font-variant-numeric: tabular-nums; }
+.up { color: var(--pos); }
+.down { color: var(--neg); }
+
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: #000; border-bottom: 1px solid var(--line); }
+.topbar-inner { display: flex; align-items: center; gap: 20px; height: 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; white-space: nowrap; }
+.mark { display: grid; place-items: center; width: 30px; height: 28px; border: 1px solid var(--line-strong); border-radius: 6px; font: 600 11px var(--num); }
+.brand small { font: 500 11px var(--num); color: var(--fg-3); border: 1px solid var(--line-strong); border-radius: 4px; padding: 2px 6px; }
+.tabs { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.tabs a { padding: 6px 12px; border-radius: 6px; color: var(--fg-2); font-size: 13px; white-space: nowrap; }
+.tabs a[aria-current="page"] { background: var(--surface-2); color: var(--fg); }
+.top-tools { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.pillbtn { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--fg-2); font-size: 13px; white-space: nowrap; }
+.pillbtn kbd { font: 500 11px var(--num); color: var(--fg-3); }
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: 5px; font: 500 11px var(--num); letter-spacing: .04em; color: var(--fg-2); white-space: nowrap; }
+.badge.long { color: var(--pos); border-color: rgba(34, 197, 94, .45); }
+.badge.short { color: var(--neg); border-color: rgba(239, 68, 68, .45); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2); font: 600 11px var(--num); }
+
+.layout { display: grid; grid-template-columns: 224px minmax(0, 1fr); }
+.side { position: sticky; top: calc(56px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 56px); overflow-y: auto; display: flex; flex-direction: column; padding: 18px 12px 24px max(12px, env(safe-area-inset-left, 0px)); border-right: 1px solid var(--line); }
+.side nav a, .side summary { display: flex; align-items: center; padding: 8px 10px; border-radius: 8px; color: var(--fg-2); font-size: 13.5px; list-style: none; }
+.side nav a:hover, .side summary:hover { color: var(--fg); }
+.side [aria-current="page"] { background: var(--surface-2); color: var(--fg); box-shadow: inset 2px 0 0 #fff; }
+.side details a { padding-left: 30px; font-size: 13px; }
+.side-label { margin: 22px 10px 8px; font: 500 11px var(--num); letter-spacing: .08em; color: var(--fg-3); }
+.radar { margin-top: auto; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
+.radar header { display: flex; justify-content: space-between; align-items: center; font: 500 11px var(--num); color: var(--fg-3); letter-spacing: .04em; }
+.radar svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+.radar ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; font: 400 10.5px var(--num); color: var(--fg-3); }
+.radar li b { display: block; margin-top: 2px; font-weight: 500; font-size: 12px; color: var(--fg); }
+
+.main { min-width: 0; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-bottom: 40px; }
+.main-inner { max-width: 1480px; margin: 0 auto; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 24px; font-size: 13px; color: var(--fg-3); }
+.crumbs b { color: var(--fg); font-weight: 500; }
+.head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 28px; margin-top: 16px; }
+.head h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -0.025em; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.head p { margin: 8px 0 0; color: var(--fg-2); max-width: 70ch; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.seg button { padding: 6px 11px; border-radius: 6px; color: var(--fg-3); font: 500 12px var(--num); }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line-strong); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; min-width: 0; }
+.ph { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.ph h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.ph p { margin: 4px 0 0; font-size: 13px; color: var(--fg-3); }
+.ph .cnt { font: 400 11.5px var(--num); color: var(--fg-3); }
+
+.universe { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; margin-top: 24px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.universe > span { font-size: 13px; color: var(--fg-3); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips button { height: 32px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--fg-3); font: 500 12.5px var(--num); }
+.chips button[aria-pressed="true"] { color: var(--fg); border-color: #fff; background: var(--surface-2); }
+
+.split { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: start; margin-top: 16px; }
+.hm { display: grid; gap: 6px; margin-top: 18px; }
+.hc { min-height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font: 500 14px var(--num); font-variant-numeric: tabular-nums; color: var(--fg); border: 1px solid transparent; min-width: 0; }
+.hh { color: var(--fg-3); font-size: 12px; }
+.hr { justify-content: flex-start; color: var(--fg-2); font-size: 12px; }
+.dg { background: var(--surface-2); color: var(--fg-3); }
+.cell { cursor: pointer; }
+.cell:hover { border-color: #4A4A4A; }
+.cell[aria-pressed="true"] { border-color: #fff; }
+
+.pr { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; margin-top: 10px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; color: var(--fg-2); font-size: 14px; text-align: left; }
+.pr:first-of-type { margin-top: 14px; }
+.pr:hover { border-color: var(--line-strong); color: var(--fg); }
+.pr b { font: 500 14px var(--num); font-variant-numeric: tabular-nums; }
+.sec-h { display: flex; justify-content: space-between; align-items: center; }
+.sec-h h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.sec-h span { font: 400 11.5px var(--num); color: var(--fg-3); }
+
+.roll { margin-top: 16px; }
+.pick { display: flex; align-items: center; gap: 10px; }
+.pick select { height: 34px; padding: 0 30px 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); font: 500 13px var(--num); color: var(--fg); appearance: auto; }
+.pick span { font-size: 13px; color: var(--fg-3); }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+.kc { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.kc span { display: block; font: 500 10.5px var(--num); color: var(--fg-3); letter-spacing: .04em; }
+.kc b { display: block; margin-top: 6px; font: 500 15px var(--num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chart { position: relative; height: 300px; margin-top: 14px; }
+.chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gl { stroke: var(--line); }
+.ax { fill: var(--fg-3); font: 400 11px var(--num); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font: 400 12px var(--num); color: var(--fg-3); }
+.legend i { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 6px; background: currentColor; }
+.legend i.band { width: 12px; height: 10px; background: rgba(255, 255, 255, .06); border: 1px solid var(--line-strong); }
+.cap { font-size: 13px; color: var(--fg-3); margin: 0; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); font: 400 12px var(--num); color: var(--fg-3); }
+
+@media (max-width: 1199px) {
+  .side { display: none; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .main { padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+  .split { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 599px) {
+  .tabs, .pillbtn kbd, .pillbtn span { display: none; }
+  .brand small { display: none; }
+  .topbar-inner { gap: 12px; }
+  .head h1 { font-size: 26px; }
+  .hc { min-height: 44px; font-size: 13px; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .stats .kc:last-child { grid-column: 1 / -1; }
+  .top-tools > .badge { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#" aria-label="MacroEdge home"><span class="mark">ME</span><span>MacroEdge</span><small>Terminal</small></a>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#" aria-current="page">Terminal</a>
+      <a href="#">Command</a>
+      <a href="#">AI bias</a>
+      <a href="#">Data ops</a>
+      <a href="#">Incidents</a>
+    </nav>
+    <div class="top-tools">
+      <button class="pillbtn" type="button" aria-label="Search"><span>Search</span><kbd>⌘K</kbd></button>
+      <span class="badge">Tier I · Analyst</span>
+      <span class="avatar" aria-hidden="true">RO</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <nav aria-label="Statistics">
+      <a href="#">Macro overview</a>
+      <details open>
+        <summary>Positioning</summary>
+        <a href="#">Commitments of traders</a>
+        <a href="#" aria-current="page">Correlation matrix</a>
+      </details>
+      <a href="#">Liquidity</a>
+      <a href="#">Credit and risk</a>
+      <a href="#">Economy</a>
+    </nav>
+    <div class="side-label">TOOLS</div>
+    <nav aria-label="Tools">
+      <a href="#">Comparator</a>
+      <a href="#">Watch list</a>
+      <a href="#">Daily check</a>
+      <a href="#">AI bias engine</a>
+    </nav>
+    <section class="radar" aria-label="Macro radar">
+      <header><span>MACRO RADAR</span><span>5/5</span></header>
+      <div id="radar"></div>
+      <ul id="radarVals"></ul>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <nav class="crumbs" aria-label="Breadcrumb"><span>MacroEdge</span><span>›</span><span>Positioning</span><span>›</span><b>Correlation matrix</b></nav>
+
+      <header class="head">
+        <div>
+          <h1>Cross-asset correlation matrix <span class="badge"><span class="dot" style="color:#22C55E"></span>Live · 2026-11-12</span></h1>
+          <p>Return correlation across FX, rates, equities, gold and crypto, with rolling pairwise stability.</p>
+        </div>
+        <div class="seg" id="win" role="group" aria-label="Window"></div>
+      </header>
+
+      <section class="universe" aria-label="Active universe">
+        <span>Active universe</span>
+        <div class="chips" id="chips" role="group"></div>
+      </section>
+
+      <div class="split">
+        <section class="panel" aria-label="Return correlation heatmap">
+          <div class="ph">
+            <div>
+              <h3>Return correlation heatmap</h3>
+              <p>Click any cell to load that pair into the rolling chart.</p>
+            </div>
+            <span class="cnt">Pearson r</span>
+          </div>
+          <div id="heat"></div>
+        </section>
+
+        <div>
+          <section class="panel" aria-label="Strongest positive correlations">
+            <div class="sec-h"><h3>Strongest positive</h3><span id="winLbl1"></span></div>
+            <div id="pos"></div>
+          </section>
+          <section class="panel" aria-label="Lowest correlations" style="margin-top:16px">
+            <div class="sec-h"><h3>Lowest correlations</h3><span id="winLbl2"></span></div>
+            <div id="low"></div>
+          </section>
+        </div>
+      </div>
+
+      <section class="panel roll" id="roll" aria-label="Rolling correlation"></section>
+
+      <footer class="foot">
+        <span>MacroEdge Cross-Asset Composite · Obs 2026-11-12 · Freq daily · Units Pearson r</span>
+        <span>Sample series, not live market data</span>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const END = new Date(2026, 10, 12);
+  const ASSETS = ["US10Y", "US02Y", "SPX", "XAUUSD", "DXY"];
+  const NAME = { US10Y: "US 10Y Treasury", US02Y: "US 2Y Treasury", SPX: "S&P 500", XAUUSD: "Gold spot", DXY: "Dollar index" };
+  const WINS = ["30D", "90D", "180D", "1Y"];
+  const WLEN = { "30D": 45, "90D": 90, "180D": 180, "1Y": 252 };
+  const WSHIFT = { "30D": 0.1, "90D": 0, "180D": -0.04, "1Y": -0.08 };
+
+  const key = (a, b) => [a, b].sort().join("|");
+  const seed = (s) => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
+  const rnd = (s) => () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+  // 90D base correlations (sample), keyed by sorted pair.
+  const BASE = {};
+  [["US10Y", "US02Y", 0.84], ["US10Y", "SPX", 0.35], ["US02Y", "SPX", 0.48], ["DXY", "XAUUSD", -0.42], ["US10Y", "XAUUSD", 0.12],
+   ["DXY", "US10Y", 0.31], ["DXY", "SPX", -0.18], ["SPX", "XAUUSD", 0.22], ["DXY", "US02Y", 0.27], ["US02Y", "XAUUSD", 0.09]]
+    .forEach(([a, b, v]) => { BASE[key(a, b)] = v; });
+
+  function corr(a, b, w) {
+    if (a === b) return 1;
+    const k = key(a, b);
+    const d = (rnd(seed(k + w))() - 0.5) * 0.14 + WSHIFT[w];
+    return Math.round(clamp(BASE[k] + d, -0.99, 0.99) * 100) / 100;
+  }
+
+  function series(a, b, w) {
+    const n = WLEN[w], end = corr(a, b, w), r = rnd(seed("s" + key(a, b) + w));
+    const p = [r() * 6.28, r() * 6.28];
+    const start = clamp(end + (r() - 0.5) * 0.9, -0.95, 0.95);
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const t = i / (n - 1);
+      const wv = Math.sin(t * 7 + p[0]) * 0.5 + Math.sin(t * 19 + p[1]) * 0.3;
+      out.push(clamp(start + (end - start) * t + wv * 0.18 * (1 - 0.4 * t), -0.98, 0.98));
+    }
+    out[n - 1] = end;
+    return out;
+  }
+
+  const st = { assets: ASSETS.slice(), win: "90D", pa: "XAUUSD", pb: "DXY" };
+  const cellBg = (v) => (v >= 0 ? `rgba(34,197,94,${(0.1 + 0.55 * v).toFixed(2)})` : `rgba(239,68,68,${(0.1 + 0.55 * -v).toFixed(2)})`);
+  const fmt = (v) => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(2);
+
+  function pairs(list, w) {
+    const out = [];
+    for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) out.push({ a: list[i], b: list[j], v: corr(list[i], list[j], w) });
+    return out;
+  }
+
+  function chipsHTML() {
+    return ASSETS.map((c) => `<button type="button" data-chip="${c}" aria-pressed="${st.assets.includes(c)}">${c}</button>`).join("");
+  }
+  function winHTML() {
+    return WINS.map((w) => `<button type="button" data-win="${w}" aria-pressed="${w === st.win}">${w}</button>`).join("");
+  }
+
+  function heatHTML() {
+    const A = st.assets, n = A.length;
+    let h = `<div class="hm" style="grid-template-columns: 64px repeat(${n}, minmax(0, 1fr))">`;
+    h += `<div class="hc hh">${st.win} r</div>` + A.map((a) => `<div class="hc hh">${a}</div>`).join("");
+    A.forEach((a) => {
+      h += `<div class="hc hr">${a}</div>`;
+      A.forEach((b) => {
+        if (a === b) { h += `<div class="hc dg">1.00</div>`; return; }
+        const v = corr(a, b, st.win);
+        const sel = (a === st.pa && b === st.pb) || (a === st.pb && b === st.pa);
+        h += `<button type="button" class="hc cell" data-a="${a}" data-b="${b}" aria-pressed="${sel}" aria-label="${a} versus ${b}, ${v.toFixed(2)}" style="background:${cellBg(v)}">${v.toFixed(2)}</button>`;
+      });
+    });
+    return h + "</div>";
+  }
+
+  function listHTML(items) {
+    if (!items.length) return `<p class="cap" style="margin-top:14px">Select at least two assets.</p>`;
+    return items.map((p) => `<button type="button" class="pr" data-a="${p.a}" data-b="${p.b}"><span>${p.a} / ${p.b}</span><b class="${p.v >= 0 ? "up" : "down"}">${fmt(p.v)}</b></button>`).join("");
+  }
+
+  function rollHTML() {
+    const opts = (sel) => ASSETS.map((c) => `<option value="${c}"${c === sel ? " selected" : ""}>${c}</option>`).join("");
+    let body = "";
+    let stats = ["—", "—", "—"];
+    if (st.pa === st.pb) {
+      body = `<p class="cap" style="height:300px;display:grid;place-items:center">Choose two different assets to see their rolling correlation.</p>`;
+    } else {
+      const s = series(st.pa, st.pb, st.win);
+      const mean = s.reduce((x, y) => x + y, 0) / s.length;
+      stats = [fmt(s[s.length - 1]), fmt(mean), `${fmt(Math.min(...s))} to ${fmt(Math.max(...s))}`];
+      body = `<div class="chart" id="chart"></div>
+        <div class="legend"><span><i></i>Rolling ${WLEN[st.win]}-day r</span><span><i class="band"></i>Neutral band −0.3 to +0.3</span></div>`;
+    }
+    return `
+      <div class="ph">
+        <div>
+          <h3>Rolling &amp; historical correlation · ${st.pa} vs ${st.pb}</h3>
+          <p>${WLEN[st.win]}-day rolling correlation against the full-sample regime.</p>
+        </div>
+        <div class="pick">
+          <select id="pa" aria-label="First asset">${opts(st.pa)}</select>
+          <span>vs</span>
+          <select id="pb" aria-label="Second asset">${opts(st.pb)}</select>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="kc"><span>${st.win} SPOT</span><b>${stats[0]}</b></div>
+        <div class="kc"><span>FULL R</span><b>${stats[1]}</b></div>
+        <div class="kc"><span>RANGE</span><b>${stats[2]}</b></div>
+      </div>
+      ${body}`;
+  }
+
+  function lineChart(el, d) {
+    const W = el.clientWidth, H = el.clientHeight || 300, pl = 44, pr = 44, pt = 10, pb = 26;
+    const n = d.length;
+    const x = (i) => pl + ((W - pl - pr) * i) / (n - 1);
+    const y = (v) => pt + (H - pt - pb) * (1 - (v + 1) / 2);
+    let s = `<rect x="${pl}" y="${y(0.3).toFixed(1)}" width="${(W - pl - pr).toFixed(1)}" height="${(y(-0.3) - y(0.3)).toFixed(1)}" fill="#fff" fill-opacity=".05"/>`;
+    [-1, -0.5, 0, 0.5, 1].forEach((v) => {
+      const yy = y(v).toFixed(1);
+      s += `<line class="gl" x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}" ${v === 0 ? 'stroke="#2E2E2E"' : ""}/>`;
+      s += `<text class="ax" x="${W - pr + 8}" y="${(+yy + 4).toFixed(1)}">${v.toFixed(1)}</text>`;
+    });
+    for (let k = 0; k <= 4; k++) {
+      const i = Math.round(((n - 1) * k) / 4);
+      const dt = new Date(END.getTime() - (n - 1 - i) * 864e5);
+      const anchor = k === 0 ? "start" : k === 4 ? "end" : "middle";
+      s += `<text class="ax" x="${x(i).toFixed(1)}" y="${H - 6}" text-anchor="${anchor}">${iso(dt)}</text>`;
+    }
+    const pts = d.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
+    s += `<polyline points="${pts}" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round"/>`;
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rolling correlation ${st.pa} vs ${st.pb}">${s}</svg>`;
+  }
+
+  function radarHTML() {
+    const L = [["GOLD", 62], ["DXY", 81], ["10Y", 84], ["SPX", 85], ["BTC", 50]];
+    const cx = 110, cy = 110, R = 78;
+    const ang = (i) => -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+    const ring = (k) => L.map((_, i) => (cx + R * k * Math.cos(ang(i))).toFixed(1) + "," + (cy + R * k * Math.sin(ang(i))).toFixed(1)).join(" ");
+    const poly = L.map(([, v], i) => { const r = (R * v) / 100; return (cx + r * Math.cos(ang(i))).toFixed(1) + "," + (cy + r * Math.sin(ang(i))).toFixed(1); }).join(" ");
+    const labels = L.map(([n], i) => `<text class="ax" x="${(cx + (R + 20) * Math.cos(ang(i))).toFixed(1)}" y="${(cy + (R + 20) * Math.sin(ang(i)) + 4).toFixed(1)}" text-anchor="middle">${n}</text>`).join("");
+    document.getElementById("radar").innerHTML = `<svg viewBox="0 0 220 220" role="img" aria-label="Macro radar">
+      <polygon points="${ring(0.5)}" fill="none" stroke="#1C1C1C"/><polygon points="${ring(1)}" fill="none" stroke="#1C1C1C"/>
+      <polygon points="${poly}" fill="rgba(255,255,255,.12)" stroke="#fff" stroke-width="1.5"/>${labels}</svg>`;
+    document.getElementById("radarVals").innerHTML = L.map(([n, v]) => `<li>${n}<b>${v}</b></li>`).join("");
+  }
+
+  function render() {
+    document.getElementById("chips").innerHTML = chipsHTML();
+    document.getElementById("win").innerHTML = winHTML();
+    document.getElementById("heat").innerHTML = heatHTML();
+    const P = pairs(st.assets, st.win);
+    const top = [...P].sort((x, y) => y.v - x.v).slice(0, 3);
+    const low = [...P].sort((x, y) => x.v - y.v).slice(0, 3);
+    document.getElementById("pos").innerHTML = listHTML(top);
+    document.getElementById("low").innerHTML = listHTML(low);
+    document.getElementById("winLbl1").textContent = st.win;
+    document.getElementById("winLbl2").textContent = st.win;
+    document.getElementById("roll").innerHTML = rollHTML();
+    drawRoll();
+  }
+
+  function drawRoll() {
+    const el = document.getElementById("chart");
+    if (el && st.pa !== st.pb) lineChart(el, series(st.pa, st.pb, st.win));
+  }
+
+  const root = document.querySelector(".main-inner");
+  root.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-chip]");
+    if (chip) {
+      const c = chip.dataset.chip;
+      const on = st.assets.includes(c);
+      if (on && st.assets.length <= 2) return;
+      st.assets = ASSETS.filter((a) => (a === c ? !on : st.assets.includes(a)));
+      render(); return;
+    }
+    const w = e.target.closest("[data-win]");
+    if (w) { st.win = w.dataset.win; render(); return; }
+    const cell = e.target.closest("[data-a]");
+    if (cell) { st.pa = cell.dataset.a; st.pb = cell.dataset.b; render(); }
+  });
+  root.addEventListener("change", (e) => {
+    if (e.target.id === "pa" || e.target.id === "pb") {
+      st[e.target.id === "pa" ? "pa" : "pb"] = e.target.value;
+      const id = e.target.id;
+      render();
+      document.getElementById(id).focus();
+    }
+  });
+  let raf = 0;
+  new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(drawRoll); }).observe(root);
+
+  radarHTML();
+  render();
+})();
+</script>
+</body>
+</html>
+
+</body></html>
