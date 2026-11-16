@@ -1,21 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "app": {
-      "root": ".",
-      "framework": "nextjs"
-    },
-    "ml": {
-      "root": "ml",
-      "runtime": "python"
-    }
-  },
-  "rewrites": [
+  "crons": [
     {
-      "source": "/(.*)",
-      "destination": {
-        "service": "app"
-      }
+      "path": "/api/sync/cron",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
