@@ -51,6 +51,31 @@ export async function getTrainingSummary(): Promise<Record<string, unknown> | nu
 export async function runAiModelsInference(
   payload: InferenceRequestPayload = {}
 ): Promise<AiModelsSnapshot> {
+  const mlServiceUrl = process.env.ML_SERVICE_URL?.trim();
+  if (mlServiceUrl) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 90_000);
+    try {
+      const response = await fetch(new URL("/infer", mlServiceUrl), {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      const body = (await response.json()) as {
+        ok?: boolean;
+        snapshot?: AiModelsSnapshot;
+        detail?: string;
+      };
+      if (!response.ok || !body.ok || !body.snapshot) {
+        throw new Error(body.detail || `ML service returned HTTP ${response.status}.`);
+      }
+      return body.snapshot;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   const pythonBin = await fs
     .access(VENV_PYTHON)
     .then(() => VENV_PYTHON)
