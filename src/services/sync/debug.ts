@@ -155,19 +155,31 @@ export async function getAutoSyncDiagnostics(): Promise<AutoSyncDiagnostics> {
     const lastSuccessAt = health?.lastSuccessAt ?? null;
     const status: SyncStatusType = health?.status ?? "DISCONNECTED";
 
+    const isWorkerLocked = activeLocks.some(
+      (l) => l.includes(cfg.ownerWorker) || l.includes(providerId)
+    );
+
     let secondsSinceLastSuccess: number | null = null;
     let overdue = false;
 
-    if (lastSuccessAt) {
-      const successMs = Date.parse(lastSuccessAt);
-      if (Number.isFinite(successMs)) {
-        secondsSinceLastSuccess = Math.max(0, Math.round((startedAtMs - successMs) / 1000));
-        if (pStatus.configured && secondsSinceLastSuccess > cfg.staleAfterSeconds) {
-          overdue = true;
+    if (pStatus.configured && !isWorkerLocked) {
+      if (lastSuccessAt) {
+        const successMs = Date.parse(lastSuccessAt);
+        if (Number.isFinite(successMs)) {
+          secondsSinceLastSuccess = Math.max(0, Math.round((startedAtMs - successMs) / 1000));
+          if (secondsSinceLastSuccess > cfg.staleAfterSeconds) {
+            overdue = true;
+          }
+        }
+      } else if (lastAttemptAt && status === "FAILED") {
+        const attemptMs = Date.parse(lastAttemptAt);
+        if (Number.isFinite(attemptMs)) {
+          const secondsSinceAttempt = Math.max(0, Math.round((startedAtMs - attemptMs) / 1000));
+          if (secondsSinceAttempt > cfg.staleAfterSeconds) {
+            overdue = true;
+          }
         }
       }
-    } else if (pStatus.configured) {
-      overdue = true;
     }
 
     const rateHistory = rateHistories[providerId] ?? {
@@ -187,10 +199,14 @@ export async function getAutoSyncDiagnostics(): Promise<AutoSyncDiagnostics> {
     }
 
     if (overdue && pStatus.configured) {
+      const elapsedStr =
+        secondsSinceLastSuccess != null
+          ? `elapsed ${secondsSinceLastSuccess}s`
+          : "no successful sync recorded";
       issues.push({
         severity: "WARNING",
         code: `PROVIDER_STALE_${providerId.toUpperCase()}`,
-        message: `Configured provider ${cfg.name} is overdue for sync (elapsed ${secondsSinceLastSuccess ?? "never"}s > threshold ${cfg.staleAfterSeconds}s).`,
+        message: `Configured provider ${cfg.name} is overdue for sync (${elapsedStr} > threshold ${cfg.staleAfterSeconds}s).`,
         recommendation: `Trigger a targeted sync for ${providerId} via POST /api/sync/trigger.`,
       });
     }

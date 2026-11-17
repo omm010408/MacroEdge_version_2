@@ -1342,6 +1342,7 @@ async function fetchFredYieldQuote(
 export async function runMarketEngineCycle(options?: {
   symbols?: MarketSymbol[];
   trigger?: TriggerType;
+  providerId?: ProviderId;
 }): Promise<WorkerExecutionSummary> {
   const startedMs = Date.now();
   const trigger = options?.trigger ?? "scheduled";
@@ -1422,7 +1423,9 @@ export async function runMarketEngineCycle(options?: {
   }
 
   const activeProvider: ProviderId =
-    configuredWsProvider ?? (hasApiNinjas ? "api_ninjas" : hasFredFallback ? "fred" : "yfinance");
+    options?.providerId ??
+    configuredWsProvider ??
+    (hasApiNinjas ? "api_ninjas" : hasFredFallback ? "fred" : "yfinance");
   const wsConfigured = Boolean(configuredWsProvider);
   const existingQuotes = await getMarketQuotes();
   const existingSymbolSet = new Set(existingQuotes.map((q) => q.symbol));
@@ -1433,7 +1436,7 @@ export async function runMarketEngineCycle(options?: {
       providerId: activeProvider,
       jobName: "market_engine_cycle",
       triggerType: trigger,
-      skipSourceHealthUpdate: !wsConfigured,
+      skipSourceHealthUpdate: false,
       workerStatusOnSuccess: wsConfigured ? "LIVE" : "CURRENT",
       rawPayload: { symbols, wsConfigured },
     },
@@ -1579,6 +1582,28 @@ export async function runMarketEngineCycle(options?: {
           price: validation.normalized.price,
           volume: validation.normalized.volume ?? 0,
           rawPayload: { dedupKey: validation.dedupKey },
+        });
+      }
+
+      // Record success for all providers that actually returned valid quotes
+      const successfulProviders = new Set<ProviderId>();
+      for (const { tick, usedProvider } of preFetched) {
+        if (tick && usedProvider) {
+          successfulProviders.add(usedProvider);
+        }
+      }
+      const successIso = new Date().toISOString();
+      for (const pid of successfulProviders) {
+        await updateDataHealth({
+          id: `source:${pid}`,
+          entityType: "source",
+          sourceId: pid,
+          workerId: "market-engine",
+          status: "CURRENT",
+          lastSuccessAt: successIso,
+          lastAttemptAt: successIso,
+          consecutiveFailures: 0,
+          details: { configured: isProviderConfigured(pid) },
         });
       }
 

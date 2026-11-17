@@ -445,6 +445,7 @@ async function runSingleWorkerIsolated(params: {
         return runMarketEngineCycle({
           symbols: params.symbols,
           trigger: params.trigger,
+          providerId: params.providerId,
         });
       case "macro-engine":
         return runMacroEngineSync({

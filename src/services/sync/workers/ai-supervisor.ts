@@ -19,6 +19,7 @@ import {
 } from "@/services/sync/store";
 import type { WorkerExecutionSummary } from "@/services/sync/validation-recovery";
 import { fetchProviderJsonWithRetry } from "@/services/sync/workers/rest-adapters";
+import { fetchMarketauxNews } from "@/services/marketaux/client";
 
 const GEMINI_ENDPOINT =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
@@ -433,6 +434,29 @@ export async function runAiSupervisorCycle(options?: {
     latencyMs,
     lastError: null,
   });
+
+  if (isProviderConfigured("marketaux")) {
+    try {
+      const articles = await fetchMarketauxNews();
+      if (articles && articles.length > 0) {
+        await updateDataHealth({
+          id: "source:marketaux",
+          entityType: "source",
+          sourceId: "marketaux",
+          workerId: "ai-supervisor",
+          status: "CURRENT",
+          lastSuccessAt: nowIso,
+          lastAttemptAt: nowIso,
+          consecutiveFailures: 0,
+          latencyMs: 50,
+          lastError: null,
+          details: { configured: true, articlesFetched: articles.length },
+        });
+      }
+    } catch {
+      // Non-fatal
+    }
+  }
   await completeSyncRun(run.id, {
     status: "SUCCEEDED",
     recordsFetched: validatedValues.length,

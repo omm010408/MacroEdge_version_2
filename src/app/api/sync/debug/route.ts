@@ -4,6 +4,7 @@ import {
   resetRateLimitHistory,
   runAutoSyncProbe,
 } from "@/services/sync/debug";
+import { dispatchSyncJob } from "@/services/sync/orchestrator";
 import { runDeterministicMonitorSweep } from "@/services/incidents/debugger-engine";
 import {
   NO_STORE_HEADERS,
@@ -74,6 +75,17 @@ export async function POST(req: Request) {
           invokeAi: false,
         });
         break;
+      case "sync-provider": {
+        if (!isValidProviderId(body?.providerId)) {
+          return syncErrorResponse("Invalid providerId specified.", 400);
+        }
+        result = await dispatchSyncJob({
+          providerId: body.providerId,
+          force: true,
+          trigger: "manual",
+        });
+        break;
+      }
       default:
         return syncErrorResponse(`Unknown debug action: ${String(action)}`, 400);
     }

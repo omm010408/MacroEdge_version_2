@@ -95,6 +95,15 @@ async function runTests() {
   assert.ok(diag.providers.us_treasury, "US Treasury provider must exist in diagnostics");
   assert.ok(diag.workers["macro-engine"], "macro-engine worker must exist");
   assert.ok(diag.workers["liquidity-risk-engine"], "liquidity-risk-engine worker must exist");
+  assert.equal(diag.verdict, "AWAITING_SYNC", "Initial verdict without data or runs must be AWAITING_SYNC");
+  for (const [pId, pItem] of Object.entries(diag.providers)) {
+    if (!pItem.lastSuccessAt) {
+      assert.equal(pItem.overdue, false, `Provider ${pId} pending initial sync must not be marked overdue`);
+    }
+  }
+  for (const issue of diag.issues) {
+    assert.ok(!issue.message.includes("nevers"), `Issue message must never contain 'nevers': ${issue.message}`);
+  }
   console.log(`  Verdict: ${diag.verdict}, Memory RSS: ${diag.memoryUsageMb.rss}MB, Providers: ${Object.keys(diag.providers).length}`);
 
   // Test 2: Latency Probe execution

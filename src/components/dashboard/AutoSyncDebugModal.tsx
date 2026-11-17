@@ -91,6 +91,27 @@ export function AutoSyncDebugModal({
     }
   };
 
+  const handleSyncProvider = async (providerId: string) => {
+    setActionBusy(`sync:${providerId}`);
+    try {
+      const res = await fetch("/api/sync/debug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "sync-provider", providerId }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.diagnostics) {
+          setData(json.diagnostics);
+        }
+      }
+    } catch (err) {
+      console.error(`[AutoSyncDebugModal] Sync provider ${providerId} error:`, err);
+    } finally {
+      setActionBusy(null);
+    }
+  };
+
   const handleCopyJson = async () => {
     if (!data) return;
     try {
@@ -241,11 +262,19 @@ export function AutoSyncDebugModal({
                 <button
                   type="button"
                   disabled={isSyncing || actionBusy !== null}
-                  onClick={() => void onTriggerSync()}
+                  onClick={async () => {
+                    setActionBusy("sync");
+                    try {
+                      await onTriggerSync();
+                      await fetchDiagnostics();
+                    } finally {
+                      setActionBusy(null);
+                    }
+                  }}
                   className="inline-flex items-center gap-1.5 rounded border border-white/20 bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-white/20 disabled:opacity-50"
                 >
                   <Play className="h-3 w-3" />
-                  {isSyncing ? "Syncing..." : "Force Full Sync"}
+                  {isSyncing || actionBusy === "sync" ? "Syncing..." : "Force Full Sync"}
                 </button>
               )}
 
@@ -305,6 +334,22 @@ export function AutoSyncDebugModal({
                       <div className="mt-0.5 text-[10px] opacity-80">
                         Recommendation: {issue.recommendation}
                       </div>
+                      {issue.code.startsWith("PROVIDER_STALE_") && (
+                        <div className="mt-1.5">
+                          <button
+                            type="button"
+                            disabled={actionBusy !== null}
+                            onClick={() => {
+                              const pid = issue.code.replace("PROVIDER_STALE_", "").toLowerCase();
+                              void handleSyncProvider(pid);
+                            }}
+                            className="inline-flex items-center gap-1 rounded border border-[#F59E0B]/40 bg-[#F59E0B]/20 px-2 py-0.5 text-[10px] font-semibold text-[#FDE68A] hover:bg-[#F59E0B]/30 disabled:opacity-50"
+                          >
+                            <Play className="h-2.5 w-2.5" />
+                            {actionBusy?.startsWith("sync:") ? "Syncing..." : "Sync Provider Now"}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -379,11 +424,17 @@ export function AutoSyncDebugModal({
                           </span>
                         </td>
                         <td className="p-2 text-[#A1A1AA]">
-                          {p.lastSuccessAt ? p.lastSuccessAt.slice(11, 19) + " UTC" : "Never"}
+                          {p.lastSuccessAt
+                            ? p.lastSuccessAt.slice(11, 19) + " UTC"
+                            : data?.activeLocks?.some((l) => l.includes(p.providerId))
+                            ? "Syncing..."
+                            : "Never"}
                         </td>
                         <td className="p-2">
                           {p.overdue ? (
                             <span className="text-[#EF4444] font-bold">YES</span>
+                          ) : p.lastSuccessAt == null ? (
+                            <span className="text-[#71717A]">PENDING</span>
                           ) : (
                             <span className="text-[#22C55E]">NO</span>
                           )}
