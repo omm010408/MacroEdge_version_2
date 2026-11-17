@@ -1,13 +1,26 @@
+databases:
+  - name: macroedge-postgres
+    databaseName: macroedge
+    user: macroedge_user
+    plan: starter
+    region: oregon
+    postgresVersion: "16"
+
 services:
   - type: worker
     name: macroedge-sync-worker
     runtime: node
     plan: starter
+    region: oregon
     buildCommand: npm ci && npm install --no-save tsx
     startCommand: npx tsx scripts/sync-worker.ts
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: macroedge-postgres
+          property: connectionString
       - key: NEXT_PUBLIC_SUPABASE_URL
         sync: false
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY

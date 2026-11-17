@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { AutoSyncDebugModal } from "@/components/dashboard/AutoSyncDebugModal";
+import { EconomicCalendar } from "@/components/dashboard/EconomicCalendar";
 import type {
   CorrelationAssetSeries,
   DatasetMeta,
@@ -42,12 +43,6 @@ const RANGES: Record<string, { n: number; days: number }> = {
 };
 
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const DOCKET: Record<string, { title: string; note: string }> = {
-  today: { title: "No releases today", note: "11 releases are scheduled this week and 21 across the full docket." },
-  week:  { title: "11 releases this week", note: "Release rows load from the calendar feed." },
-  next:  { title: "10 releases next week", note: "Release rows load from the calendar feed." },
-  all:   { title: "21 releases on the docket", note: "Release rows load from the calendar feed." },
-};
 
 const TICKERS = ["DIA", "SPY", "TLT", "IEF", "QQQ", "GLD", "DXY", "US10Y", "XAUUSD", "IAU"];
 
@@ -154,7 +149,6 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
 
   const [asset, setAsset] = useState<string>("US10Y");
   const [range, setRange] = useState<string>("1Y");
-  const [docketTab, setDocketTab] = useState<string>("today");
   const [assetFilter, setAssetFilter] = useState<string>("all");
   const [tickerFilter, setTickerFilter] = useState<string | null>(null);
   const [stamp, setStamp] = useState<string>(() => hhmm());
@@ -1133,84 +1127,7 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
                 </p>
               </section>
 
-              <section className="panel" aria-labelledby="docketTitle">
-                <div className="panel-head">
-                  <div>
-                    <h2 className="panel-title" id="docketTitle">
-                      Economic calendar
-                    </h2>
-                    <p className="panel-sub">Tier 1 and tier 2 releases with consensus</p>
-                  </div>
-                  <div className="seg" id="docketTabs" role="group" aria-label="Release window">
-                    <button
-                      type="button"
-                      data-d="today"
-                      aria-pressed={docketTab === "today"}
-                      onClick={() => setDocketTab("today")}
-                    >
-                      Today {calendarEvents.filter((e) => e.bucket === "today").length}
-                    </button>
-                    <button
-                      type="button"
-                      data-d="week"
-                      aria-pressed={docketTab === "week"}
-                      onClick={() => setDocketTab("week")}
-                    >
-                      This week {calendarEvents.filter((e) => e.bucket === "this-week").length || 11}
-                    </button>
-                    <button
-                      type="button"
-                      data-d="next"
-                      aria-pressed={docketTab === "next"}
-                      onClick={() => setDocketTab("next")}
-                    >
-                      Next week {calendarEvents.filter((e) => e.bucket === "next-week").length || 10}
-                    </button>
-                    <button
-                      type="button"
-                      data-d="all"
-                      aria-pressed={docketTab === "all"}
-                      onClick={() => setDocketTab("all")}
-                    >
-                      All {calendarEvents.length || 21}
-                    </button>
-                  </div>
-                </div>
-                <div className="docket" id="docket" role="status">
-                  {(() => {
-                    const filtered = calendarEvents.filter((e) => {
-                      if (docketTab === "today") return e.bucket === "today";
-                      if (docketTab === "week") return e.bucket === "this-week";
-                      if (docketTab === "next") return e.bucket === "next-week";
-                      return true;
-                    });
-                    if (filtered.length > 0) {
-                      return (
-                        <div className="space-y-2 text-left">
-                          {filtered.slice(0, 5).map((ev) => (
-                            <div key={ev.id} className="flex items-center justify-between py-1 border-b border-[#1F1F1F] text-xs">
-                              <div>
-                                <span className="font-semibold text-white mr-2">[{ev.country}]</span>
-                                <span className="text-[#A1A1AA]">{ev.event}</span>
-                              </div>
-                              <div className="text-right">
-                                <span className="text-white font-mono">{ev.releaseTime}</span>
-                                {ev.consensus && <span className="text-[#71717A] ml-2 font-mono">Cons: {ev.consensus}</span>}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    }
-                    return (
-                      <>
-                        <h3>{DOCKET[docketTab]?.title}</h3>
-                        <p>{DOCKET[docketTab]?.note}</p>
-                      </>
-                    );
-                  })()}
-                </div>
-              </section>
+              <EconomicCalendar events={calendarEvents} defaultRange="week" />
             </div>
 
             {/* Desks Section */}
