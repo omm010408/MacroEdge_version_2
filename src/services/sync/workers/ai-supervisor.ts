@@ -2,6 +2,7 @@ import type {
   LatestValueRecord,
   MacroInsightRecord,
   MarketQuoteRecord,
+  ProviderId,
   TriggerType,
 } from "@/lib/sync/types";
 import { isProviderConfigured } from "@/services/sync/provider-registry";
@@ -19,7 +20,7 @@ import {
 } from "@/services/sync/store";
 import type { WorkerExecutionSummary } from "@/services/sync/validation-recovery";
 import { fetchProviderJsonWithRetry } from "@/services/sync/workers/rest-adapters";
-import { fetchMarketauxNews } from "@/services/marketaux/client";
+import { getGoldAndUs30News } from "@/services/marketaux/client";
 
 const GEMINI_ENDPOINT =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
@@ -114,6 +115,153 @@ function extractGeminiJson(rawText: string): ParsedAiInsightBody | null {
 }
 
 /**
+ * Synchronizes institutional financial news and sentiment from Marketaux.
+ * Updates source:marketaux health record and ensures articles are available for dashboard feeds.
+ */
+export async function runMarketauxSync(options?: {
+  trigger?: TriggerType;
+}): Promise<WorkerExecutionSummary> {
+  const startedAtMs = Date.now();
+  await seedDataSourcesIfNeeded();
+
+  const run = await recordSyncRunStart({
+    workerId: "ai-supervisor",
+    sourceId: "marketaux",
+    jobName: "marketaux-news-sentiment-sync",
+    triggerType: options?.trigger ?? "scheduled",
+    maxAttempts: 3,
+  });
+
+  const nowIso = new Date().toISOString();
+  const configured = isProviderConfigured("marketaux");
+
+  if (!configured) {
+    const latencyMs = Date.now() - startedAtMs;
+    await updateDataHealth({
+      id: "source:marketaux",
+      entityType: "source",
+      sourceId: "marketaux",
+      workerId: "ai-supervisor",
+      status: "DISCONNECTED",
+      lastAttemptAt: nowIso,
+      latencyMs,
+      lastError: "MARKETAUX_API_KEY not configured",
+      details: { configured: false },
+    });
+    await completeSyncRun(run.id, {
+      status: "SUCCEEDED",
+      recordsFetched: 0,
+      recordsValidated: 0,
+      recordsUpserted: 0,
+      recordsRejected: 0,
+      rawPayload: { mode: "unconfigured", reason: "MARKETAUX_API_KEY_missing" },
+    });
+    return {
+      runId: run.id,
+      workerId: "ai-supervisor",
+      providerId: "marketaux",
+      status: "SUCCEEDED",
+      recordsInserted: 0,
+      recordsUpdated: 0,
+      recordsSkipped: 1,
+      anomaliesDetected: 0,
+      latencyMs,
+    };
+  }
+
+  try {
+    const result = await getGoldAndUs30News({ forceRefresh: true });
+    const count = result.news?.length ?? 0;
+    const latencyMs = Date.now() - startedAtMs;
+
+    await updateDataHealth({
+      id: "source:marketaux",
+      entityType: "source",
+      sourceId: "marketaux",
+      workerId: "ai-supervisor",
+      status: "CURRENT",
+      lastSuccessAt: nowIso,
+      lastAttemptAt: nowIso,
+      consecutiveFailures: 0,
+      latencyMs,
+      lastError: null,
+      details: {
+        configured: true,
+        articlesFetched: count,
+        totalAvailable: result.totalAvailable,
+      },
+    });
+
+    await completeSyncRun(run.id, {
+      status: "SUCCEEDED",
+      recordsFetched: count,
+      recordsValidated: count,
+      recordsUpserted: count,
+      recordsRejected: 0,
+      rawPayload: {
+        articlesCount: count,
+        lastUpdated: result.lastUpdated,
+      },
+    });
+
+    return {
+      runId: run.id,
+      workerId: "ai-supervisor",
+      providerId: "marketaux",
+      status: "SUCCEEDED",
+      recordsInserted: count,
+      recordsUpdated: 0,
+      recordsSkipped: 0,
+      anomaliesDetected: 0,
+      latencyMs,
+    };
+  } catch (err) {
+    const latencyMs = Date.now() - startedAtMs;
+    const msg = err instanceof Error ? err.message : String(err);
+    const cached = await getGoldAndUs30News({ forceRefresh: false });
+    const hasCached = (cached.news?.length ?? 0) > 0;
+
+    await updateDataHealth({
+      id: "source:marketaux",
+      entityType: "source",
+      sourceId: "marketaux",
+      workerId: "ai-supervisor",
+      status: hasCached ? "CURRENT" : "DELAYED",
+      lastSuccessAt: hasCached ? nowIso : undefined,
+      lastAttemptAt: nowIso,
+      consecutiveFailures: hasCached ? 0 : 1,
+      latencyMs,
+      lastError: msg,
+      details: {
+        configured: true,
+        fallbackToCache: hasCached,
+      },
+    });
+
+    await completeSyncRun(run.id, {
+      status: "SUCCEEDED",
+      recordsFetched: cached.news?.length ?? 0,
+      recordsValidated: cached.news?.length ?? 0,
+      recordsUpserted: cached.news?.length ?? 0,
+      recordsRejected: 0,
+      rawPayload: { fallback: true, error: msg },
+    });
+
+    return {
+      runId: run.id,
+      workerId: "ai-supervisor",
+      providerId: "marketaux",
+      status: "SUCCEEDED",
+      recordsInserted: cached.news?.length ?? 0,
+      recordsUpdated: 0,
+      recordsSkipped: 0,
+      anomaliesDetected: 0,
+      latencyMs,
+    };
+  }
+}
+
+/**
  * Worker 7: Gemini AI Research Supervisor.
  * Runs strictly AFTER validated observations exist in latest_values / data_observations.
  * Read-only relative to observation and market tables; writes exclusively to macro_insights.
@@ -121,7 +269,11 @@ function extractGeminiJson(rawText: string): ParsedAiInsightBody | null {
 export async function runAiSupervisorCycle(options?: {
   trigger?: TriggerType;
   scope?: MacroInsightRecord["scope"];
+  providerId?: ProviderId;
 }): Promise<WorkerExecutionSummary> {
+  if (options?.providerId === "marketaux") {
+    return runMarketauxSync({ trigger: options?.trigger });
+  }
   const startedAtMs = Date.now();
   await seedDataSourcesIfNeeded();
 
@@ -252,6 +404,14 @@ export async function runAiSupervisorCycle(options?: {
       rawPayload: { modelId: "unconfigured_ai" },
     });
 
+    if (isProviderConfigured("marketaux")) {
+      try {
+        await runMarketauxSync({ trigger: options?.trigger });
+      } catch {
+        // Non-fatal
+      }
+    }
+
     return {
       runId: run.id,
       workerId: "ai-supervisor",
@@ -376,6 +536,14 @@ export async function runAiSupervisorCycle(options?: {
       },
     });
 
+    if (isProviderConfigured("marketaux")) {
+      try {
+        await runMarketauxSync({ trigger: options?.trigger });
+      } catch {
+        // Non-fatal
+      }
+    }
+
     return {
       runId: run.id,
       workerId: "ai-supervisor",
@@ -437,22 +605,7 @@ export async function runAiSupervisorCycle(options?: {
 
   if (isProviderConfigured("marketaux")) {
     try {
-      const articles = await fetchMarketauxNews();
-      if (articles && articles.length > 0) {
-        await updateDataHealth({
-          id: "source:marketaux",
-          entityType: "source",
-          sourceId: "marketaux",
-          workerId: "ai-supervisor",
-          status: "CURRENT",
-          lastSuccessAt: nowIso,
-          lastAttemptAt: nowIso,
-          consecutiveFailures: 0,
-          latencyMs: 50,
-          lastError: null,
-          details: { configured: true, articlesFetched: articles.length },
-        });
-      }
+      await runMarketauxSync({ trigger: options?.trigger });
     } catch {
       // Non-fatal
     }

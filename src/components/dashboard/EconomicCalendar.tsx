@@ -80,7 +80,7 @@ function dayTitle(key: string): string {
 
 export function EconomicCalendar({
   events = [],
-  defaultRange = "week",
+  defaultRange = "today",
 }: EconomicCalendarProps) {
   const [range, setRange] = useState<"last" | "today" | "week" | "next" | "all">(defaultRange);
   const [tz, setTz] = useState<"utc" | "local">("utc");

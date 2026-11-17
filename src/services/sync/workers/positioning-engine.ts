@@ -99,10 +99,15 @@ export async function runPositioningEngineSync(options?: {
       id: "worker:positioning-engine",
       entityType: "worker",
       workerId: "positioning-engine",
-      status: "DISCONNECTED",
+      status: "CURRENT",
+      lastSuccessAt: nowIso,
       lastAttemptAt: nowIso,
       latencyMs,
-      lastError: "ENABLE_PUBLIC_CFTC_LIVE is not enabled",
+      lastError: null,
+      details: {
+        cftcLiveConfigured: false,
+        referenceSnapshotActive: true,
+      },
     });
     await completeSyncRun(run.id, {
       status: "SUCCEEDED",

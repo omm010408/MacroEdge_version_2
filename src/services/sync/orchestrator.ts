@@ -29,7 +29,10 @@ import {
   registerOrchestratorDispatcher,
   type WorkerExecutionSummary,
 } from "@/services/sync/validation-recovery";
-import { runAiSupervisorCycle } from "@/services/sync/workers/ai-supervisor";
+import {
+  runAiSupervisorCycle,
+  runMarketauxSync,
+} from "@/services/sync/workers/ai-supervisor";
 import { runLiquidityRiskEngineSync } from "@/services/sync/workers/liquidity-risk-engine";
 import { runMacroEngineSync } from "@/services/sync/workers/macro-engine";
 import { runMarketEngineCycle } from "@/services/sync/workers/market-engine";
@@ -464,6 +467,11 @@ async function runSingleWorkerIsolated(params: {
           providerId: params.providerId,
         });
       case "ai-supervisor":
+        if (params.providerId === "marketaux") {
+          return runMarketauxSync({
+            trigger: params.trigger,
+          });
+        }
         return runAiSupervisorCycle({
           trigger: params.trigger,
         });
@@ -650,6 +658,7 @@ export async function dispatchSyncJob(
       { workerId: "positioning-engine", providerId: "cftc" },
       { workerId: "liquidity-risk-engine", providerId: "fed_reserve" },
       { workerId: "liquidity-risk-engine", providerId: "us_treasury" },
+      { workerId: "ai-supervisor", providerId: "marketaux" },
     ];
   }
 
@@ -766,7 +775,7 @@ export async function runScheduledOrchestratorTick(options?: {
   let marketEngineQueued = false;
 
   for (const cfg of listProviders()) {
-    if (cfg.ownerWorker === "ai-supervisor") continue;
+    if (cfg.id === "gemini") continue; // Post-validation AI Supervisor synthesis runs below
     if (!(force || isSourceDueForSync(cfg.id, healthById, startedAtMs))) {
       continue;
     }

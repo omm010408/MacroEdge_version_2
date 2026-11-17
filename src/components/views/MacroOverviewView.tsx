@@ -1127,7 +1127,7 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
                 </p>
               </section>
 
-              <EconomicCalendar events={calendarEvents} defaultRange="week" />
+              <EconomicCalendar events={calendarEvents} defaultRange="today" />
             </div>
 
             {/* Desks Section */}
