@@ -232,8 +232,13 @@ export function AutoSyncDebugModal({
 
             <div className="rounded border border-[#1F1F1F] bg-[#050505] p-2.5">
               <span className="text-[10px] uppercase text-[#71717A]">Stored Observations</span>
-              <div className="mt-1 text-base font-semibold text-[#22C55E]">
-                {data?.counts?.totalLatestValues ?? 0}
+              <div className="mt-1 flex items-baseline gap-1.5">
+                <span className="text-base font-semibold text-[#22C55E]">
+                  {(data?.counts?.totalLatestValues ?? 0) + (data?.counts?.totalMarketQuotes ?? 0)}
+                </span>
+                <span className="text-[10px] text-[#71717A]">
+                  ({data?.counts?.totalLatestValues ?? 0} macro, {data?.counts?.totalMarketQuotes ?? 0} quotes)
+                </span>
               </div>
             </div>
 
@@ -433,8 +438,10 @@ export function AutoSyncDebugModal({
                         <td className="p-2">
                           {p.overdue ? (
                             <span className="text-[#EF4444] font-bold">YES</span>
+                          ) : !p.configured || p.status === "DISCONNECTED" ? (
+                            <span className="text-[#52525B]">NO</span>
                           ) : p.lastSuccessAt == null ? (
-                            <span className="text-[#71717A]">PENDING</span>
+                            <span className="text-[#F59E0B]/90 font-medium">PENDING</span>
                           ) : (
                             <span className="text-[#22C55E]">NO</span>
                           )}

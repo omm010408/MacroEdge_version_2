@@ -258,6 +258,13 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
     }
   }, []);
 
+  // Initial sync on mount if not in-flight
+  useEffect(() => {
+    if (!syncInFlightRef.current) {
+      void handleSyncNow();
+    }
+  }, [handleSyncNow]);
+
   // Periodic Auto-Sync Interval Runner (Wall-Clock Anchored & Visibility Resilient)
   useEffect(() => {
     const tick = () => {

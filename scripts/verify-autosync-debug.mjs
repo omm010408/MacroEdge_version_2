@@ -136,6 +136,17 @@ async function runTests() {
   assert.ok(macroSummaries.length >= 3, "Expected macro-engine summaries for fred, bls, and bea");
   console.log(`  Total worker summaries: ${syncResult.summaries.length}, Macro workers: ${macroSummaries.length}`);
 
+  const postDiag = await getAutoSyncDiagnostics();
+  console.log(`  Post-Sync Verdict: ${postDiag.verdict}`);
+  console.log(`  Post-Sync Observations: ${postDiag.counts.totalLatestValues} values, ${postDiag.counts.totalMarketQuotes} quotes`);
+  console.log(`  Post-Sync Active Locks: ${postDiag.activeLocks.length}`);
+  console.log(`  Post-Sync Workers: ${Object.entries(postDiag.workers).map(([k, v]) => `${k}:${v.status}(${v.recordsUpdated} rec, dur:${v.lastRunDurationMs}ms)`).join(", ")}`);
+  for (const [pId, p] of Object.entries(postDiag.providers)) {
+    if (p.lastSuccessAt) {
+      console.log(`  Provider ${pId}: success=${p.lastSuccessAt.slice(11, 19)} overdue=${p.overdue}`);
+    }
+  }
+
   console.log("\nALL AUTOSYNC DEBUG TESTS PASSED SUCCESSFULLY.");
 }
 
