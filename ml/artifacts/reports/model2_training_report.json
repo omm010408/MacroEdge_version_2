@@ -1,0 +1,15 @@
+{
+  "total_real_items": 45.0,
+  "held_out_audit_items": 23.0,
+  "pending_human_review_items": 22.0,
+  "structured_validity_rate": 1.0,
+  "duplicate_detection_f1_macro": 1.0,
+  "source_institution_accuracy": 1.0,
+  "source_speaker_accuracy": 1.0,
+  "topic_audit_accuracy": 1.0,
+  "topic_audit_f1_macro": 1.0,
+  "finbert_sentiment_audit_accuracy": 0.8696,
+  "finbert_sentiment_audit_f1_macro": 0.3101,
+  "policy_non_hallucination_acc": 1.0,
+  "xauusd_non_hallucination_acc": 1.0
+}

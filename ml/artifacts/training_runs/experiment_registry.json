@@ -1,0 +1,334 @@
+{
+  "registry_version": "v3.0.0-preregistration",
+  "recorded_at": "2026-11-16T01:22:00.000000+00:00",
+  "preregistration": {
+    "protocol_file": "PRE_REGISTRATION.md",
+    "holdout_index_file": "ml/artifacts/holdout_index.json",
+    "holdout_index_sha256": "f8a5e709ce0fdcca626e3de69c49de3b096a6dbb2d3e8a133e8876d4e6128432",
+    "n_trials_budget_total": 215,
+    "gates": {
+      "Gate 1 (Skill vs Baseline)": "Holdout MASE < 1.0 or Brier < Baseline with DM p < 0.05",
+      "Gate 2 (Conformal Coverage)": "Nominal 80% coverage in [77%, 83%]",
+      "Gate 3 (Probability Calibration)": "ECE <= 0.050",
+      "Gate 4 (Multi-Regime Consistency)": "Passes in >= 2 separate regimes",
+      "Gate 5 (Point-in-Time Integrity)": "Zero lookahead leakage (21/21 unit tests passed)"
+    }
+  },
+  "environment": {
+    "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
+    "python_version": "3.13.7",
+    "git_commit": "unknown",
+    "dependencies": {
+      "numpy": "2.5.4",
+      "pandas": "3.1.1",
+      "scipy": "1.18.1",
+      "scikit-learn": "1.9.1",
+      "xgboost": "3.4.1",
+      "torch": "2.15.0",
+      "transformers": "5.22.2",
+      "joblib": "1.6.0"
+    }
+  },
+  "leakage_audit": {
+    "PASS": 13,
+    "WARN": 6,
+    "FAIL": 0
+  },
+  "models": {
+    "model1_economic_forecast": {
+      "name": "Economic Forecast Model",
+      "version": "v1.0.0-m1",
+      "targets": [
+        "CPI",
+        "CORE_CPI",
+        "PCE",
+        "CORE_PCE",
+        "NFP",
+        "UNRATE",
+        "GDPC1"
+      ],
+      "evaluation_scheme": "Chronological walk-forward (TimeSeriesSplit dev) + untouched 24m holdout",
+      "conformal_calibration": "Causal trailing-60 conformal prediction interval pad",
+      "consensus_handling": "Explicit value vs surprise separation (free FRED lacks historical survey consensus)",
+      "random_seeds": [
+        42
+      ],
+      "dataset_version": "fred_macro_monthly_v1.0",
+      "summary_metrics": {
+        "CPI": {
+          "selected_model": "ridge",
+          "dev_mae": 0.1831,
+          "holdout_mae": 0.1414,
+          "holdout_mase": 0.6776,
+          "interval_80_coverage": 0.8333
+        },
+        "CORE_CPI": {
+          "selected_model": "ridge",
+          "dev_mae": 0.081,
+          "holdout_mae": 0.0752,
+          "holdout_mase": 0.8504,
+          "interval_80_coverage": 1.0
+        },
+        "PCE": {
+          "selected_model": "ensemble",
+          "dev_mae": 0.132,
+          "holdout_mae": 0.1081,
+          "holdout_mase": 0.6999,
+          "interval_80_coverage": 0.875
+        },
+        "CORE_PCE": {
+          "selected_model": "ridge",
+          "dev_mae": 0.0685,
+          "holdout_mae": 0.0716,
+          "holdout_mase": 0.7721,
+          "interval_80_coverage": 1.0
+        },
+        "NFP": {
+          "selected_model": "xgboost",
+          "dev_mae": 230.5703,
+          "holdout_mae": 98.8482,
+          "holdout_mase": 0.3847,
+          "interval_80_coverage": 0.9583
+        },
+        "UNRATE": {
+          "selected_model": "xgboost",
+          "dev_mae": 0.1795,
+          "holdout_mae": 0.087,
+          "holdout_mase": 0.5189,
+          "interval_80_coverage": 1.0
+        },
+        "GDPC1": {
+          "selected_model": "ridge",
+          "dev_mae": 2.6437,
+          "holdout_mae": 1.0833,
+          "holdout_mase": 0.347,
+          "interval_80_coverage": 0.875
+        }
+      }
+    },
+    "model2_news_intelligence": {
+      "name": "News Intelligence Model",
+      "version": "v1.0.0-m2",
+      "backbone": "ProsusAI/finbert (pretrained transformer) + deterministic 12-field extractor",
+      "dataset": "45 real Federal Reserve & BLS RSS items (23 manually audited, 22 pending review)",
+      "training_policy": "Zero synthetic training/eval leakage (no synthetic corpus CV)",
+      "gemini_api_status": "Conditional fallback active (API key optional)",
+      "random_seeds": [
+        42
+      ],
+      "metrics": {
+        "total_real_items": 45.0,
+        "held_out_audit_items": 23.0,
+        "pending_human_review_items": 22.0,
+        "structured_validity_rate": 1.0,
+        "duplicate_detection_f1_macro": 1.0,
+        "source_institution_accuracy": 1.0,
+        "source_speaker_accuracy": 1.0,
+        "topic_audit_accuracy": 1.0,
+        "topic_audit_f1_macro": 1.0,
+        "finbert_sentiment_audit_accuracy": 0.8696,
+        "finbert_sentiment_audit_f1_macro": 0.3101,
+        "policy_non_hallucination_acc": 1.0,
+        "xauusd_non_hallucination_acc": 1.0
+      }
+    },
+    "model3_market_reaction": {
+      "name": "Market Reaction Model",
+      "version": "v1.0.0-m3",
+      "horizons": {
+        "5m": "BLOCKED (Yahoo 60d intraday restriction, 0 synthetic bridging)",
+        "30m": "BLOCKED (Yahoo 60d intraday restriction, 0 synthetic bridging)",
+        "4h": "CONDITIONALLY_READY (134 real observed event windows, Yahoo 1h bars)",
+        "1d": "CONDITIONALLY_READY (1,450 real observed event dates, 1999-2026)"
+      },
+      "event_leakage_embargo": "Event-date grouped PurgedGroupTimeSeriesSplit (embargo_calendar_days=2)",
+      "random_seeds": [
+        42
+      ],
+      "dataset_version": "xauusd_macro_events_v1.0",
+      "baseline_comparison": {
+        "5m": {
+          "status": "BLOCKED",
+          "total_real_events": 13,
+          "dev_oof": null,
+          "holdout": null,
+          "blocked_reason": "INSUFFICIENT_DATA: only 8 unique event dates (13 indicator rows) observed in free Yahoo Finance 5m history (requires >= 30 dates and >= 50 events); synthetic ret_1d bridging disabled."
+        },
+        "30m": {
+          "status": "BLOCKED",
+          "total_real_events": 13,
+          "dev_oof": null,
+          "holdout": null,
+          "blocked_reason": "INSUFFICIENT_DATA: only 8 unique event dates (13 indicator rows) observed in free Yahoo Finance 30m history (requires >= 30 dates and >= 50 events); synthetic ret_1d bridging disabled."
+        },
+        "4h": {
+          "status": "CONDITIONALLY_READY",
+          "total_real_events": 134,
+          "dev_oof": {
+            "n_events": 106,
+            "ridge_mae": 0.741,
+            "xgboost_mae": 0.775,
+            "unconditional_baseline_mae": 0.718,
+            "directional_accuracy": 0.552
+          },
+          "holdout": {
+            "n_events": 27,
+            "unconditional_baseline_mae": 0.7967,
+            "event_category_baseline_mae": 0.8097,
+            "ridge_mae": 0.8192,
+            "xgboost_mae": 0.8531,
+            "ml_outperformed_baseline": false,
+            "promoted_model": "unconditional_baseline",
+            "promotion_verdict": "REJECT_ML_PROMOTION"
+          },
+          "blocked_reason": null
+        },
+        "1d": {
+          "status": "CONDITIONALLY_READY",
+          "total_real_events": 1450,
+          "dev_oof": {
+            "n_events": 1246,
+            "unconditional_mae": 0.852,
+            "event_category_mae": 0.849,
+            "ridge_mae": 0.881,
+            "xgboost_mae": 0.892,
+            "brier_score": 0.252
+          },
+          "holdout": {
+            "n_events": 113,
+            "unconditional_baseline_mae": 1.0487,
+            "event_category_baseline_mae": 1.0529,
+            "xgboost_mae": 1.0650,
+            "ridge_mae": 1.0829,
+            "bootstrap_95_ci": [-0.3261, 0.1346],
+            "p_value_one_sided": 0.233,
+            "ml_outperformed_baseline": false,
+            "promoted_model": "unconditional_baseline",
+            "promotion_verdict": "REJECT_ML_PROMOTION"
+          },
+          "blocked_reason": null
+        }
+      }
+    },
+    "model4_macro_regime_bias": {
+      "name": "Macro Regime + Bias Engine",
+      "version": "v1.0.0-m4",
+      "regime_models": [
+        "Transparent Macro Rules (6-factor score)",
+        "Expanding K-Means (K=4)",
+        "Expanding GMM (Full Covariance, K=4)",
+        "Causal Gaussian HMM (Strictly causal forward filtering, Dirichlet transition prior)"
+      ],
+      "sample_span": "1,177 weekly business weeks (2004-2026)",
+      "validation_split": "813 weeks dev walk-forward (2009-2024) + 104 weeks untouched holdout (2024-2026)",
+      "embargo_gap": "4-week purge gap (idx - 4)",
+      "random_seeds": [
+        42
+      ],
+      "stability_metrics": {
+        "rules_raw": {
+          "n_weeks": 917,
+          "transitions": 137,
+          "transitions_per_year": 7.8,
+          "persistence_prob": 0.8504,
+          "mean_spell_weeks": 6.64,
+          "median_spell_weeks": 3.0,
+          "max_spell_weeks": 43
+        },
+        "rules_2w_hysteresis": {
+          "n_weeks": 917,
+          "transitions": 73,
+          "transitions_per_year": 4.16,
+          "persistence_prob": 0.9203,
+          "mean_spell_weeks": 12.39,
+          "median_spell_weeks": 8.5,
+          "max_spell_weeks": 43
+        },
+        "kmeans_walkforward_oos": {
+          "n_weeks": 917,
+          "transitions": 98,
+          "transitions_per_year": 5.58,
+          "persistence_prob": 0.893,
+          "mean_spell_weeks": 9.26,
+          "median_spell_weeks": 3.0,
+          "max_spell_weeks": 112,
+          "mean_train_silhouette": 0.2918
+        },
+        "gmm_walkforward_oos": {
+          "n_weeks": 917,
+          "transitions": 104,
+          "transitions_per_year": 5.92,
+          "persistence_prob": 0.8865,
+          "mean_spell_weeks": 8.73,
+          "median_spell_weeks": 5.0,
+          "max_spell_weeks": 70,
+          "mean_train_bic": 8490.03,
+          "oos_log_likelihood": -8660.65,
+          "mean_oos_entropy": 0.1047
+        },
+        "causal_hmm_walkforward_oos": {
+          "n_weeks": 917,
+          "transitions": 49,
+          "transitions_per_year": 2.79,
+          "persistence_prob": 0.9465,
+          "mean_spell_weeks": 18.34,
+          "median_spell_weeks": 10.0,
+          "max_spell_weeks": 111,
+          "oos_log_likelihood": -6772.84,
+          "mean_oos_entropy": 0.0478,
+          "implementation_note": "hmmlearn/statsmodels unavailable in .venv; implemented self-contained diagonal-covariance CausalGaussianHMM with sticky Dirichlet transition prior and strictly causal forward filtering."
+        }
+      },
+      "performance_metrics": {
+        "weekly_samples": 1177,
+        "oof_weeks": 917,
+        "validation_weeks": 813,
+        "untouched_holdout_weeks": 104,
+        "tuned_lr_c": 1.0,
+        "tuned_xgb_params": {
+          "n_estimators": 60,
+          "max_depth": 1,
+          "learning_rate": 0.04,
+          "reg_lambda": 15.0
+        },
+        "oof_4w_directional_accuracy": 0.5338,
+        "oof_4w_balanced_accuracy": 0.5041,
+        "oof_4w_roc_auc": 0.4734,
+        "oof_4w_brier": 0.2569,
+        "oof_strategy_sharpe": 0.502,
+        "oof_buy_hold_sharpe": 0.51,
+        "oof_strategy_cum_return_pct": 155.33,
+        "oof_buy_hold_cum_return_pct": 185.62,
+        "holdout_4w_directional_accuracy": 0.6058,
+        "holdout_4w_roc_auc": 0.3709,
+        "holdout_4w_brier": 0.2458,
+        "holdout_strategy_sharpe": 1.108,
+        "holdout_buy_hold_sharpe": 1.108,
+        "regime_stats": {
+          "State 0 (Tight Policy/Yields)": {
+            "weeks": 221,
+            "avg_xau_fwd_4w_pct": 1.08,
+            "xau_4w_win_rate": 0.579
+          },
+          "State 1 (High Stress / Loose Policy/Yields)": {
+            "weeks": 122,
+            "avg_xau_fwd_4w_pct": 0.38,
+            "xau_4w_win_rate": 0.492
+          },
+          "State 2 (Loose Policy/Yields)": {
+            "weeks": 368,
+            "avg_xau_fwd_4w_pct": 0.7,
+            "xau_4w_win_rate": 0.557
+          },
+          "State 3 (Low Vol / Expansion / Tight Policy/Yields)": {
+            "weeks": 206,
+            "avg_xau_fwd_4w_pct": 0.7,
+            "xau_4w_win_rate": 0.539
+          }
+        },
+        "primary_regime_detector": "Causal Gaussian HMM (6-factor, strictly forward-filtered)",
+        "prefix_invariance_verified": true
+      }
+    }
+  }
+}

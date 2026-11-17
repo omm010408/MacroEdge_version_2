@@ -1,0 +1,209 @@
+{
+  "model": "Model 3 \u2014 XAUUSD Market Reaction Model (Honest Real-Return Multi-Horizon Evaluation)",
+  "trained_at": "2026-11-12T11:21:47.481114+00:00",
+  "dataset_meta": {
+    "total_events": 1450,
+    "unique_event_dates": 863,
+    "date_min": "2002-07-05",
+    "date_max": "2026-11-10",
+    "unmatched_ref_months_skipped": 7,
+    "duplicate_event_date_type_pairs": 0,
+    "consensus_source": "ar_seasonal_proxy",
+    "historical_consensus_available": false,
+    "fomc_valid_dates": 0,
+    "fomc_status": "BLOCKED"
+  },
+  "blocked_event_types": {
+    "FOMC": "BLOCKED: 0 valid FOMC meeting dates in ml/data/* (FRED release_id=101 returned daily rate observations)."
+  },
+  "horizons": {
+    "5m": {
+      "horizon": "5m",
+      "status": "BLOCKED",
+      "readiness": "BLOCKED",
+      "available": false,
+      "reason": "INSUFFICIENT_DATA: only 8 unique event dates (13 indicator rows) observed in free Yahoo Finance 5m history (requires >= 30 dates and >= 50 events); synthetic ret_1d bridging disabled.",
+      "total_events": 13,
+      "unique_event_dates": 8,
+      "exact_intraday_observed_events": 13,
+      "bridged_events": 0,
+      "oof_test_events": 0,
+      "oof_mae_pct": null,
+      "oof_rmse_pct": null,
+      "oof_3class_accuracy": null,
+      "oof_up_down_accuracy": null,
+      "oof_brier_up": null,
+      "top_features": []
+    },
+    "30m": {
+      "horizon": "30m",
+      "status": "BLOCKED",
+      "readiness": "BLOCKED",
+      "available": false,
+      "reason": "INSUFFICIENT_DATA: only 8 unique event dates (13 indicator rows) observed in free Yahoo Finance 30m history (requires >= 30 dates and >= 50 events); synthetic ret_1d bridging disabled.",
+      "total_events": 13,
+      "unique_event_dates": 8,
+      "exact_intraday_observed_events": 13,
+      "bridged_events": 0,
+      "oof_test_events": 0,
+      "oof_mae_pct": null,
+      "oof_rmse_pct": null,
+      "oof_3class_accuracy": null,
+      "oof_up_down_accuracy": null,
+      "oof_brier_up": null,
+      "top_features": []
+    },
+    "4h": {
+      "horizon": "4h",
+      "status": "CONDITIONALLY_READY",
+      "readiness": "CONDITIONALLY_READY",
+      "available": true,
+      "window_definition": "[08:00 ET -> 12:00 ET] via strictly pre-release 07:00 ET 1h bar close (p0) to 11:00 ET 1h bar close (p1); low-N caveat",
+      "tuned_params": {
+        "ridge_alpha": 300.0,
+        "logreg_c": 0.01,
+        "xgb_reg": {
+          "max_depth": 2,
+          "learning_rate": 0.03,
+          "n_estimators": 80,
+          "reg_lambda": 20.0,
+          "min_child_weight": 8
+        },
+        "xgb_clf": {
+          "max_depth": 2,
+          "learning_rate": 0.03,
+          "n_estimators": 80,
+          "reg_lambda": 20.0,
+          "min_child_weight": 8
+        }
+      },
+      "selected_models": {
+        "regression": "unconditional_baseline",
+        "classification": "unconditional_baseline",
+        "quantile": "unconditional_baseline"
+      },
+      "total_events": 134,
+      "unique_event_dates": 80,
+      "exact_intraday_observed_events": 134,
+      "bridged_events": 0,
+      "oof_test_events": 60,
+      "holdout_events": 27,
+      "oof_mae_pct": 0.8082,
+      "oof_rmse_pct": 1.0397,
+      "oof_directional_error": 0.65,
+      "oof_3class_accuracy": 0.3667,
+      "oof_balanced_accuracy": 0.3017,
+      "oof_up_down_accuracy": 0.449,
+      "oof_roc_auc_up": 0.3097,
+      "oof_brier_up": 0.2495,
+      "oof_log_loss": 1.0713,
+      "holdout_mae_pct": 0.7967,
+      "holdout_rmse_pct": 0.9414,
+      "holdout_up_down_accuracy": 0.5455,
+      "holdout_roc_auc_up": 0.5,
+      "holdout_brier_up": 0.2355,
+      "top_features": [
+        {
+          "feature": "vix_level",
+          "importance": 0.0505
+        },
+        {
+          "feature": "dxy_ret_1d",
+          "importance": 0.0475
+        },
+        {
+          "feature": "surprise_x_vol",
+          "importance": 0.0451
+        },
+        {
+          "feature": "xau_ret_20d",
+          "importance": 0.045
+        },
+        {
+          "feature": "vix_chg_5d",
+          "importance": 0.0431
+        },
+        {
+          "feature": "cot_gold_chg_4w",
+          "importance": 0.0431
+        }
+      ]
+    },
+    "1d": {
+      "horizon": "1d",
+      "status": "CONDITIONALLY_READY",
+      "readiness": "CONDITIONALLY_READY",
+      "available": true,
+      "window_definition": "Daily settlement close-to-close post-event return; historical consensus absent (ar_seasonal_proxy)",
+      "tuned_params": {
+        "ridge_alpha": 300.0,
+        "logreg_c": 0.01,
+        "xgb_reg": {
+          "max_depth": 1,
+          "learning_rate": 0.03,
+          "n_estimators": 60,
+          "reg_lambda": 15.0,
+          "min_child_weight": 6
+        },
+        "xgb_clf": {
+          "max_depth": 1,
+          "learning_rate": 0.03,
+          "n_estimators": 60,
+          "reg_lambda": 15.0,
+          "min_child_weight": 6
+        }
+      },
+      "selected_models": {
+        "regression": "unconditional_baseline",
+        "classification": "xgboost_classifier",
+        "quantile": "linear_quantile_baseline"
+      },
+      "total_events": 1450,
+      "unique_event_dates": 863,
+      "exact_intraday_observed_events": 1450,
+      "bridged_events": 0,
+      "oof_test_events": 734,
+      "holdout_events": 113,
+      "oof_mae_pct": 0.7563,
+      "oof_rmse_pct": 1.0221,
+      "oof_directional_error": 0.4959,
+      "oof_3class_accuracy": 0.3951,
+      "oof_balanced_accuracy": 0.3408,
+      "oof_up_down_accuracy": 0.5254,
+      "oof_roc_auc_up": 0.4684,
+      "oof_brier_up": 0.2416,
+      "oof_log_loss": 1.0871,
+      "holdout_mae_pct": 1.0487,
+      "holdout_rmse_pct": 1.3087,
+      "holdout_up_down_accuracy": 0.5591,
+      "holdout_roc_auc_up": 0.5293,
+      "holdout_brier_up": 0.2493,
+      "top_features": [
+        {
+          "feature": "vix_level",
+          "importance": 0.0753
+        },
+        {
+          "feature": "dxy_ret_1d",
+          "importance": 0.0722
+        },
+        {
+          "feature": "us10y_level",
+          "importance": 0.072
+        },
+        {
+          "feature": "cot_gold_pct",
+          "importance": 0.0681
+        },
+        {
+          "feature": "us10y_chg_5d",
+          "importance": 0.065
+        },
+        {
+          "feature": "real10y_chg_5d",
+          "importance": 0.0649
+        }
+      ]
+    }
+  }
+}

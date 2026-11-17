@@ -7,8 +7,6 @@ from pathlib import Path
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
-from dotenv import load_dotenv
-
 ROOT_DIR = Path(__file__).resolve().parent.parent
 ML_DIR = ROOT_DIR / "ml"
 DATA_DIR = ML_DIR / "data"
@@ -18,11 +16,30 @@ REPORTS_DIR = ARTIFACTS_DIR / "reports"
 for d in (DATA_DIR, ARTIFACTS_DIR, REPORTS_DIR):
     d.mkdir(parents=True, exist_ok=True)
 
-# Load .env.local first, then .env
-for env_name in (".env.local", ".env"):
-    env_path = ROOT_DIR / env_name
-    if env_path.exists():
-        load_dotenv(env_path, override=False)
+# Load .env.local first, then .env safely without requiring python-dotenv
+try:
+    from dotenv import load_dotenv
+
+    for env_name in (".env.local", ".env"):
+        env_path = ROOT_DIR / env_name
+        if env_path.exists():
+            load_dotenv(env_path, override=False)
+except ImportError:
+    for env_name in (".env.local", ".env"):
+        env_path = ROOT_DIR / env_name
+        if env_path.exists():
+            try:
+                with open(env_path, "r", encoding="utf-8") as _f:
+                    for _line in _f:
+                        _line = _line.strip()
+                        if _line and not _line.startswith("#") and "=" in _line:
+                            _k, _v = _line.split("=", 1)
+                            _k = _k.strip()
+                            _v = _v.strip().strip("'").strip('"')
+                            if _k not in os.environ:
+                                os.environ[_k] = _v
+            except Exception:
+                pass
 
 FRED_API_KEY = os.getenv("FRED_API_KEY", "").strip()
 BLS_API_KEY = os.getenv("BLS_API_KEY", "").strip()

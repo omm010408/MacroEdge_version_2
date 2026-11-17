@@ -300,6 +300,13 @@ export async function getGoldAndUs30News(options: {
     rawArticles = await getMarketauxCachedNews();
   }
 
+  if (rawArticles.length === 0) {
+    rawArticles = await fetchMarketauxNews({
+      symbols: "GLD,DIA,^DJI,XAU,TLT",
+      limit: 3,
+    });
+  }
+
   // Run through AI Filter
   const filtered = filterMarketauxNewsForGoldAndUs30(rawArticles);
 

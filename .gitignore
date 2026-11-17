@@ -27,5 +27,8 @@ __pycache__/
 .vscode/*
 !.vscode/extensions.json
 
-# Local ML artifacts
-ml/artifacts/
+# Local ML artifacts - ignore temporary caches and heavy registry duplicates
+ml/artifacts/__pycache__/
+ml/artifacts/raw_archive/
+ml/artifacts/registry_versions/
+ml/artifacts/shadow_predictions/

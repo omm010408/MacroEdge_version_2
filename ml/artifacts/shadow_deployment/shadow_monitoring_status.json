@@ -1,0 +1,17 @@
+{
+  "calibration_status": "NORMAL",
+  "cusum_details": {
+    "alert_triggered": false,
+    "threshold_h": 3.0
+  },
+  "feature_drift_status": "NORMAL",
+  "feature_psi": 0.062,
+  "feature_psi_threshold": 0.25,
+  "forecast_error_status": "NORMAL",
+  "live_promotion_eligible": false,
+  "minimum_scored_events_for_live": 20,
+  "overall_shadow_status": "HEALTHY",
+  "rolling_ece": 0.038,
+  "rolling_ece_threshold": 0.08,
+  "scored_events_count": 0
+}

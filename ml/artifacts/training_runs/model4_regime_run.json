@@ -1,0 +1,1243 @@
+{
+  "generated_at": "2026-11-12T17:03:21.005285+00:00",
+  "data_span": {
+    "start_date": "2004-03-26",
+    "end_date": "2026-10-09",
+    "total_weekly_rows": 1177,
+    "warmup_weeks": 260,
+    "oos_weeks": 917,
+    "validation_weeks": 813,
+    "untouched_holdout_weeks": 104
+  },
+  "point_in_time_controls": {
+    "fred_publication_lag_alignment": "align_fred_daily_point_in_time + 1bd H.15 lag",
+    "cftc_publication_lag": "get_pit_cftc_series (Tuesday -> Friday release)",
+    "stress_factor_homogeneity": "VIX + SPX 13w realized vol (excluded 2023-start BAMLH0A0HYM2)",
+    "regime_fitting": "Strictly expanding-window walk-forward OOS (no full-sample clustering in evaluation)",
+    "alfred_vintage_limitation": "Underlying FRED CSVs use revised series (not ALFRED output_type=4 initial vintages)",
+    "prefix_invariance_check": {
+      "cutoff_date": "2022-06-24",
+      "tested_weeks": 953,
+      "max_feature_diff": 0.0,
+      "features_prefix_invariant": true,
+      "km_oos_prefix_invariant": true,
+      "gmm_oos_prefix_invariant": true,
+      "hmm_oos_prefix_invariant": true,
+      "all_passed": true
+    }
+  },
+  "stability_comparison": {
+    "rules_raw": {
+      "n_weeks": 917,
+      "transitions": 137,
+      "transitions_per_year": 7.8,
+      "persistence_prob": 0.8504,
+      "mean_spell_weeks": 6.64,
+      "median_spell_weeks": 3.0,
+      "max_spell_weeks": 43
+    },
+    "rules_2w_hysteresis": {
+      "n_weeks": 917,
+      "transitions": 73,
+      "transitions_per_year": 4.16,
+      "persistence_prob": 0.9203,
+      "mean_spell_weeks": 12.39,
+      "median_spell_weeks": 8.5,
+      "max_spell_weeks": 43
+    },
+    "kmeans_walkforward_oos": {
+      "n_weeks": 917,
+      "transitions": 98,
+      "transitions_per_year": 5.58,
+      "persistence_prob": 0.893,
+      "mean_spell_weeks": 9.26,
+      "median_spell_weeks": 3.0,
+      "max_spell_weeks": 112,
+      "mean_train_silhouette": 0.2918
+    },
+    "gmm_walkforward_oos": {
+      "n_weeks": 917,
+      "transitions": 104,
+      "transitions_per_year": 5.92,
+      "persistence_prob": 0.8865,
+      "mean_spell_weeks": 8.73,
+      "median_spell_weeks": 5.0,
+      "max_spell_weeks": 70,
+      "mean_train_bic": 8490.03,
+      "oos_log_likelihood": -8660.65,
+      "mean_oos_entropy": 0.1047
+    },
+    "causal_hmm_walkforward_oos": {
+      "n_weeks": 917,
+      "transitions": 49,
+      "transitions_per_year": 2.79,
+      "persistence_prob": 0.9465,
+      "mean_spell_weeks": 18.34,
+      "median_spell_weeks": 10.0,
+      "max_spell_weeks": 111,
+      "oos_log_likelihood": -6772.84,
+      "mean_oos_entropy": 0.0478,
+      "implementation_note": "hmmlearn/statsmodels unavailable in .venv; implemented self-contained diagonal-covariance CausalGaussianHMM with sticky Dirichlet transition prior and strictly causal forward filtering."
+    }
+  },
+  "markov_transition_comparison": {
+    "rules_raw_empirical": {
+      "states": [
+        "Risk-Off / Volatility Stress",
+        "Hawkish Tightening",
+        "Reflation / Sticky Inflation",
+        "Disinflationary Expansion / Easing"
+      ],
+      "transition_counts": [
+        [
+          111,
+          8,
+          6,
+          21
+        ],
+        [
+          9,
+          176,
+          11,
+          12
+        ],
+        [
+          6,
+          11,
+          113,
+          10
+        ],
+        [
+          19,
+          14,
+          10,
+          379
+        ]
+      ],
+      "transition_matrix": [
+        [
+          0.7603,
+          0.0548,
+          0.0411,
+          0.1438
+        ],
+        [
+          0.0433,
+          0.8462,
+          0.0529,
+          0.0577
+        ],
+        [
+          0.0429,
+          0.0786,
+          0.8071,
+          0.0714
+        ],
+        [
+          0.045,
+          0.0332,
+          0.0237,
+          0.8981
+        ]
+      ],
+      "self_transition_probs": {
+        "Risk-Off / Volatility Stress": 0.7603,
+        "Hawkish Tightening": 0.8462,
+        "Reflation / Sticky Inflation": 0.8071,
+        "Disinflationary Expansion / Easing": 0.8981
+      },
+      "implied_expected_duration_weeks": {
+        "Risk-Off / Volatility Stress": 4.17,
+        "Hawkish Tightening": 6.5,
+        "Reflation / Sticky Inflation": 5.19,
+        "Disinflationary Expansion / Easing": 9.81
+      },
+      "empirical_occupancy_pct": {
+        "Risk-Off / Volatility Stress": 15.9,
+        "Hawkish Tightening": 22.8,
+        "Reflation / Sticky Inflation": 15.3,
+        "Disinflationary Expansion / Easing": 46.0
+      }
+    },
+    "rules_2w_hysteresis_empirical": {
+      "states": [
+        "Risk-Off / Volatility Stress",
+        "Hawkish Tightening",
+        "Reflation / Sticky Inflation",
+        "Disinflationary Expansion / Easing"
+      ],
+      "transition_counts": [
+        [
+          131,
+          6,
+          2,
+          10
+        ],
+        [
+          8,
+          190,
+          4,
+          8
+        ],
+        [
+          3,
+          6,
+          120,
+          4
+        ],
+        [
+          6,
+          9,
+          7,
+          402
+        ]
+      ],
+      "transition_matrix": [
+        [
+          0.8792,
+          0.0403,
+          0.0134,
+          0.0671
+        ],
+        [
+          0.0381,
+          0.9048,
+          0.019,
+          0.0381
+        ],
+        [
+          0.0226,
+          0.0451,
+          0.9023,
+          0.0301
+        ],
+        [
+          0.0142,
+          0.0212,
+          0.0165,
+          0.9481
+        ]
+      ],
+      "self_transition_probs": {
+        "Risk-Off / Volatility Stress": 0.8792,
+        "Hawkish Tightening": 0.9048,
+        "Reflation / Sticky Inflation": 0.9023,
+        "Disinflationary Expansion / Easing": 0.9481
+      },
+      "implied_expected_duration_weeks": {
+        "Risk-Off / Volatility Stress": 8.28,
+        "Hawkish Tightening": 10.5,
+        "Reflation / Sticky Inflation": 10.23,
+        "Disinflationary Expansion / Easing": 19.27
+      },
+      "empirical_occupancy_pct": {
+        "Risk-Off / Volatility Stress": 16.2,
+        "Hawkish Tightening": 23.0,
+        "Reflation / Sticky Inflation": 14.5,
+        "Disinflationary Expansion / Easing": 46.2
+      }
+    },
+    "kmeans_oos_empirical": {
+      "states": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "transition_counts": [
+        [
+          109,
+          2,
+          5,
+          13
+        ],
+        [
+          0,
+          28,
+          4,
+          2
+        ],
+        [
+          7,
+          3,
+          397,
+          24
+        ],
+        [
+          12,
+          1,
+          25,
+          284
+        ]
+      ],
+      "transition_matrix": [
+        [
+          0.845,
+          0.0155,
+          0.0388,
+          0.1008
+        ],
+        [
+          0.0,
+          0.8235,
+          0.1176,
+          0.0588
+        ],
+        [
+          0.0162,
+          0.007,
+          0.9211,
+          0.0557
+        ],
+        [
+          0.0373,
+          0.0031,
+          0.0776,
+          0.882
+        ]
+      ],
+      "self_transition_probs": {
+        "0": 0.845,
+        "1": 0.8235,
+        "2": 0.9211,
+        "3": 0.882
+      },
+      "implied_expected_duration_weeks": {
+        "0": 6.45,
+        "1": 5.67,
+        "2": 12.68,
+        "3": 8.47
+      },
+      "empirical_occupancy_pct": {
+        "0": 14.1,
+        "1": 3.7,
+        "2": 47.0,
+        "3": 35.2
+      }
+    },
+    "gmm_oos_empirical": {
+      "states": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "transition_counts": [
+        [
+          77,
+          3,
+          1,
+          2
+        ],
+        [
+          3,
+          183,
+          15,
+          6
+        ],
+        [
+          1,
+          17,
+          290,
+          24
+        ],
+        [
+          1,
+          5,
+          26,
+          262
+        ]
+      ],
+      "transition_matrix": [
+        [
+          0.9277,
+          0.0361,
+          0.012,
+          0.0241
+        ],
+        [
+          0.0145,
+          0.8841,
+          0.0725,
+          0.029
+        ],
+        [
+          0.003,
+          0.0512,
+          0.8735,
+          0.0723
+        ],
+        [
+          0.0034,
+          0.017,
+          0.0884,
+          0.8912
+        ]
+      ],
+      "self_transition_probs": {
+        "0": 0.9277,
+        "1": 0.8841,
+        "2": 0.8735,
+        "3": 0.8912
+      },
+      "implied_expected_duration_weeks": {
+        "0": 13.83,
+        "1": 8.63,
+        "2": 7.9,
+        "3": 9.19
+      },
+      "empirical_occupancy_pct": {
+        "0": 9.1,
+        "1": 22.7,
+        "2": 36.2,
+        "3": 32.1
+      }
+    },
+    "causal_hmm_oos_empirical": {
+      "states": [
+        "State 0 (Tight Policy/Yields)",
+        "State 1 (High Stress / Loose Policy/Yields)",
+        "State 2 (Loose Policy/Yields)",
+        "State 3 (Low Vol / Expansion / Tight Policy/Yields)"
+      ],
+      "transition_counts": [
+        [
+          209,
+          3,
+          1,
+          8
+        ],
+        [
+          4,
+          109,
+          8,
+          1
+        ],
+        [
+          2,
+          8,
+          355,
+          3
+        ],
+        [
+          5,
+          2,
+          4,
+          194
+        ]
+      ],
+      "transition_matrix": [
+        [
+          0.9457,
+          0.0136,
+          0.0045,
+          0.0362
+        ],
+        [
+          0.0328,
+          0.8934,
+          0.0656,
+          0.0082
+        ],
+        [
+          0.0054,
+          0.0217,
+          0.9647,
+          0.0082
+        ],
+        [
+          0.0244,
+          0.0098,
+          0.0195,
+          0.9463
+        ]
+      ],
+      "self_transition_probs": {
+        "State 0 (Tight Policy/Yields)": 0.9457,
+        "State 1 (High Stress / Loose Policy/Yields)": 0.8934,
+        "State 2 (Loose Policy/Yields)": 0.9647,
+        "State 3 (Low Vol / Expansion / Tight Policy/Yields)": 0.9463
+      },
+      "implied_expected_duration_weeks": {
+        "State 0 (Tight Policy/Yields)": 18.42,
+        "State 1 (High Stress / Loose Policy/Yields)": 9.38,
+        "State 2 (Loose Policy/Yields)": 28.31,
+        "State 3 (Low Vol / Expansion / Tight Policy/Yields)": 18.64
+      },
+      "empirical_occupancy_pct": {
+        "State 0 (Tight Policy/Yields)": 24.1,
+        "State 1 (High Stress / Loose Policy/Yields)": 13.3,
+        "State 2 (Loose Policy/Yields)": 40.1,
+        "State 3 (Low Vol / Expansion / Tight Policy/Yields)": 22.5
+      }
+    },
+    "causal_hmm_learned_transition_matrix": {
+      "states": [
+        "State 0 (Tight Policy/Yields)",
+        "State 1 (High Stress / Loose Policy/Yields)",
+        "State 2 (Loose Policy/Yields)",
+        "State 3 (Low Vol / Expansion / Tight Policy/Yields)"
+      ],
+      "transition_matrix": [
+        [
+          0.9669,
+          0.0,
+          0.0172,
+          0.0159
+        ],
+        [
+          0.0001,
+          0.9855,
+          0.0144,
+          0.0001
+        ],
+        [
+          0.0058,
+          0.0052,
+          0.98,
+          0.009
+        ],
+        [
+          0.0118,
+          0.0,
+          0.006,
+          0.9822
+        ]
+      ]
+    }
+  },
+  "cross_method_agreement": {
+    "ari_rules_hys_vs_km": 0.1614,
+    "ari_rules_hys_vs_gmm": 0.0429,
+    "ari_rules_hys_vs_hmm": 0.1167,
+    "ari_km_vs_gmm": 0.0538,
+    "ari_gmm_vs_hmm": 0.0518,
+    "nmi_rules_hys_vs_hmm": 0.1722,
+    "nmi_gmm_vs_hmm": 0.0794
+  },
+  "k_sensitivity_validation": {
+    "K=3": {
+      "km_silhouette": 0.3056,
+      "km_transitions": 68,
+      "gmm_bic": 8063.3,
+      "gmm_oos_ll": -7682.93,
+      "gmm_transitions": 106,
+      "hmm_oos_ll": -6254.69,
+      "hmm_transitions": 36
+    },
+    "K=4": {
+      "km_silhouette": 0.3001,
+      "km_transitions": 78,
+      "gmm_bic": 7728.96,
+      "gmm_oos_ll": -8132.26,
+      "gmm_transitions": 98,
+      "hmm_oos_ll": -6181.53,
+      "hmm_transitions": 43
+    },
+    "K=5": {
+      "km_silhouette": 0.3047,
+      "km_transitions": 76,
+      "gmm_bic": 7480.77,
+      "gmm_oos_ll": -8477.12,
+      "gmm_transitions": 142,
+      "hmm_oos_ll": -6160.1,
+      "hmm_transitions": 41
+    }
+  },
+  "feature_selection_sensitivity_validation": {
+    "gmm_ari_4f_vs_6f": 0.1167,
+    "gmm_ari_6f_vs_8f": 0.0825,
+    "hmm_ari_4f_vs_6f": 0.2424,
+    "hmm_ari_6f_vs_8f": 0.1824,
+    "km_ari_4f_vs_6f": 0.2963,
+    "km_ari_6f_vs_8f": 0.1592
+  },
+  "state_profiles_oos": {
+    "causal_hmm": {
+      "State 0 (Tight Policy/Yields)": {
+        "weeks": 221,
+        "share_pct": 24.1,
+        "empirical_centroid_z": {
+          "growth_z": -0.094,
+          "inflation_z": -0.344,
+          "real_yields_z": 0.646,
+          "dollar_z": 0.87,
+          "volatility_stress_z": 0.004,
+          "fed_policy_z": 0.576
+        },
+        "descriptive_tag": "State 0 (Tight Policy/Yields)",
+        "avg_xau_fwd_4w_pct": 1.08,
+        "xau_4w_win_rate": 0.579,
+        "xau_4w_vol_pct": 4.36,
+        "avg_dxy_fwd_4w_pct": -0.27,
+        "avg_spx_fwd_4w_pct": 1.15
+      },
+      "State 1 (High Stress / Loose Policy/Yields)": {
+        "weeks": 122,
+        "share_pct": 13.3,
+        "empirical_centroid_z": {
+          "growth_z": -0.413,
+          "inflation_z": -0.312,
+          "real_yields_z": -0.702,
+          "dollar_z": 0.166,
+          "volatility_stress_z": 0.993,
+          "fed_policy_z": -0.234
+        },
+        "descriptive_tag": "State 1 (High Stress / Loose Policy/Yields)",
+        "avg_xau_fwd_4w_pct": 0.38,
+        "xau_4w_win_rate": 0.492,
+        "xau_4w_vol_pct": 4.02,
+        "avg_dxy_fwd_4w_pct": 0.19,
+        "avg_spx_fwd_4w_pct": 1.71
+      },
+      "State 2 (Loose Policy/Yields)": {
+        "weeks": 368,
+        "share_pct": 40.1,
+        "empirical_centroid_z": {
+          "growth_z": 0.245,
+          "inflation_z": 0.224,
+          "real_yields_z": -0.725,
+          "dollar_z": 0.049,
+          "volatility_stress_z": -0.201,
+          "fed_policy_z": -0.147
+        },
+        "descriptive_tag": "State 2 (Loose Policy/Yields)",
+        "avg_xau_fwd_4w_pct": 0.7,
+        "xau_4w_win_rate": 0.557,
+        "xau_4w_vol_pct": 4.99,
+        "avg_dxy_fwd_4w_pct": 0.42,
+        "avg_spx_fwd_4w_pct": 1.0
+      },
+      "State 3 (Low Vol / Expansion / Tight Policy/Yields)": {
+        "weeks": 206,
+        "share_pct": 22.5,
+        "empirical_centroid_z": {
+          "growth_z": 0.451,
+          "inflation_z": 0.303,
+          "real_yields_z": 0.491,
+          "dollar_z": 0.114,
+          "volatility_stress_z": -0.788,
+          "fed_policy_z": 0.442
+        },
+        "descriptive_tag": "State 3 (Low Vol / Expansion / Tight Policy/Yields)",
+        "avg_xau_fwd_4w_pct": 0.7,
+        "xau_4w_win_rate": 0.539,
+        "xau_4w_vol_pct": 3.67,
+        "avg_dxy_fwd_4w_pct": -0.13,
+        "avg_spx_fwd_4w_pct": 0.7
+      }
+    },
+    "gmm": {
+      "0": {
+        "weeks": 83,
+        "share_pct": 9.1,
+        "empirical_centroid_z": {
+          "growth_z": -1.109,
+          "inflation_z": -0.4,
+          "real_yields_z": -1.556,
+          "dollar_z": -0.519,
+          "volatility_stress_z": 1.071,
+          "fed_policy_z": -0.679
+        },
+        "descriptive_tag": "High Stress / Contraction / Disinflation",
+        "avg_xau_fwd_4w_pct": 0.53,
+        "xau_4w_win_rate": 0.506,
+        "xau_4w_vol_pct": 4.66,
+        "avg_dxy_fwd_4w_pct": -0.51,
+        "avg_spx_fwd_4w_pct": 3.47
+      },
+      "1": {
+        "weeks": 208,
+        "share_pct": 22.7,
+        "empirical_centroid_z": {
+          "growth_z": -0.052,
+          "inflation_z": -0.229,
+          "real_yields_z": 0.419,
+          "dollar_z": 0.317,
+          "volatility_stress_z": -0.312,
+          "fed_policy_z": 0.112
+        },
+        "descriptive_tag": "Tight Policy/Yields",
+        "avg_xau_fwd_4w_pct": 1.53,
+        "xau_4w_win_rate": 0.63,
+        "xau_4w_vol_pct": 5.03,
+        "avg_dxy_fwd_4w_pct": 0.47,
+        "avg_spx_fwd_4w_pct": 0.28
+      },
+      "2": {
+        "weeks": 332,
+        "share_pct": 36.2,
+        "empirical_centroid_z": {
+          "growth_z": 0.176,
+          "inflation_z": -0.004,
+          "real_yields_z": 0.013,
+          "dollar_z": 0.427,
+          "volatility_stress_z": -0.09,
+          "fed_policy_z": 0.389
+        },
+        "descriptive_tag": "Tight Policy/Yields",
+        "avg_xau_fwd_4w_pct": 0.74,
+        "xau_4w_win_rate": 0.551,
+        "xau_4w_vol_pct": 4.29,
+        "avg_dxy_fwd_4w_pct": -0.11,
+        "avg_spx_fwd_4w_pct": 1.56
+      },
+      "3": {
+        "weeks": 294,
+        "share_pct": 32.1,
+        "empirical_centroid_z": {
+          "growth_z": 0.532,
+          "inflation_z": 0.384,
+          "real_yields_z": -0.241,
+          "dollar_z": 0.304,
+          "volatility_stress_z": -0.369,
+          "fed_policy_z": 0.135
+        },
+        "descriptive_tag": "Expansion / Elevated Inflation",
+        "avg_xau_fwd_4w_pct": 0.26,
+        "xau_4w_win_rate": 0.503,
+        "xau_4w_vol_pct": 4.04,
+        "avg_dxy_fwd_4w_pct": 0.25,
+        "avg_spx_fwd_4w_pct": 0.37
+      }
+    },
+    "kmeans": {
+      "0": {
+        "weeks": 129,
+        "share_pct": 14.1,
+        "empirical_centroid_z": {
+          "growth_z": -0.227,
+          "inflation_z": -0.386,
+          "real_yields_z": 0.827,
+          "dollar_z": 1.343,
+          "volatility_stress_z": 0.182,
+          "fed_policy_z": 0.77
+        },
+        "descriptive_tag": "Disinflation / Tight Policy/Yields",
+        "avg_xau_fwd_4w_pct": 0.86,
+        "xau_4w_win_rate": 0.566,
+        "xau_4w_vol_pct": 4.77,
+        "avg_dxy_fwd_4w_pct": -0.21,
+        "avg_spx_fwd_4w_pct": 1.01
+      },
+      "1": {
+        "weeks": 34,
+        "share_pct": 3.7,
+        "empirical_centroid_z": {
+          "growth_z": -1.957,
+          "inflation_z": -1.261,
+          "real_yields_z": -1.685,
+          "dollar_z": -0.026,
+          "volatility_stress_z": 1.821,
+          "fed_policy_z": -1.081
+        },
+        "descriptive_tag": "High Stress / Contraction / Disinflation",
+        "avg_xau_fwd_4w_pct": 2.19,
+        "xau_4w_win_rate": 0.647,
+        "xau_4w_vol_pct": 5.22,
+        "avg_dxy_fwd_4w_pct": -0.47,
+        "avg_spx_fwd_4w_pct": 4.48
+      },
+      "2": {
+        "weeks": 431,
+        "share_pct": 47.0,
+        "empirical_centroid_z": {
+          "growth_z": 0.274,
+          "inflation_z": 0.004,
+          "real_yields_z": -0.814,
+          "dollar_z": 0.085,
+          "volatility_stress_z": -0.19,
+          "fed_policy_z": -0.13
+        },
+        "descriptive_tag": "Expansion / Loose Policy/Yields",
+        "avg_xau_fwd_4w_pct": 0.45,
+        "xau_4w_win_rate": 0.536,
+        "xau_4w_vol_pct": 4.4,
+        "avg_dxy_fwd_4w_pct": 0.22,
+        "avg_spx_fwd_4w_pct": 1.18
+      },
+      "3": {
+        "weeks": 323,
+        "share_pct": 35.2,
+        "empirical_centroid_z": {
+          "growth_z": 0.278,
+          "inflation_z": 0.377,
+          "real_yields_z": 0.597,
+          "dollar_z": 0.139,
+          "volatility_stress_z": -0.365,
+          "fed_policy_z": 0.4
+        },
+        "descriptive_tag": "Expansion / Elevated Inflation / Tight Policy/Yields",
+        "avg_xau_fwd_4w_pct": 0.95,
+        "xau_4w_win_rate": 0.551,
+        "xau_4w_vol_pct": 4.25,
+        "avg_dxy_fwd_4w_pct": 0.12,
+        "avg_spx_fwd_4w_pct": 0.57
+      }
+    },
+    "rules_2w_hysteresis": {
+      "Disinflationary Expansion / Easing": {
+        "weeks": 424,
+        "share_pct": 46.2,
+        "empirical_centroid_z": {
+          "growth_z": 0.122,
+          "inflation_z": -0.373,
+          "real_yields_z": -0.369,
+          "dollar_z": 0.099,
+          "volatility_stress_z": -0.352,
+          "fed_policy_z": 0.006
+        },
+        "descriptive_tag": "Disinflation / Loose Policy/Yields",
+        "avg_xau_fwd_4w_pct": 0.8,
+        "xau_4w_win_rate": 0.559,
+        "xau_4w_vol_pct": 4.62,
+        "avg_dxy_fwd_4w_pct": 0.24,
+        "avg_spx_fwd_4w_pct": 1.1
+      },
+      "Hawkish Tightening": {
+        "weeks": 211,
+        "share_pct": 23.0,
+        "empirical_centroid_z": {
+          "growth_z": 0.223,
+          "inflation_z": 0.24,
+          "real_yields_z": 0.991,
+          "dollar_z": 0.81,
+          "volatility_stress_z": -0.367,
+          "fed_policy_z": 0.766
+        },
+        "descriptive_tag": "Tight Policy/Yields",
+        "avg_xau_fwd_4w_pct": 0.84,
+        "xau_4w_win_rate": 0.536,
+        "xau_4w_vol_pct": 3.84,
+        "avg_dxy_fwd_4w_pct": -0.01,
+        "avg_spx_fwd_4w_pct": 0.11
+      },
+      "Reflation / Sticky Inflation": {
+        "weeks": 133,
+        "share_pct": 14.5,
+        "empirical_centroid_z": {
+          "growth_z": 0.55,
+          "inflation_z": 1.137,
+          "real_yields_z": -0.742,
+          "dollar_z": -0.086,
+          "volatility_stress_z": -0.499,
+          "fed_policy_z": -0.198
+        },
+        "descriptive_tag": "Low Vol / Expansion / Elevated Inflation",
+        "avg_xau_fwd_4w_pct": 0.05,
+        "xau_4w_win_rate": 0.526,
+        "xau_4w_vol_pct": 4.13,
+        "avg_dxy_fwd_4w_pct": 0.3,
+        "avg_spx_fwd_4w_pct": 0.3
+      },
+      "Risk-Off / Volatility Stress": {
+        "weeks": 149,
+        "share_pct": 16.2,
+        "empirical_centroid_z": {
+          "growth_z": -0.402,
+          "inflation_z": -0.087,
+          "real_yields_z": -0.42,
+          "dollar_z": 0.353,
+          "volatility_stress_z": 1.198,
+          "fed_policy_z": -0.015
+        },
+        "descriptive_tag": "High Stress / Loose Policy/Yields",
+        "avg_xau_fwd_4w_pct": 1.1,
+        "xau_4w_win_rate": 0.564,
+        "xau_4w_vol_pct": 4.94,
+        "avg_dxy_fwd_4w_pct": -0.33,
+        "avg_spx_fwd_4w_pct": 2.98
+      }
+    }
+  },
+  "historical_episodes_oos": [
+    {
+      "date": "2009-05-15",
+      "episode": "Post-GFC Recovery / Low-Rate Transition",
+      "rule_regime_hys": "Risk-Off / Volatility Stress",
+      "six_dim_states": {
+        "inflation": "LOW_DISINFLATION",
+        "growth": "CONTRACTION",
+        "real_yields": "ACCOMMODATIVE_LOW",
+        "dollar": "WEAK_USD",
+        "risk_sentiment": "STRESS_RISK_OFF",
+        "fed_stance": "NEUTRAL"
+      },
+      "km_state": 0,
+      "gmm_state": 0,
+      "hmm_state": 1,
+      "hmm_label": "State 1 (High Stress / Loose Policy/Yields)",
+      "factors_z": {
+        "growth_z": -2.97,
+        "inflation_z": -2.17,
+        "real_yields_z": -0.46,
+        "dollar_z": -0.39,
+        "volatility_stress_z": 1.47,
+        "fed_policy_z": 0.1
+      }
+    },
+    {
+      "date": "2011-09-02",
+      "episode": "Eurocrisis / Debt-Ceiling Gold Peak",
+      "rule_regime_hys": "Risk-Off / Volatility Stress",
+      "six_dim_states": {
+        "inflation": "HIGH_INFLATION",
+        "growth": "EXPANSION",
+        "real_yields": "ACCOMMODATIVE_LOW",
+        "dollar": "WEAK_USD",
+        "risk_sentiment": "STRESS_RISK_OFF",
+        "fed_stance": "NEUTRAL"
+      },
+      "km_state": 2,
+      "gmm_state": 3,
+      "hmm_state": 2,
+      "hmm_label": "State 2 (Loose Policy/Yields)",
+      "factors_z": {
+        "growth_z": 0.47,
+        "inflation_z": 0.44,
+        "real_yields_z": -2.11,
+        "dollar_z": -0.45,
+        "volatility_stress_z": 0.7,
+        "fed_policy_z": -0.34
+      }
+    },
+    {
+      "date": "2013-06-28",
+      "episode": "Taper Tantrum",
+      "rule_regime_hys": "Disinflationary Expansion / Easing",
+      "six_dim_states": {
+        "inflation": "NEUTRAL",
+        "growth": "EXPANSION",
+        "real_yields": "RESTRICTIVE_HIGH",
+        "dollar": "STRONG_USD",
+        "risk_sentiment": "CALM_RISK_ON",
+        "fed_stance": "NEUTRAL"
+      },
+      "km_state": 3,
+      "gmm_state": 3,
+      "hmm_state": 3,
+      "hmm_label": "State 3 (Low Vol / Expansion / Tight Policy/Yields)",
+      "factors_z": {
+        "growth_z": 0.72,
+        "inflation_z": -0.16,
+        "real_yields_z": 0.82,
+        "dollar_z": 0.46,
+        "volatility_stress_z": -0.67,
+        "fed_policy_z": 0.35
+      }
+    },
+    {
+      "date": "2017-06-30",
+      "episode": "Low-Vol Disinflationary Expansion",
+      "rule_regime_hys": "Hawkish Tightening",
+      "six_dim_states": {
+        "inflation": "NEUTRAL",
+        "growth": "TREND",
+        "real_yields": "RESTRICTIVE_HIGH",
+        "dollar": "NEUTRAL",
+        "risk_sentiment": "CALM_RISK_ON",
+        "fed_stance": "HAWKISH_TIGHTENING"
+      },
+      "km_state": 3,
+      "gmm_state": 2,
+      "hmm_state": 3,
+      "hmm_label": "State 3 (Low Vol / Expansion / Tight Policy/Yields)",
+      "factors_z": {
+        "growth_z": 0.34,
+        "inflation_z": 0.04,
+        "real_yields_z": 0.53,
+        "dollar_z": -0.32,
+        "volatility_stress_z": -1.29,
+        "fed_policy_z": 1.05
+      }
+    },
+    {
+      "date": "2020-03-27",
+      "episode": "COVID-19 Liquidity Shock",
+      "rule_regime_hys": "Risk-Off / Volatility Stress",
+      "six_dim_states": {
+        "inflation": "LOW_DISINFLATION",
+        "growth": "CONTRACTION",
+        "real_yields": "ACCOMMODATIVE_LOW",
+        "dollar": "STRONG_USD",
+        "risk_sentiment": "STRESS_RISK_OFF",
+        "fed_stance": "DOVISH_EASING"
+      },
+      "km_state": 1,
+      "gmm_state": 0,
+      "hmm_state": 1,
+      "hmm_label": "State 1 (High Stress / Loose Policy/Yields)",
+      "factors_z": {
+        "growth_z": -0.47,
+        "inflation_z": -1.03,
+        "real_yields_z": -2.12,
+        "dollar_z": 0.62,
+        "volatility_stress_z": 3.5,
+        "fed_policy_z": -3.25
+      }
+    },
+    {
+      "date": "2022-06-24",
+      "episode": "2022 Inflation & Fed Hiking Shock",
+      "rule_regime_hys": "Risk-Off / Volatility Stress",
+      "six_dim_states": {
+        "inflation": "HIGH_INFLATION",
+        "growth": "TREND",
+        "real_yields": "RESTRICTIVE_HIGH",
+        "dollar": "STRONG_USD",
+        "risk_sentiment": "STRESS_RISK_OFF",
+        "fed_stance": "HAWKISH_TIGHTENING"
+      },
+      "km_state": 0,
+      "gmm_state": 3,
+      "hmm_state": 0,
+      "hmm_label": "State 0 (Tight Policy/Yields)",
+      "factors_z": {
+        "growth_z": 0.28,
+        "inflation_z": 1.96,
+        "real_yields_z": 1.79,
+        "dollar_z": 2.29,
+        "volatility_stress_z": 0.98,
+        "fed_policy_z": 0.87
+      }
+    },
+    {
+      "date": "2023-10-27",
+      "episode": "Higher-for-Longer Real Yield Peak",
+      "rule_regime_hys": "Hawkish Tightening",
+      "six_dim_states": {
+        "inflation": "HIGH_INFLATION",
+        "growth": "TREND",
+        "real_yields": "RESTRICTIVE_HIGH",
+        "dollar": "STRONG_USD",
+        "risk_sentiment": "NEUTRAL",
+        "fed_stance": "NEUTRAL"
+      },
+      "km_state": 0,
+      "gmm_state": 2,
+      "hmm_state": 0,
+      "hmm_label": "State 0 (Tight Policy/Yields)",
+      "factors_z": {
+        "growth_z": 0.14,
+        "inflation_z": 0.36,
+        "real_yields_z": 2.11,
+        "dollar_z": 1.46,
+        "volatility_stress_z": -0.32,
+        "fed_policy_z": 0.35
+      }
+    },
+    {
+      "date": "2025-06-27",
+      "episode": "2025 Tariff/Growth-Slowdown Easing Transition",
+      "rule_regime_hys": "Risk-Off / Volatility Stress",
+      "six_dim_states": {
+        "inflation": "LOW_DISINFLATION",
+        "growth": "TREND",
+        "real_yields": "RESTRICTIVE_HIGH",
+        "dollar": "WEAK_USD",
+        "risk_sentiment": "NEUTRAL",
+        "fed_stance": "NEUTRAL"
+      },
+      "km_state": 2,
+      "gmm_state": 2,
+      "hmm_state": 0,
+      "hmm_label": "State 0 (Tight Policy/Yields)",
+      "factors_z": {
+        "growth_z": -0.0,
+        "inflation_z": -0.42,
+        "real_yields_z": 0.51,
+        "dollar_z": -1.04,
+        "volatility_stress_z": 0.71,
+        "fed_policy_z": -0.08
+      }
+    }
+  ],
+  "directional_evaluation": {
+    "walkforward_validation": {
+      "period": "2009-03-20 to 2024-10-11",
+      "trailing_base_rate": {
+        "n_weeks": 813,
+        "pos_rate": 0.5424,
+        "directional_accuracy": 0.5424,
+        "balanced_accuracy": 0.5,
+        "roc_auc": 0.4593,
+        "brier": 0.2504,
+        "log_loss": 0.694,
+        "strategy_sharpe": 0.51,
+        "buy_hold_sharpe": 0.51,
+        "strategy_cum_return_pct": 185.62,
+        "buy_hold_cum_return_pct": 185.62
+      },
+      "transparent_macro_rules": {
+        "n_weeks": 813,
+        "pos_rate": 0.5424,
+        "directional_accuracy": 0.5387,
+        "balanced_accuracy": 0.5445,
+        "roc_auc": 0.5293,
+        "brier": 0.264,
+        "log_loss": 0.7243,
+        "strategy_sharpe": 0.268,
+        "buy_hold_sharpe": 0.51,
+        "strategy_cum_return_pct": 46.23,
+        "buy_hold_cum_return_pct": 185.62
+      },
+      "logistic_regression": {
+        "n_weeks": 813,
+        "pos_rate": 0.5424,
+        "directional_accuracy": 0.5141,
+        "balanced_accuracy": 0.4928,
+        "roc_auc": 0.4784,
+        "brier": 0.2634,
+        "log_loss": 0.7242,
+        "strategy_sharpe": 0.473,
+        "buy_hold_sharpe": 0.51,
+        "strategy_cum_return_pct": 136.87,
+        "buy_hold_cum_return_pct": 185.62
+      },
+      "xgboost": {
+        "n_weeks": 813,
+        "pos_rate": 0.5424,
+        "directional_accuracy": 0.5289,
+        "balanced_accuracy": 0.489,
+        "roc_auc": 0.4678,
+        "brier": 0.2547,
+        "log_loss": 0.7033,
+        "strategy_sharpe": 0.388,
+        "buy_hold_sharpe": 0.51,
+        "strategy_cum_return_pct": 103.56,
+        "buy_hold_cum_return_pct": 185.62
+      },
+      "blended_ensemble": {
+        "n_weeks": 813,
+        "pos_rate": 0.5424,
+        "directional_accuracy": 0.5338,
+        "balanced_accuracy": 0.5041,
+        "roc_auc": 0.4734,
+        "brier": 0.2569,
+        "log_loss": 0.7082,
+        "strategy_sharpe": 0.502,
+        "buy_hold_sharpe": 0.51,
+        "strategy_cum_return_pct": 155.33,
+        "buy_hold_cum_return_pct": 185.62
+      }
+    },
+    "untouched_final_holdout": {
+      "period": "2024-10-18 to 2026-10-09",
+      "trailing_base_rate": {
+        "n_weeks": 104,
+        "pos_rate": 0.6058,
+        "directional_accuracy": 0.6058,
+        "balanced_accuracy": 0.5,
+        "roc_auc": 0.3395,
+        "brier": 0.242,
+        "log_loss": 0.6771,
+        "strategy_sharpe": 1.108,
+        "buy_hold_sharpe": 1.108,
+        "strategy_cum_return_pct": 53.15,
+        "buy_hold_cum_return_pct": 53.15
+      },
+      "transparent_macro_rules": {
+        "n_weeks": 104,
+        "pos_rate": 0.6058,
+        "directional_accuracy": 0.3846,
+        "balanced_accuracy": 0.4367,
+        "roc_auc": 0.451,
+        "brier": 0.2801,
+        "log_loss": 0.7572,
+        "strategy_sharpe": -0.478,
+        "buy_hold_sharpe": 1.108,
+        "strategy_cum_return_pct": -11.15,
+        "buy_hold_cum_return_pct": 53.15
+      },
+      "logistic_regression": {
+        "n_weeks": 104,
+        "pos_rate": 0.6058,
+        "directional_accuracy": 0.6058,
+        "balanced_accuracy": 0.5,
+        "roc_auc": 0.3833,
+        "brier": 0.2506,
+        "log_loss": 0.6962,
+        "strategy_sharpe": 1.108,
+        "buy_hold_sharpe": 1.108,
+        "strategy_cum_return_pct": 53.15,
+        "buy_hold_cum_return_pct": 53.15
+      },
+      "xgboost": {
+        "n_weeks": 104,
+        "pos_rate": 0.6058,
+        "directional_accuracy": 0.6058,
+        "balanced_accuracy": 0.5,
+        "roc_auc": 0.4574,
+        "brier": 0.2419,
+        "log_loss": 0.6771,
+        "strategy_sharpe": 1.108,
+        "buy_hold_sharpe": 1.108,
+        "strategy_cum_return_pct": 53.15,
+        "buy_hold_cum_return_pct": 53.15
+      },
+      "blended_ensemble": {
+        "n_weeks": 104,
+        "pos_rate": 0.6058,
+        "directional_accuracy": 0.6058,
+        "balanced_accuracy": 0.5,
+        "roc_auc": 0.3709,
+        "brier": 0.2458,
+        "log_loss": 0.6854,
+        "strategy_sharpe": 1.108,
+        "buy_hold_sharpe": 1.108,
+        "strategy_cum_return_pct": 53.15,
+        "buy_hold_cum_return_pct": 53.15
+      }
+    }
+  },
+  "summary_metrics": {
+    "weekly_samples": 1177,
+    "oof_weeks": 917,
+    "validation_weeks": 813,
+    "untouched_holdout_weeks": 104,
+    "tuned_lr_c": 1.0,
+    "tuned_xgb_params": {
+      "n_estimators": 60,
+      "max_depth": 1,
+      "learning_rate": 0.04,
+      "reg_lambda": 15.0
+    },
+    "oof_4w_directional_accuracy": 0.5338,
+    "oof_4w_balanced_accuracy": 0.5041,
+    "oof_4w_roc_auc": 0.4734,
+    "oof_4w_brier": 0.2569,
+    "oof_strategy_sharpe": 0.502,
+    "oof_buy_hold_sharpe": 0.51,
+    "oof_strategy_cum_return_pct": 155.33,
+    "oof_buy_hold_cum_return_pct": 185.62,
+    "holdout_4w_directional_accuracy": 0.6058,
+    "holdout_4w_roc_auc": 0.3709,
+    "holdout_4w_brier": 0.2458,
+    "holdout_strategy_sharpe": 1.108,
+    "holdout_buy_hold_sharpe": 1.108,
+    "regime_stats": {
+      "State 0 (Tight Policy/Yields)": {
+        "weeks": 221,
+        "avg_xau_fwd_4w_pct": 1.08,
+        "xau_4w_win_rate": 0.579
+      },
+      "State 1 (High Stress / Loose Policy/Yields)": {
+        "weeks": 122,
+        "avg_xau_fwd_4w_pct": 0.38,
+        "xau_4w_win_rate": 0.492
+      },
+      "State 2 (Loose Policy/Yields)": {
+        "weeks": 368,
+        "avg_xau_fwd_4w_pct": 0.7,
+        "xau_4w_win_rate": 0.557
+      },
+      "State 3 (Low Vol / Expansion / Tight Policy/Yields)": {
+        "weeks": 206,
+        "avg_xau_fwd_4w_pct": 0.7,
+        "xau_4w_win_rate": 0.539
+      }
+    },
+    "primary_regime_detector": "Causal Gaussian HMM (6-factor, strictly forward-filtered)",
+    "prefix_invariance_verified": true
+  }
+}

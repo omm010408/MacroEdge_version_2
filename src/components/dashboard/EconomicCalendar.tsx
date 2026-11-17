@@ -6,6 +6,7 @@ import type { EconomicCalendarEvent } from "@/lib/types";
 export interface EconomicCalendarProps {
   events?: EconomicCalendarEvent[];
   defaultRange?: "last" | "today" | "week" | "next" | "all";
+  defaultTz?: "ist" | "utc" | "local";
 }
 
 interface CalendarItem {
@@ -20,26 +21,30 @@ interface CalendarItem {
 }
 
 const REFERENCE_EVENTS: CalendarItem[] = [
-  { t: "2026-11-13T13:30Z", name: "US Core PCE Price Index (YoY)", tier: 1, country: "US", consensus: "2.8%" },
-  { t: "2026-11-13T13:30Z", name: "US Producer Price Index (YoY)", tier: 1, country: "US", consensus: "2.4%" },
-  { t: "2026-11-13T13:30Z", name: "US Nonfarm Payrolls", tier: 1, country: "US", consensus: "175K" },
-  { t: "2026-11-16T15:00Z", name: "Conference Board / UMich Sentiment", tier: 1, country: "US", consensus: "71.0" },
-  { t: "2026-11-16T13:30Z", name: "Average Hourly Earnings (YoY)", tier: 1, country: "US", consensus: "4.0%" },
-  { t: "2026-11-18T13:30Z", name: "Initial Jobless Claims (DOL)", tier: 1, country: "US", consensus: "215K" },
-  { t: "2026-11-18T13:30Z", name: "Retail Sales (MoM)", tier: 1, country: "US", consensus: "0.4%" },
-  { t: "2026-11-18T15:00Z", name: "NAHB Housing Market Index", tier: 2, country: "US", consensus: "44" },
-  { t: "2026-11-19T13:30Z", name: "Housing Starts (MoM)", tier: 1, country: "US", consensus: "1.35M" },
-  { t: "2026-11-19T19:00Z", name: "FOMC Minutes", tier: 1, country: "US", consensus: "—" },
-  { t: "2026-11-20T13:30Z", name: "Philly Fed Manufacturing Index", tier: 2, country: "US", consensus: "8.2" },
-  { t: "2026-11-21T13:45Z", name: "S&P Global Flash PMI", tier: 2, country: "US", consensus: "52.0" },
-  { t: "2026-11-24T13:30Z", name: "Durable Goods Orders", tier: 1, country: "US", consensus: "0.5%" },
-  { t: "2026-11-25T13:30Z", name: "GDP (QoQ, BEA)", tier: 1, country: "US", consensus: "2.8%" },
-  { t: "2026-11-25T13:30Z", name: "Personal Income", tier: 2, country: "US", consensus: "0.3%" },
-  { t: "2026-11-25T21:15Z", name: "Fed H.15 Selected Interest Rates", tier: 2, country: "US", consensus: "—" },
-  { t: "2026-11-26T13:30Z", name: "Pending Home Sales", tier: 2, country: "US", consensus: "1.0%" },
-  { t: "2026-11-27T13:30Z", name: "Initial Jobless Claims (DOL)", tier: 1, country: "US", consensus: "218K" },
-  { t: "2026-11-27T13:30Z", name: "Chicago PMI", tier: 2, country: "US", consensus: "46.5" },
-  { t: "2026-11-27T21:30Z", name: "Fed H.4.1 Reserve Balances & Balance Sheet", tier: 2, country: "US", consensus: "—" },
+  { t: "2026-11-13T13:30:00Z", name: "US Core PCE Price Index (YoY)", tier: 1, country: "US", consensus: "2.8%" },
+  { t: "2026-11-13T13:30:00Z", name: "US Producer Price Index (YoY)", tier: 1, country: "US", consensus: "2.4%" },
+  { t: "2026-11-13T13:30:00Z", name: "US Nonfarm Payrolls", tier: 1, country: "US", consensus: "175K" },
+  { t: "2026-11-16T13:30:00Z", name: "Average Hourly Earnings (YoY)", tier: 1, country: "US", consensus: "4.0%" },
+  { t: "2026-11-16T15:00:00Z", name: "Conference Board / UMich Sentiment", tier: 1, country: "US", consensus: "71.0" },
+  { t: "2026-11-17T13:30:00Z", name: "US Import & Export Price Indexes (MoM)", tier: 2, country: "US", consensus: "0.1%" },
+  { t: "2026-11-17T14:15:00Z", name: "US Industrial Production (MoM)", tier: 1, country: "US", consensus: "0.3%" },
+  { t: "2026-11-17T14:15:00Z", name: "Capacity Utilization Rate", tier: 2, country: "US", consensus: "77.8%" },
+  { t: "2026-11-17T20:30:00Z", name: "CFTC COT Weekly Positioning Cutoff (Tuesday Close)", tier: 2, country: "US", consensus: "—" },
+  { t: "2026-11-18T13:30:00Z", name: "Initial Jobless Claims (DOL)", tier: 1, country: "US", consensus: "215K" },
+  { t: "2026-11-18T13:30:00Z", name: "Retail Sales (MoM)", tier: 1, country: "US", consensus: "0.4%" },
+  { t: "2026-11-18T15:00:00Z", name: "NAHB Housing Market Index", tier: 2, country: "US", consensus: "44" },
+  { t: "2026-11-19T13:30:00Z", name: "Housing Starts (MoM)", tier: 1, country: "US", consensus: "1.35M" },
+  { t: "2026-11-19T19:00:00Z", name: "FOMC Minutes", tier: 1, country: "US", consensus: "—" },
+  { t: "2026-11-20T13:30:00Z", name: "Philly Fed Manufacturing Index", tier: 2, country: "US", consensus: "8.2" },
+  { t: "2026-11-21T13:45:00Z", name: "S&P Global Flash PMI", tier: 2, country: "US", consensus: "52.0" },
+  { t: "2026-11-24T13:30:00Z", name: "Durable Goods Orders", tier: 1, country: "US", consensus: "0.5%" },
+  { t: "2026-11-25T13:30:00Z", name: "GDP (QoQ, BEA)", tier: 1, country: "US", consensus: "2.8%" },
+  { t: "2026-11-25T13:30:00Z", name: "Personal Income", tier: 2, country: "US", consensus: "0.3%" },
+  { t: "2026-11-25T21:15:00Z", name: "Fed H.15 Selected Interest Rates", tier: 2, country: "US", consensus: "—" },
+  { t: "2026-11-26T13:30:00Z", name: "Pending Home Sales", tier: 2, country: "US", consensus: "1.0%" },
+  { t: "2026-11-27T13:30:00Z", name: "Initial Jobless Claims (DOL)", tier: 1, country: "US", consensus: "218K" },
+  { t: "2026-11-27T13:45:00Z", name: "Chicago PMI", tier: 2, country: "US", consensus: "46.5" },
+  { t: "2026-11-27T21:30:00Z", name: "Fed H.4.1 Reserve Balances & Balance Sheet", tier: 2, country: "US", consensus: "—" },
 ];
 
 function addDays(key: string, n: number): string {
@@ -48,9 +53,38 @@ function addDays(key: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-function timeLabel(iso: string, tz: "utc" | "local"): { main: string; sub: string } {
+function dayKeyForTz(iso: string, tz: "ist" | "utc" | "local"): string {
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso.slice(0, 10);
+    if (tz === "ist") {
+      return d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+    }
+    if (tz === "utc") {
+      return d.toISOString().slice(0, 10);
+    }
+    return d.toLocaleDateString("en-CA");
+  } catch {
+    return iso.slice(0, 10);
+  }
+}
+
+function timeLabel(iso: string, tz: "ist" | "utc" | "local"): { main: string; sub: string } {
   if (tz === "utc") {
     return { main: iso.slice(11, 16) || "13:30", sub: "UTC" };
+  }
+  if (tz === "ist") {
+    try {
+      const d = new Date(iso);
+      const main = d.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Asia/Kolkata",
+      });
+      return { main, sub: "IST" };
+    } catch {
+      return { main: iso.slice(11, 16) || "13:30", sub: "IST" };
+    }
   }
   try {
     const d = new Date(iso);
@@ -61,35 +95,99 @@ function timeLabel(iso: string, tz: "utc" | "local"): { main: string; sub: strin
         .find((p) => p.type === "timeZoneName")?.value || "Local";
     return { main, sub };
   } catch {
-    return { main: iso.slice(11, 16) || "13:30", sub: "UTC" };
+    return { main: iso.slice(11, 16) || "13:30", sub: "Local" };
   }
 }
 
-function dayTitle(key: string): string {
+function dayTitle(dayKeyStr: string): string {
   try {
-    return new Date(key + "T12:00:00Z").toLocaleDateString("en-US", {
+    const [y, m, d] = dayKeyStr.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+    return dt.toLocaleDateString("en-US", {
       weekday: "long",
       month: "short",
       day: "numeric",
       timeZone: "UTC",
     });
   } catch {
-    return key;
+    return dayKeyStr;
   }
+}
+
+function getCanonicalEventKey(name: string): string {
+  const s = name
+    .toLowerCase()
+    .replace(/\(next release\)/g, "")
+    .replace(/\b(us|dol|bls|bea|census)\b/g, "")
+    .replace(/[^a-z0-9]/g, "");
+
+  if (s.includes("jobless") || s.includes("claims") || s.includes("icsa")) return "jobless_claims";
+  if (s.includes("retailsales")) return "retail_sales";
+  if (s.includes("corepce")) return "core_pce";
+  if (s.includes("pce")) return "pce";
+  if (s.includes("corecpi")) return "core_cpi";
+  if (s.includes("cpi")) return "cpi";
+  if (s.includes("producerprice") || s.includes("ppi")) return "ppi";
+  if (s.includes("nonfarm") || s.includes("payroll") || s.includes("payems")) return "nfp";
+  if (s.includes("unemployment") || s.includes("unrate")) return "unrate";
+  if (s.includes("hourlyearnings") || s.includes("ahe")) return "ahe";
+  if (s.includes("michigan") || s.includes("umich") || s.includes("consumerconfidence") || s.includes("sentiment")) return "sentiment";
+  if (s.includes("gdp")) return "gdp";
+  if (s.includes("h41") || s.includes("balance") || s.includes("reservebalance")) return "h41";
+  if (s.includes("h15") || s.includes("interestrates") || s.includes("effr")) return "h15";
+  if (s.includes("housingstart")) return "housing_starts";
+  if (s.includes("nahb") || s.includes("housingmarket")) return "nahb";
+  if (s.includes("fomc") || s.includes("minutes")) return "fomc";
+  if (s.includes("phillyfed")) return "philly_fed";
+  if (s.includes("flashpmi") || s.includes("spglobal")) return "flash_pmi";
+  if (s.includes("durablegoods")) return "durable_goods";
+  if (s.includes("industrialprod")) return "industrial_production";
+  if (s.includes("capacityutil")) return "capacity_utilization";
+  if (s.includes("importprice")) return "import_price";
+  if (s.includes("cftc") || s.includes("commitments") || s.includes("cot")) return "cftc_cot";
+  if (s.includes("personalincome")) return "personal_income";
+  if (s.includes("pendinghome")) return "pending_home_sales";
+  if (s.includes("chicagopmi")) return "chicago_pmi";
+  return s;
+}
+
+function extractPreciseIso(ev: EconomicCalendarEvent, fallbackDate: string): string {
+  let date = fallbackDate;
+  const dateMatch = ev.releaseTime?.match(/(\d{4}-\d{2}-\d{2})/);
+  if (dateMatch) {
+    date = dateMatch[1];
+  }
+
+  let time = "13:30";
+  const timeMatch = ev.releaseTime?.match(/(\d{1,2}):(\d{2})/);
+  if (timeMatch) {
+    time = `${timeMatch[1].padStart(2, "0")}:${timeMatch[2]}`;
+  } else {
+    const lower = (ev.event || "").toLowerCase();
+    if (lower.includes("h.4.1")) time = "21:30";
+    else if (lower.includes("h.15")) time = "21:15";
+    else if (lower.includes("fomc")) time = "19:00";
+    else if (lower.includes("sentiment") || lower.includes("nahb") || lower.includes("pending home")) time = "15:00";
+    else if (lower.includes("industrial") || lower.includes("capacity")) time = "14:15";
+    else if (lower.includes("flash pmi") || lower.includes("chicago pmi")) time = "13:45";
+  }
+
+  return `${date}T${time}:00Z`;
 }
 
 export function EconomicCalendar({
   events = [],
   defaultRange = "today",
+  defaultTz = "ist",
 }: EconomicCalendarProps) {
   const [range, setRange] = useState<"last" | "today" | "week" | "next" | "all">(defaultRange);
-  const [tz, setTz] = useState<"utc" | "local">("utc");
+  const [tz, setTz] = useState<"ist" | "utc" | "local">(defaultTz);
   const [tier1, setTier1] = useState<boolean>(false);
 
-  // Dynamic Anchor Date
+  // Dynamic Anchor Date synchronized with active time zone
   const todayKey = useMemo(() => {
-    return new Date().toISOString().slice(0, 10);
-  }, []);
+    return dayKeyForTz(new Date().toISOString(), tz);
+  }, [tz]);
 
   const monday = useMemo(() => {
     const d = new Date(todayKey + "T00:00:00Z");
@@ -107,57 +205,68 @@ export function EconomicCalendar({
     };
   }, [monday, todayKey]);
 
-  // Merge Reference Events with Live Synced Events
+  // Merge Reference Events with Live Synced Events via Canonical Key Matching
   const allEvents = useMemo<CalendarItem[]>(() => {
     const mergedMap = new Map<string, CalendarItem>();
 
+    // 1. Index baseline reference items by canonicalKey_date
     for (const ref of REFERENCE_EVENTS) {
-      mergedMap.set(`${ref.name}-${ref.t.slice(0, 10)}`, { ...ref });
+      const canon = getCanonicalEventKey(ref.name);
+      const dateKey = ref.t.slice(0, 10);
+      mergedMap.set(`${canon}_${dateKey}`, { ...ref });
     }
 
+    // 2. Overlay live synced observation events with precise time & actual/consensus values
     if (events && events.length > 0) {
       for (const ev of events) {
-        let isoTime = "";
-        const parts = ev.releaseTime.split("·").map((s) => s.trim());
-        if (parts.length >= 2 && /^\d{4}-\d{2}-\d{2}$/.test(parts[0])) {
-          const timePart = parts[1].replace(/utc/i, "").trim();
-          isoTime = `${parts[0]}T${timePart.length === 5 ? timePart : "13:30"}Z`;
-        } else if (/^\d{4}-\d{2}-\d{2}/.test(ev.releaseTime)) {
-          isoTime = `${ev.releaseTime.slice(0, 10)}T13:30Z`;
-        } else {
-          const targetDay =
-            ev.bucket === "today"
-              ? todayKey
-              : ev.bucket === "this-week"
-              ? monday
-              : addDays(monday, 7);
-          isoTime = `${targetDay}T13:30Z`;
-        }
+        const isoTime = extractPreciseIso(ev, todayKey);
+        const dateKey = isoTime.slice(0, 10);
+        const canon = getCanonicalEventKey(ev.event);
+        const dedupeKey = `${canon}_${dateKey}`;
 
-        const tier: 1 | 2 = ev.importance === "HIGH" ? 1 : 2;
-        const key = `${ev.event}-${isoTime.slice(0, 10)}`;
-        mergedMap.set(key, {
-          id: ev.id,
-          t: isoTime,
-          name: ev.event,
-          tier,
-          country: ev.country || "US",
-          consensus: ev.consensus || "—",
-          actual: ev.actual,
-          previous: ev.previous,
-        });
+        const existing = mergedMap.get(dedupeKey);
+        if (existing) {
+          // Precise sync: update live consensus, actual, previous, and precise time
+          existing.id = ev.id || existing.id;
+          if (ev.actual !== null && ev.actual !== undefined && ev.actual !== "") {
+            existing.actual = ev.actual;
+          }
+          if (ev.consensus && ev.consensus !== "—") {
+            existing.consensus = ev.consensus;
+          }
+          if (ev.previous && ev.previous !== "—") {
+            existing.previous = ev.previous;
+          }
+          if (ev.releaseTime && /(\d{1,2}):(\d{2})/.test(ev.releaseTime)) {
+            existing.t = isoTime;
+          }
+          mergedMap.set(dedupeKey, existing);
+        } else {
+          // Live event not in reference docket: add cleanly
+          const tier: 1 | 2 = ev.importance === "HIGH" ? 1 : 2;
+          mergedMap.set(dedupeKey, {
+            id: ev.id,
+            t: isoTime,
+            name: ev.event.replace(/\s*\(Next Release\)/i, "").trim(),
+            tier,
+            country: ev.country || "US",
+            consensus: ev.consensus || "—",
+            actual: ev.actual,
+            previous: ev.previous,
+          });
+        }
       }
     }
 
     return Array.from(mergedMap.values());
-  }, [events, todayKey, monday]);
+  }, [events, todayKey]);
 
   const inRange = useCallback(
     (iso: string, rKey: "last" | "today" | "week" | "next" | "all") => {
-      const dKey = iso.slice(0, 10);
+      const dKey = dayKeyForTz(iso, tz);
       return dKey >= ranges[rKey].start && dKey <= ranges[rKey].end;
     },
-    [ranges]
+    [ranges, tz]
   );
 
   const tierOk = useCallback(
@@ -172,16 +281,16 @@ export function EconomicCalendar({
       .sort((a, b) => a.t.localeCompare(b.t));
   }, [allEvents, range, inRange, tierOk]);
 
-  // Grouped by Day
+  // Grouped by Day (in the active time zone)
   const grouped = useMemo(() => {
     const res: Record<string, CalendarItem[]> = {};
     for (const e of items) {
-      const k = e.t.slice(0, 10);
+      const k = dayKeyForTz(e.t, tz);
       if (!res[k]) res[k] = [];
       res[k].push(e);
     }
     return res;
-  }, [items]);
+  }, [items, tz]);
 
   return (
     <div className="econ-cal-wrap">
@@ -222,6 +331,14 @@ export function EconomicCalendar({
         {/* Sub-bar Controls */}
         <div className="econ-cal-bar">
           <div className="econ-cal-seg" role="group" aria-label="Time zone">
+            <button
+              type="button"
+              data-tz="ist"
+              aria-pressed={tz === "ist"}
+              onClick={() => setTz("ist")}
+            >
+              IST
+            </button>
             <button
               type="button"
               data-tz="utc"
@@ -289,6 +406,9 @@ export function EconomicCalendar({
                       <span className="econ-cal-ctry">{e.country || "US"}</span>
                       <span className="econ-cal-name">{e.name}</span>
                       <span className="econ-cal-cons">
+                        {e.actual !== null && e.actual !== undefined && e.actual !== "" ? (
+                          <span style={{ color: "#22C55E", marginRight: "6px" }}>Act: {e.actual}</span>
+                        ) : null}
                         Cons: {e.consensus && e.consensus !== "—" ? e.consensus : "—"}
                       </span>
                     </div>

@@ -1,0 +1,548 @@
+{
+  "CPI": {
+    "indicator": "CPI",
+    "label": "US Headline CPI",
+    "frequency": "M",
+    "selected_model": "ridge",
+    "tuned_params": {
+      "ridge_alpha": 350.0,
+      "ridge_tscv_mae": 0.1923,
+      "huber_alpha": 60.0,
+      "huber_epsilon": 1.5,
+      "huber_tscv_mae": 0.2858,
+      "xgb_params": {
+        "max_depth": 2,
+        "learning_rate": 0.03,
+        "n_estimators": 120,
+        "reg_lambda": 6.0,
+        "subsample": 0.8,
+        "colsample_bytree": 0.7
+      },
+      "xgb_tscv_mae": 0.2035
+    },
+    "metrics": {
+      "oof_samples": 293,
+      "mae_all": 0.1797,
+      "rmse_all": 0.2626,
+      "mase_all": 0.8612,
+      "forecast_bias_all": -0.008,
+      "consensus_mae_all": 0.1915,
+      "mae_36m": 0.1357,
+      "rmse_36m": 0.2091,
+      "consensus_mae_36m": 0.1334,
+      "beat_consensus_dir_acc_36m": 0.5,
+      "interval_80_coverage": 0.8333,
+      "holdout_samples": 24,
+      "holdout_mae": 0.1414,
+      "holdout_rmse": 0.2337,
+      "holdout_mase": 0.6776,
+      "holdout_bias": -0.0144,
+      "holdout_last_value_mae": 0.1959,
+      "holdout_ar_ridge_mae": 0.144,
+      "dev_wf_mae": 0.1831,
+      "selected_model": "ridge"
+    },
+    "top_features": [
+      {
+        "feature": "CCSA_mom_3",
+        "importance": 0.0606
+      },
+      {
+        "feature": "target_lag_1",
+        "importance": 0.0541
+      },
+      {
+        "feature": "ICSA_yoy_1",
+        "importance": 0.0505
+      },
+      {
+        "feature": "RSAFS_yoy_1",
+        "importance": 0.0485
+      },
+      {
+        "feature": "PPIACO_mom_1",
+        "importance": 0.0482
+      },
+      {
+        "feature": "PPIFIS_mom_1",
+        "importance": 0.0466
+      },
+      {
+        "feature": "CCSA_yoy_1",
+        "importance": 0.0412
+      },
+      {
+        "feature": "DCOILWTICO_mom_1",
+        "importance": 0.0369
+      }
+    ]
+  },
+  "CORE_CPI": {
+    "indicator": "CORE_CPI",
+    "label": "US Core CPI",
+    "frequency": "M",
+    "selected_model": "ridge",
+    "tuned_params": {
+      "ridge_alpha": 750.0,
+      "ridge_tscv_mae": 0.0917,
+      "huber_alpha": 60.0,
+      "huber_epsilon": 1.5,
+      "huber_tscv_mae": 0.1398,
+      "xgb_params": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "n_estimators": 180,
+        "reg_lambda": 10.0,
+        "subsample": 0.85,
+        "colsample_bytree": 0.75
+      },
+      "xgb_tscv_mae": 0.0918
+    },
+    "metrics": {
+      "oof_samples": 293,
+      "mae_all": 0.0805,
+      "rmse_all": 0.1245,
+      "mase_all": 0.9105,
+      "forecast_bias_all": -0.0072,
+      "consensus_mae_all": 0.0775,
+      "mae_36m": 0.0751,
+      "rmse_36m": 0.0956,
+      "consensus_mae_36m": 0.0733,
+      "beat_consensus_dir_acc_36m": 0.4722,
+      "interval_80_coverage": 1.0,
+      "holdout_samples": 24,
+      "holdout_mae": 0.0752,
+      "holdout_rmse": 0.098,
+      "holdout_mase": 0.8504,
+      "holdout_bias": -0.0072,
+      "holdout_last_value_mae": 0.1059,
+      "holdout_ar_ridge_mae": 0.0755,
+      "dev_wf_mae": 0.081,
+      "selected_model": "ridge"
+    },
+    "top_features": [
+      {
+        "feature": "target_ma_12",
+        "importance": 0.1362
+      },
+      {
+        "feature": "CUSR0000SASLE_mom_1",
+        "importance": 0.0751
+      },
+      {
+        "feature": "CES0500000003_yoy_1",
+        "importance": 0.0683
+      },
+      {
+        "feature": "CES0500000003_mom_3",
+        "importance": 0.0458
+      },
+      {
+        "feature": "DGS10_lvl_1",
+        "importance": 0.0395
+      },
+      {
+        "feature": "ICSA_yoy_1",
+        "importance": 0.0367
+      },
+      {
+        "feature": "target_lag_3",
+        "importance": 0.0273
+      },
+      {
+        "feature": "T5YIE_lvl_1",
+        "importance": 0.0262
+      }
+    ]
+  },
+  "PCE": {
+    "indicator": "PCE",
+    "label": "US Headline PCE",
+    "frequency": "M",
+    "selected_model": "ensemble",
+    "tuned_params": {
+      "ridge_alpha": 750.0,
+      "ridge_tscv_mae": 0.1467,
+      "huber_alpha": 60.0,
+      "huber_epsilon": 1.25,
+      "huber_tscv_mae": 0.2175,
+      "xgb_params": {
+        "max_depth": 2,
+        "learning_rate": 0.04,
+        "n_estimators": 180,
+        "reg_lambda": 10.0,
+        "subsample": 0.85,
+        "colsample_bytree": 0.75
+      },
+      "xgb_tscv_mae": 0.1479
+    },
+    "metrics": {
+      "oof_samples": 295,
+      "mae_all": 0.13,
+      "rmse_all": 0.1923,
+      "mase_all": 0.8421,
+      "forecast_bias_all": -0.0093,
+      "consensus_mae_all": 0.1402,
+      "mae_36m": 0.1085,
+      "rmse_36m": 0.1424,
+      "consensus_mae_36m": 0.1056,
+      "beat_consensus_dir_acc_36m": 0.5,
+      "interval_80_coverage": 0.875,
+      "holdout_samples": 24,
+      "holdout_mae": 0.1081,
+      "holdout_rmse": 0.15,
+      "holdout_mase": 0.6999,
+      "holdout_bias": -0.0256,
+      "holdout_last_value_mae": 0.1321,
+      "holdout_ar_ridge_mae": 0.1135,
+      "dev_wf_mae": 0.132,
+      "selected_model": "ensemble"
+    },
+    "top_features": [
+      {
+        "feature": "target_lag_1",
+        "importance": 0.1089
+      },
+      {
+        "feature": "PPIACO_mom_1",
+        "importance": 0.0607
+      },
+      {
+        "feature": "CPIAUCSL_mom_1",
+        "importance": 0.0583
+      },
+      {
+        "feature": "PPIFIS_mom_1",
+        "importance": 0.05
+      },
+      {
+        "feature": "DFII10_lvl_1",
+        "importance": 0.0369
+      },
+      {
+        "feature": "T5YIE_lvl_1",
+        "importance": 0.0357
+      },
+      {
+        "feature": "RSAFS_yoy_1",
+        "importance": 0.0315
+      },
+      {
+        "feature": "PPIFIS_mom_3",
+        "importance": 0.0297
+      }
+    ]
+  },
+  "CORE_PCE": {
+    "indicator": "CORE_PCE",
+    "label": "US Core PCE",
+    "frequency": "M",
+    "selected_model": "ridge",
+    "tuned_params": {
+      "ridge_alpha": 750.0,
+      "ridge_tscv_mae": 0.0824,
+      "huber_alpha": 60.0,
+      "huber_epsilon": 1.5,
+      "huber_tscv_mae": 0.1286,
+      "xgb_params": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "n_estimators": 220,
+        "reg_lambda": 14.0,
+        "subsample": 0.75,
+        "colsample_bytree": 0.65
+      },
+      "xgb_tscv_mae": 0.087
+    },
+    "metrics": {
+      "oof_samples": 295,
+      "mae_all": 0.0687,
+      "rmse_all": 0.0961,
+      "mase_all": 0.7405,
+      "forecast_bias_all": -0.0124,
+      "consensus_mae_all": 0.0738,
+      "mae_36m": 0.0733,
+      "rmse_36m": 0.0899,
+      "consensus_mae_36m": 0.0725,
+      "beat_consensus_dir_acc_36m": 0.4444,
+      "interval_80_coverage": 1.0,
+      "holdout_samples": 24,
+      "holdout_mae": 0.0716,
+      "holdout_rmse": 0.0853,
+      "holdout_mase": 0.7721,
+      "holdout_bias": -0.0228,
+      "holdout_last_value_mae": 0.0767,
+      "holdout_ar_ridge_mae": 0.071,
+      "dev_wf_mae": 0.0685,
+      "selected_model": "ridge"
+    },
+    "top_features": [
+      {
+        "feature": "target_ma_12",
+        "importance": 0.1045
+      },
+      {
+        "feature": "target_ma_3",
+        "importance": 0.0893
+      },
+      {
+        "feature": "target_lag_1",
+        "importance": 0.0799
+      },
+      {
+        "feature": "target_ma_6",
+        "importance": 0.0787
+      },
+      {
+        "feature": "CES0500000003_yoy_1",
+        "importance": 0.0418
+      },
+      {
+        "feature": "ICSA_yoy_1",
+        "importance": 0.041
+      },
+      {
+        "feature": "T5YIE_lvl_1",
+        "importance": 0.0341
+      },
+      {
+        "feature": "target_lag_4",
+        "importance": 0.0269
+      }
+    ]
+  },
+  "NFP": {
+    "indicator": "NFP",
+    "label": "US Nonfarm Payrolls",
+    "frequency": "M",
+    "selected_model": "xgboost",
+    "tuned_params": {
+      "ridge_alpha": 750.0,
+      "ridge_tscv_mae": 300.4873,
+      "huber_alpha": 60.0,
+      "huber_epsilon": 1.5,
+      "huber_tscv_mae": 406.8628,
+      "xgb_params": {
+        "max_depth": 2,
+        "learning_rate": 0.03,
+        "n_estimators": 120,
+        "reg_lambda": 6.0,
+        "subsample": 0.8,
+        "colsample_bytree": 0.7
+      },
+      "xgb_tscv_mae": 271.7814
+    },
+    "metrics": {
+      "oof_samples": 296,
+      "mae_all": 219.8902,
+      "rmse_all": 1246.7867,
+      "mase_all": 0.8558,
+      "forecast_bias_all": 35.9027,
+      "consensus_mae_all": 355.1057,
+      "mae_36m": 95.0543,
+      "rmse_36m": 115.731,
+      "consensus_mae_36m": 96.4992,
+      "beat_consensus_dir_acc_36m": 0.7222,
+      "interval_80_coverage": 0.9583,
+      "holdout_samples": 24,
+      "holdout_mae": 98.8482,
+      "holdout_rmse": 123.7152,
+      "holdout_mase": 0.3847,
+      "holdout_bias": 36.4043,
+      "holdout_last_value_mae": 129.4167,
+      "holdout_ar_ridge_mae": 101.3565,
+      "dev_wf_mae": 230.5703,
+      "selected_model": "xgboost"
+    },
+    "top_features": [
+      {
+        "feature": "INDPRO_yoy_1",
+        "importance": 0.0551
+      },
+      {
+        "feature": "UNRATE_chg_3",
+        "importance": 0.0493
+      },
+      {
+        "feature": "target_ma_3",
+        "importance": 0.0486
+      },
+      {
+        "feature": "target_lag_1",
+        "importance": 0.0434
+      },
+      {
+        "feature": "UNRATE_chg_1",
+        "importance": 0.043
+      },
+      {
+        "feature": "VIXCLS_lvl_1",
+        "importance": 0.0417
+      },
+      {
+        "feature": "T10YIE_chg_1",
+        "importance": 0.0405
+      },
+      {
+        "feature": "DGS2_chg_1",
+        "importance": 0.0366
+      }
+    ]
+  },
+  "UNRATE": {
+    "indicator": "UNRATE",
+    "label": "US Unemployment Rate",
+    "frequency": "M",
+    "selected_model": "xgboost",
+    "tuned_params": {
+      "ridge_alpha": 750.0,
+      "ridge_tscv_mae": 0.2065,
+      "huber_alpha": 60.0,
+      "huber_epsilon": 1.25,
+      "huber_tscv_mae": 0.3031,
+      "xgb_params": {
+        "max_depth": 3,
+        "learning_rate": 0.04,
+        "n_estimators": 220,
+        "reg_lambda": 14.0,
+        "subsample": 0.75,
+        "colsample_bytree": 0.65
+      },
+      "xgb_tscv_mae": 0.1828
+    },
+    "metrics": {
+      "oof_samples": 293,
+      "mae_all": 0.1719,
+      "rmse_all": 0.6527,
+      "mase_all": 1.025,
+      "forecast_bias_all": -0.0092,
+      "consensus_mae_all": 0.1919,
+      "mae_36m": 0.0968,
+      "rmse_36m": 0.1198,
+      "consensus_mae_36m": 0.1132,
+      "beat_consensus_dir_acc_36m": 0.6667,
+      "interval_80_coverage": 1.0,
+      "holdout_samples": 24,
+      "holdout_mae": 0.087,
+      "holdout_rmse": 0.1064,
+      "holdout_mase": 0.5189,
+      "holdout_bias": 0.0121,
+      "holdout_last_value_mae": 0.0792,
+      "holdout_ar_ridge_mae": 0.102,
+      "dev_wf_mae": 0.1795,
+      "selected_model": "xgboost"
+    },
+    "top_features": [
+      {
+        "feature": "DGS2_lvl_1",
+        "importance": 0.0526
+      },
+      {
+        "feature": "RSAFS_yoy_1",
+        "importance": 0.0468
+      },
+      {
+        "feature": "DFII10_lvl_1",
+        "importance": 0.0446
+      },
+      {
+        "feature": "ICSA_mom_3",
+        "importance": 0.04
+      },
+      {
+        "feature": "CCSA_yoy_1",
+        "importance": 0.0385
+      },
+      {
+        "feature": "CCSA_mom_3",
+        "importance": 0.0277
+      },
+      {
+        "feature": "M2SL_yoy_1",
+        "importance": 0.0269
+      },
+      {
+        "feature": "RSAFS_mom_1",
+        "importance": 0.0249
+      }
+    ]
+  },
+  "GDPC1": {
+    "indicator": "GDPC1",
+    "label": "US Real GDP",
+    "frequency": "Q",
+    "selected_model": "ridge",
+    "tuned_params": {
+      "ridge_alpha": 350.0,
+      "ridge_tscv_mae": 2.3678,
+      "huber_alpha": 60.0,
+      "huber_epsilon": 1.25,
+      "huber_tscv_mae": 2.6029,
+      "xgb_params": {
+        "max_depth": 3,
+        "learning_rate": 0.03,
+        "n_estimators": 160,
+        "reg_lambda": 10.0,
+        "subsample": 0.8,
+        "colsample_bytree": 0.7
+      },
+      "xgb_tscv_mae": 2.5678
+    },
+    "metrics": {
+      "oof_samples": 80,
+      "mae_all": 2.4876,
+      "rmse_all": 6.2878,
+      "mase_all": 0.7969,
+      "forecast_bias_all": -0.0999,
+      "consensus_mae_all": 2.8954,
+      "mae_36m": 1.0595,
+      "rmse_36m": 1.3196,
+      "consensus_mae_36m": 0.8716,
+      "beat_consensus_dir_acc_36m": 0.5,
+      "interval_80_coverage": 0.875,
+      "holdout_samples": 8,
+      "holdout_mae": 1.0833,
+      "holdout_rmse": 1.4296,
+      "holdout_mase": 0.347,
+      "holdout_bias": 0.2049,
+      "holdout_last_value_mae": 1.8012,
+      "holdout_ar_ridge_mae": 0.9156,
+      "dev_wf_mae": 2.6437,
+      "selected_model": "ridge"
+    },
+    "top_features": [
+      {
+        "feature": "PAYEMS_qoq_1",
+        "importance": 0.0647
+      },
+      {
+        "feature": "DGS2_lvl_1",
+        "importance": 0.0558
+      },
+      {
+        "feature": "M2SL_yoy_1",
+        "importance": 0.0476
+      },
+      {
+        "feature": "M2SL_qoq_1",
+        "importance": 0.0437
+      },
+      {
+        "feature": "period_sin",
+        "importance": 0.0429
+      },
+      {
+        "feature": "PAYEMS_yoy_1",
+        "importance": 0.0412
+      },
+      {
+        "feature": "INDPRO_qoq_1",
+        "importance": 0.0401
+      },
+      {
+        "feature": "DGS10_lvl_1",
+        "importance": 0.0395
+      }
+    ]
+  }
+}

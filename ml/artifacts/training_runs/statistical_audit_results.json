@@ -1,0 +1,306 @@
+{
+  "executed_at": "2026-11-15T19:47:42.228987+00:00",
+  "n_trials_declared_budget": 215,
+  "diebold_mariano_tests": {
+    "model3_1d_xgboost_vs_unconditional": {
+      "dm_stat": 0.3702,
+      "dm_hln_stat": 0.3686,
+      "p_value_one_sided": 0.3566,
+      "p_value_two_sided": 0.7132,
+      "candidate_mean_loss": 0.9966,
+      "baseline_mean_loss": 1.0419,
+      "mean_loss_diff_baseline_minus_cand": 0.0452,
+      "sample_size": 113,
+      "hac_lag": 1,
+      "candidate_beats_baseline_statistically": false
+    }
+  },
+  "model_confidence_sets": {
+    "model3_1d_regression": {
+      "mcs_models": [
+        "unconditional_baseline",
+        "event_category_baseline",
+        "xgboost_regressor",
+        "ridge_regressor"
+      ],
+      "eliminated_models": [],
+      "mcs_p_values": {
+        "event_category_baseline": 0.631,
+        "unconditional_baseline": 1.0,
+        "xgboost_regressor": 1.0,
+        "ridge_regressor": 1.0
+      },
+      "alpha": 0.1
+    }
+  },
+  "multiple_testing_corrections": {
+    "fdr_bh": [
+      {
+        "p_value": 0.3566,
+        "rank": 4,
+        "critical_value": 0.00625,
+        "rejected_null": false
+      },
+      {
+        "p_value": 0.285,
+        "rank": 2,
+        "critical_value": 0.003125,
+        "rejected_null": false
+      },
+      {
+        "p_value": 0.412,
+        "rank": 5,
+        "critical_value": 0.007812,
+        "rejected_null": false
+      },
+      {
+        "p_value": 0.34,
+        "rank": 3,
+        "critical_value": 0.004688,
+        "rejected_null": false
+      },
+      {
+        "p_value": 0.198,
+        "rank": 1,
+        "critical_value": 0.001563,
+        "rejected_null": false
+      }
+    ],
+    "fwer_holm": [
+      {
+        "p_value": 0.3566,
+        "rank": 4,
+        "critical_value": 0.002174,
+        "rejected_null": false
+      },
+      {
+        "p_value": 0.285,
+        "rank": 2,
+        "critical_value": 0.002,
+        "rejected_null": false
+      },
+      {
+        "p_value": 0.412,
+        "rank": 5,
+        "critical_value": 0.002273,
+        "rejected_null": false
+      },
+      {
+        "p_value": 0.34,
+        "rank": 3,
+        "critical_value": 0.002083,
+        "rejected_null": false
+      },
+      {
+        "p_value": 0.198,
+        "rank": 1,
+        "critical_value": 0.001923,
+        "rejected_null": false
+      }
+    ]
+  },
+  "calibration_audits": {
+    "model4_direction_weekly": {
+      "raw": {
+        "ece": 0.0419,
+        "brier_score": 0.1902,
+        "log_loss": 0.5614,
+        "bins": [
+          {
+            "bin_low": 0.0,
+            "bin_high": 0.1,
+            "count": 21,
+            "mean_pred": 0.0711,
+            "empirical_rate": 0.1429
+          },
+          {
+            "bin_low": 0.1,
+            "bin_high": 0.2,
+            "count": 66,
+            "mean_pred": 0.1511,
+            "empirical_rate": 0.0758
+          },
+          {
+            "bin_low": 0.2,
+            "bin_high": 0.3,
+            "count": 92,
+            "mean_pred": 0.2565,
+            "empirical_rate": 0.2391
+          },
+          {
+            "bin_low": 0.3,
+            "bin_high": 0.4,
+            "count": 101,
+            "mean_pred": 0.3481,
+            "empirical_rate": 0.3267
+          },
+          {
+            "bin_low": 0.4,
+            "bin_high": 0.5,
+            "count": 119,
+            "mean_pred": 0.4475,
+            "empirical_rate": 0.3782
+          },
+          {
+            "bin_low": 0.5,
+            "bin_high": 0.6,
+            "count": 127,
+            "mean_pred": 0.5467,
+            "empirical_rate": 0.6142
+          },
+          {
+            "bin_low": 0.6,
+            "bin_high": 0.7,
+            "count": 106,
+            "mean_pred": 0.6492,
+            "empirical_rate": 0.6604
+          },
+          {
+            "bin_low": 0.7,
+            "bin_high": 0.8,
+            "count": 88,
+            "mean_pred": 0.743,
+            "empirical_rate": 0.7273
+          },
+          {
+            "bin_low": 0.8,
+            "bin_high": 0.9,
+            "count": 67,
+            "mean_pred": 0.8468,
+            "empirical_rate": 0.9104
+          },
+          {
+            "bin_low": 0.9,
+            "bin_high": 1.0,
+            "count": 26,
+            "mean_pred": 0.9306,
+            "empirical_rate": 0.9231
+          }
+        ]
+      },
+      "calibrated": {
+        "ece": 0.0357,
+        "brier_score": 0.1897,
+        "log_loss": 0.5601,
+        "bins": [
+          {
+            "bin_low": 0.0,
+            "bin_high": 0.1,
+            "count": 37,
+            "mean_pred": 0.0684,
+            "empirical_rate": 0.1081
+          },
+          {
+            "bin_low": 0.1,
+            "bin_high": 0.2,
+            "count": 67,
+            "mean_pred": 0.1483,
+            "empirical_rate": 0.1194
+          },
+          {
+            "bin_low": 0.2,
+            "bin_high": 0.3,
+            "count": 105,
+            "mean_pred": 0.2532,
+            "empirical_rate": 0.2286
+          },
+          {
+            "bin_low": 0.3,
+            "bin_high": 0.4,
+            "count": 89,
+            "mean_pred": 0.3524,
+            "empirical_rate": 0.382
+          },
+          {
+            "bin_low": 0.4,
+            "bin_high": 0.5,
+            "count": 106,
+            "mean_pred": 0.4466,
+            "empirical_rate": 0.3962
+          },
+          {
+            "bin_low": 0.5,
+            "bin_high": 0.6,
+            "count": 114,
+            "mean_pred": 0.5456,
+            "empirical_rate": 0.6053
+          },
+          {
+            "bin_low": 0.6,
+            "bin_high": 0.7,
+            "count": 97,
+            "mean_pred": 0.6486,
+            "empirical_rate": 0.6701
+          },
+          {
+            "bin_low": 0.7,
+            "bin_high": 0.8,
+            "count": 92,
+            "mean_pred": 0.746,
+            "empirical_rate": 0.6957
+          },
+          {
+            "bin_low": 0.8,
+            "bin_high": 0.9,
+            "count": 66,
+            "mean_pred": 0.8496,
+            "empirical_rate": 0.8636
+          },
+          {
+            "bin_low": 0.9,
+            "bin_high": 1.0,
+            "count": 40,
+            "mean_pred": 0.9343,
+            "empirical_rate": 0.95
+          }
+        ],
+        "ece_improvement": 0.0062
+      }
+    }
+  },
+  "abstention_curves": {},
+  "slice_mde_estimates": {
+    "Full 1D Event Sample": {
+      "n_events": 1450,
+      "std_dev_pct": 1.25,
+      "mde_pct": 0.092,
+      "status": "SUFFICIENT"
+    },
+    "Full 4H Event Sample": {
+      "n_events": 134,
+      "std_dev_pct": 0.85,
+      "mde_pct": 0.2057,
+      "status": "SUFFICIENT"
+    },
+    "CPI Indicator Slice": {
+      "n_events": 240,
+      "std_dev_pct": 1.1,
+      "mde_pct": 0.1989,
+      "status": "SUFFICIENT"
+    },
+    "NFP Indicator Slice": {
+      "n_events": 235,
+      "std_dev_pct": 1.45,
+      "mde_pct": 0.265,
+      "status": "SUFFICIENT"
+    },
+    "High Real Yield Regime": {
+      "n_events": 320,
+      "std_dev_pct": 1.3,
+      "mde_pct": 0.2036,
+      "status": "SUFFICIENT"
+    },
+    "5M Intraday Sample": {
+      "n_events": 13,
+      "std_dev_pct": 0.35,
+      "mde_pct": 0.272,
+      "status": "INSUFFICIENT"
+    },
+    "30M Intraday Sample": {
+      "n_events": 13,
+      "std_dev_pct": 0.5,
+      "mde_pct": 0.3885,
+      "status": "INSUFFICIENT"
+    }
+  }
+}

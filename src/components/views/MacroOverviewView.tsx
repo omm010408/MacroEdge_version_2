@@ -113,6 +113,7 @@ function curve(p: [number, number][]): string {
 
 interface NewsItem {
   id: number;
+  url?: string;
   assets: string[];
   tickers: string[];
   tag: string;
@@ -127,6 +128,199 @@ interface NewsItem {
   sourceDate: string;
   isSkeleton?: boolean;
 }
+
+function formatNewsStamp(isoOrStr?: string): string {
+  if (!isoOrStr) {
+    const d = new Date();
+    return (
+      d.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Asia/Kolkata",
+      }) + " IST"
+    );
+  }
+  try {
+    const d = new Date(isoOrStr);
+    if (!Number.isNaN(d.getTime())) {
+      return (
+        d.toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: "Asia/Kolkata",
+        }) + " IST"
+      );
+    }
+  } catch {
+    // fallback
+  }
+  return isoOrStr;
+}
+
+function mapArticleToNewsItem(item: FilteredMarketauxArticle, idx: number): NewsItem {
+  const assets: string[] =
+    item.targetAsset === "BOTH"
+      ? ["XAU", "US30"]
+      : item.targetAsset === "GOLD"
+      ? ["XAU"]
+      : ["US30"];
+
+  const tag =
+    item.targetAsset === "BOTH"
+      ? "Dual impact (XAU & US30)"
+      : item.targetAsset === "GOLD"
+      ? "Gold (XAUUSD)"
+      : "Dow Jones (US30)";
+
+  const signals: { label: string; cls?: string }[] = [];
+  signals.push({ label: "AI signal" });
+  if (item.goldImpact) {
+    signals.push({
+      label: `XAUUSD ${item.goldImpact.toLowerCase()}`,
+      cls:
+        item.goldImpact === "BULLISH"
+          ? "sig bull"
+          : item.goldImpact === "BEARISH"
+          ? "sig bear"
+          : "sig neu",
+    });
+  }
+  if (item.us30Impact) {
+    signals.push({
+      label: `US30 ${item.us30Impact.toLowerCase()}`,
+      cls:
+        item.us30Impact === "BULLISH"
+          ? "sig bull"
+          : item.us30Impact === "BEARISH"
+          ? "sig bear"
+          : "sig neu",
+    });
+  }
+  if (typeof item.sentimentScore === "number") {
+    const sign = item.sentimentScore >= 0 ? "+" : "−";
+    signals.push({
+      label: `Sentiment ${sign}${Math.abs(item.sentimentScore).toFixed(2)}`,
+    });
+  }
+
+  const dt = new Date(item.publishedAt);
+  const formattedDate = !Number.isNaN(dt.getTime())
+    ? dt.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Asia/Kolkata",
+      }) + " IST"
+    : item.publishedAt;
+
+  return {
+    id: idx + 1,
+    url: item.url,
+    assets,
+    tickers: item.entities || [],
+    tag,
+    match: `${item.relevanceScore || 92}% AI match`,
+    theme: item.transmissionChannel || "Macro Transmission",
+    title: item.title,
+    signals,
+    catalyst: item.summary,
+    transmission: item.aiRationale,
+    drivers: Array.isArray(item.keyDrivers) ? item.keyDrivers.join(", ") : "",
+    sourceDate: `${item.source || "Marketaux"}, ${formattedDate}`,
+  };
+}
+
+const DEFAULT_NEWS_ITEMS: NewsItem[] = [
+  {
+    id: 1,
+    assets: ["US30"],
+    tickers: ["DIA", "SPY", "TLT", "IEF", "QQQ"],
+    tag: "Dow Jones (US30)",
+    tagClass: "",
+    match: "92% AI match",
+    theme: "Producer inflation and corporate discount rates",
+    title: "Markets edge higher following inflation data; Dow Jones (DIA) and Treasuries in focus",
+    signals: [
+      { label: "AI signal" },
+      { label: "XAUUSD neutral", cls: "sig neu" },
+      { label: "US30 bullish", cls: "sig bull" },
+      { label: "Sentiment +0.36" },
+    ],
+    catalyst:
+      "U.S. equity markets held a steady trajectory as institutional investors digested the latest Producer Price Index print. The tech-heavy QQQ and the Dow Jones Industrial Average (DIA) reacted to shifts in long-duration Treasury yields.",
+    transmission:
+      "In-line producer inflation figures eased fears of renewed Federal Reserve tightening, reducing discount-rate drag on Dow blue-chip earnings.",
+    drivers: "Producer price index, Dow Jones, Treasury yields",
+    sourceDate: "The Stock Market Watch, 17 Nov, 03:37 AM IST",
+  },
+  {
+    id: 2,
+    assets: ["XAU", "US30"],
+    tickers: ["GLD", "DXY", "DIA", "SPY", "US10Y"],
+    tag: "Dual impact (XAU & US30)",
+    tagClass: "",
+    match: "96% AI match",
+    theme: "US real yields and dollar pressure",
+    title: "Treasury yields and the US dollar break out as yield curve tightens",
+    signals: [
+      { label: "AI signal" },
+      { label: "XAUUSD bearish", cls: "sig bear" },
+      { label: "US30 bearish", cls: "sig bear" },
+      { label: "Sentiment −0.22" },
+    ],
+    catalyst:
+      "Equity volatility rose as Treasury yields surged. The US 10-year touched 5.13%, the 2-year held near 4.90%, and the US Dollar Index broke out toward key resistance. Gold spot faced technical headwinds on dollar strength.",
+    transmission:
+      "10-year Treasury yields above 5.10%, combined with a firmer dollar, raise the cost of holding gold and the financing costs for cyclical Dow industrials.",
+    drivers: "10-year yield, dollar index, gold price, Treasury yields",
+    sourceDate: "Mott Capital Management, 17 Nov, 03:29 AM IST",
+  },
+  {
+    id: 3,
+    assets: ["XAU"],
+    tickers: [],
+    tag: "Gold (XAUUSD)",
+    tagClass: "",
+    match: "94% AI match",
+    theme: "Central bank allocation and monetary premium",
+    title: "Gold bullion supported by central bank reserves and geopolitical hedging demand",
+    signals: [
+      { label: "AI signal" },
+      { label: "XAUUSD bullish", cls: "sig bull" },
+      { label: "US30 neutral", cls: "sig neu" },
+      { label: "Sentiment +0.28" },
+    ],
+    catalyst:
+      "Official-sector gold purchases and renewed geopolitical hedging are supporting bullion demand despite a firmer dollar.",
+    transmission:
+      "Central-bank allocation reinforces gold's monetary premium and offsets part of the pressure from higher real yields.",
+    drivers: "Central-bank reserves, gold demand, geopolitical risk",
+    sourceDate: "MacroEdge Research Feed, 17 Nov, 01:34 PM IST",
+  },
+  {
+    id: 4,
+    assets: ["US30"],
+    tickers: [],
+    tag: "Dow Jones (US30)",
+    tagClass: "",
+    match: "95% AI match",
+    theme: "Industrial capex and blue-chip order books",
+    title: "Caterpillar and Boeing lead industrial order rebound amid resilient infrastructure spending",
+    signals: [
+      { label: "AI signal" },
+      { label: "XAUUSD neutral", cls: "sig neu" },
+      { label: "US30 bullish", cls: "sig bull" },
+      { label: "Sentiment +0.31" },
+    ],
+    catalyst:
+      "Resilient infrastructure spending is improving industrial order visibility for large-cap manufacturers.",
+    transmission:
+      "Stronger order books support Dow earnings expectations and help offset valuation pressure from elevated yields.",
+    drivers: "Industrial orders, infrastructure spending, Dow earnings",
+    sourceDate: "MacroEdge Research Feed, 17 Nov, 01:34 PM IST",
+  },
+];
 
 interface MacroOverviewViewProps {
   cards?: MarketOverviewCardData[];
@@ -152,7 +346,10 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
   const [assetFilter, setAssetFilter] = useState<string>("all");
   const [tickerFilter, setTickerFilter] = useState<string | null>(null);
   const [stamp, setStamp] = useState<string>(() => hhmm());
-  const [newsStamp, setNewsStamp] = useState<string>(() => props?.newsLastUpdated || "05:47 PM");
+  const [newsArticles, setNewsArticles] = useState<FilteredMarketauxArticle[]>(() => props?.news ?? []);
+  const [isSyncingNews, setIsSyncingNews] = useState<boolean>(false);
+  const [newsSyncStatus, setNewsSyncStatus] = useState<"idle" | "syncing" | "success" | "error">("idle");
+  const [newsStamp, setNewsStamp] = useState<string>(() => formatNewsStamp(props?.newsLastUpdated));
   const [timerSeconds, setTimerSeconds] = useState<number>(60);
   const [isDebugOpen, setIsDebugOpen] = useState<boolean>(false);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
@@ -185,7 +382,31 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
     if (props?.regimeFactors && props.regimeFactors.length > 0) setRegimeFactors(props.regimeFactors);
     if (props?.calendarEvents && props.calendarEvents.length > 0) setCalendarEvents(props.calendarEvents);
     if (props?.aiSummary !== undefined) setAiSummary(props.aiSummary);
+    if (props?.news && props.news.length > 0) setNewsArticles(props.news);
+    if (props?.newsLastUpdated) setNewsStamp(formatNewsStamp(props.newsLastUpdated));
   }, [props]);
+
+  // Initial news fetch on mount if not yet hydrated
+  useEffect(() => {
+    let mounted = true;
+    if (newsArticles.length === 0) {
+      fetch("/api/news/gold-us30")
+        .then((r) => r.json())
+        .then((data) => {
+          if (!mounted) return;
+          if (data.ok && Array.isArray(data.news) && data.news.length > 0) {
+            setNewsArticles(data.news);
+          }
+          if (data.lastUpdated) {
+            setNewsStamp(formatNewsStamp(data.lastUpdated));
+          }
+        })
+        .catch(() => null);
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [newsArticles.length]);
 
   const cardMap = useMemo(() => {
     const map = new Map<string, MarketOverviewCardData>();
@@ -228,10 +449,15 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
       }
 
       // 3. Fetch fresh news
-      const newsRes = await fetch("/api/news/gold-us30", { cache: "no-store" });
+      const newsRes = await fetch("/api/news/gold-us30?refresh=1", { cache: "no-store" });
       if (newsRes.ok) {
         const newsData = await newsRes.json();
-        if (newsData.lastUpdated) setNewsStamp(newsData.lastUpdated);
+        if (Array.isArray(newsData.news) && newsData.news.length > 0) {
+          setNewsArticles(newsData.news);
+        }
+        if (newsData.lastUpdated) {
+          setNewsStamp(formatNewsStamp(newsData.lastUpdated));
+        }
       }
 
       // 4. Fetch fresh AI bias
@@ -251,6 +477,42 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
       setIsSyncing(false);
     }
   }, []);
+
+  // Targeted News Sync Handler
+  const handleSyncNews = useCallback(async () => {
+    if (isSyncingNews) return;
+    setIsSyncingNews(true);
+    setNewsSyncStatus("syncing");
+    try {
+      await fetch("/api/sync/trigger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ providerId: "marketaux", force: true }),
+      }).catch(() => null);
+
+      const res = await fetch("/api/news/gold-us30?refresh=1", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.news) && data.news.length > 0) {
+          setNewsArticles(data.news);
+        }
+        if (data.lastUpdated) {
+          setNewsStamp(formatNewsStamp(data.lastUpdated));
+        }
+        setNewsSyncStatus("success");
+        setTimeout(() => setNewsSyncStatus("idle"), 3000);
+      } else {
+        setNewsSyncStatus("error");
+        setTimeout(() => setNewsSyncStatus("idle"), 3000);
+      }
+    } catch (err) {
+      console.error("[MacroOverview] Failed to sync news:", err);
+      setNewsSyncStatus("error");
+      setTimeout(() => setNewsSyncStatus("idle"), 3000);
+    } finally {
+      setIsSyncingNews(false);
+    }
+  }, [isSyncingNews]);
 
   // Initial sync on mount if not in-flight
   useEffect(() => {
@@ -542,100 +804,13 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
     setTimeout(() => setCopiedIdx(null), 1400);
   };
 
-  // News cards data
-  const newsItems = useMemo<NewsItem[]>(
-    () => [
-      {
-        id: 1,
-        assets: ["US30"],
-        tickers: ["DIA", "SPY", "TLT", "IEF", "QQQ"],
-        tag: "Dow Jones (US30)",
-        tagClass: "",
-        match: "92% AI match",
-        theme: "Producer inflation and corporate discount rates",
-        title: "Markets edge higher following inflation data; Dow Jones (DIA) and Treasuries in focus",
-        signals: [
-          { label: "AI signal", text: "" },
-          { label: "XAUUSD neutral", cls: "sig neu" },
-          { label: "US30 bullish", cls: "sig bull" },
-          { label: "Sentiment +0.36", text: "" },
-        ],
-        catalyst:
-          "U.S. equity markets held a steady trajectory as institutional investors digested the latest Producer Price Index print. The tech-heavy QQQ and the Dow Jones Industrial Average (DIA) reacted to shifts in long-duration Treasury yields.",
-        transmission:
-          "In-line producer inflation figures eased fears of renewed Federal Reserve tightening, reducing discount-rate drag on Dow blue-chip earnings.",
-        drivers: "Producer price index, Dow Jones, Treasury yields",
-        sourceDate: "The Stock Market Watch, 13 Nov, 03:37 AM",
-      },
-      {
-        id: 2,
-        assets: ["XAU", "US30"],
-        tickers: ["GLD", "DXY", "DIA", "SPY", "US10Y"],
-        tag: "Dual impact (XAU and US30)",
-        tagClass: "",
-        match: "96% AI match",
-        theme: "US real yields and dollar pressure",
-        title: "Treasury yields and the US dollar break out as yield curve tightens",
-        signals: [
-          { label: "AI signal", text: "" },
-          { label: "XAUUSD bearish", cls: "sig bear" },
-          { label: "US30 bearish", cls: "sig bear" },
-          { label: "Sentiment −0.22", text: "" },
-        ],
-        catalyst:
-          "Equity volatility rose as Treasury yields surged. The US 10-year touched 5.13%, the 2-year held near 4.90%, and the US Dollar Index broke out toward key resistance. Gold spot faced technical headwinds on dollar strength.",
-        transmission:
-          "10-year Treasury yields above 5.10%, combined with a firmer dollar, raise the cost of holding gold and the financing costs for cyclical Dow industrials.",
-        drivers: "10-year yield, dollar index, gold price, Treasury yields",
-        sourceDate: "Mott Capital Management, 13 Nov, 03:29 AM",
-      },
-      {
-        id: 3,
-        assets: ["XAU"],
-        tickers: [],
-        tag: "Gold (XAUUSD)",
-        tagClass: "",
-        match: "94% AI match",
-        theme: "Central bank allocation and monetary premium",
-        title: "Gold bullion supported by central bank reserves and geopolitical hedging demand",
-        signals: [
-          { label: "AI signal", text: "" },
-          { label: "XAUUSD bullish", cls: "sig bull" },
-          { label: "US30 neutral", cls: "sig neu" },
-          { label: "Sentiment +0.28", text: "" },
-        ],
-        catalyst:
-          "Official-sector gold purchases and renewed geopolitical hedging are supporting bullion demand despite a firmer dollar.",
-        transmission:
-          "Central-bank allocation reinforces gold's monetary premium and offsets part of the pressure from higher real yields.",
-        drivers: "Central-bank reserves, gold demand, geopolitical risk",
-        sourceDate: "MacroEdge Research Feed, 16 Nov, 01:34 PM",
-      },
-      {
-        id: 4,
-        assets: ["US30"],
-        tickers: [],
-        tag: "Dow Jones (US30)",
-        tagClass: "",
-        match: "95% AI match",
-        theme: "Industrial capex and blue-chip order books",
-        title: "Caterpillar and Boeing lead industrial order rebound amid resilient infrastructure spending",
-        signals: [
-          { label: "AI signal", text: "" },
-          { label: "XAUUSD neutral", cls: "sig neu" },
-          { label: "US30 bullish", cls: "sig bull" },
-          { label: "Sentiment +0.31", text: "" },
-        ],
-        catalyst:
-          "Resilient infrastructure spending is improving industrial order visibility for large-cap manufacturers.",
-        transmission:
-          "Stronger order books support Dow earnings expectations and help offset valuation pressure from elevated yields.",
-        drivers: "Industrial orders, infrastructure spending, Dow earnings",
-        sourceDate: "MacroEdge Research Feed, 16 Nov, 01:34 PM",
-      },
-    ],
-    []
-  );
+  // News cards data: dynamic live articles with institutional fallback
+  const newsItems = useMemo<NewsItem[]>(() => {
+    if (newsArticles.length > 0) {
+      return newsArticles.map((article, idx) => mapArticleToNewsItem(article, idx));
+    }
+    return DEFAULT_NEWS_ITEMS;
+  }, [newsArticles]);
 
   const filteredNews = useMemo(() => {
     return newsItems.filter((c) => {
@@ -1127,7 +1302,7 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
                 </p>
               </section>
 
-              <EconomicCalendar events={calendarEvents} defaultRange="today" />
+              <EconomicCalendar events={calendarEvents} defaultRange="today" defaultTz="ist" />
             </div>
 
             {/* Desks Section */}
@@ -1225,8 +1400,14 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
                   <span>
                     Updated <span id="newsStamp">{newsStamp}</span>, {newsItems.length} records
                   </span>
-                  <button className="btn" id="syncNews" type="button" onClick={() => setNewsStamp(hhmm())}>
-                    Sync news
+                  <button
+                    className="btn"
+                    id="syncNews"
+                    type="button"
+                    onClick={handleSyncNews}
+                    disabled={isSyncingNews}
+                  >
+                    {isSyncingNews ? "Syncing..." : newsSyncStatus === "success" ? "Synced ✓" : "Sync news"}
                   </button>
                 </div>
               </div>
@@ -1284,7 +1465,20 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
                       <span className="news-match num">{card.match}</span>
                     </div>
                     <p className="news-theme">{card.theme}</p>
-                    <h3>{card.title}</h3>
+                    <h3>
+                      {card.url ? (
+                        <a
+                          href={card.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: "inherit", textDecoration: "none" }}
+                        >
+                          {card.title} <span style={{ fontSize: "12px", opacity: 0.7 }}>↗</span>
+                        </a>
+                      ) : (
+                        card.title
+                      )}
+                    </h3>
 
                     {card.isSkeleton ? (
                       <div>

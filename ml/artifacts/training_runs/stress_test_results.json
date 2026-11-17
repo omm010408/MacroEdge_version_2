@@ -1,0 +1,121 @@
+{
+  "tested_at": "2026-11-15T10:42:12.931753+00:00",
+  "block_bootstrap_promotion_audit": {
+    "1d_horizon": {
+      "n_holdout_events": 113,
+      "unconditional_mae": 1.0487,
+      "event_category_mae": 1.0529,
+      "ridge_mae": 1.0829,
+      "xgboost_mae": 1.065,
+      "diff_mean_baseline_minus_ml": -0.09016969606302734,
+      "bootstrap_95_ci": [
+        -0.3261,
+        0.1346
+      ],
+      "p_value_one_sided": 0.233,
+      "ml_outperformed_baseline_statistically": false,
+      "promoted_model_for_production": "unconditional_baseline",
+      "promotion_verdict": "REJECT_ML_PROMOTION",
+      "justification": "ML model (XGBoost MAE 1.0650%) fails to beat the Unconditional Baseline (MAE 1.0487%) on the untouched holdout. 95% bootstrap CI [-0.3261, 0.1346] confirms ML does not improve upon baseline."
+    },
+    "4h_horizon": {
+      "n_holdout_events": 27,
+      "unconditional_mae": 0.7967,
+      "event_category_mae": 0.8097,
+      "ridge_mae": 0.8192,
+      "xgboost_mae": 0.8531,
+      "ml_outperformed_baseline_statistically": false,
+      "promoted_model_for_production": "unconditional_baseline",
+      "promotion_verdict": "REJECT_ML_PROMOTION",
+      "justification": "Unconditional baseline (MAE 0.7967%) outperforms Ridge (0.8192%) and XGBoost (0.8531%) on untouched holdout. ML promotion rejected."
+    },
+    "5m_horizon": {
+      "status": "BLOCKED",
+      "promoted": false,
+      "reason": "Insufficient intraday sample (60-day limit in free Yahoo feed); zero synthetic bridging allowed."
+    },
+    "30m_horizon": {
+      "status": "BLOCKED",
+      "promoted": false,
+      "reason": "Insufficient intraday sample (60-day limit in free Yahoo feed); zero synthetic bridging allowed."
+    }
+  },
+  "missingness_and_staleness_stress": {
+    "baseline_run": {
+      "bias": "NEUTRAL",
+      "bias_score": -7.8,
+      "dominant_regime": "State 3 (Low Vol / Expansion / Tight Policy/Yields)",
+      "uncertainty": 0.316
+    },
+    "missingness_stress": {
+      "random_missing_10pct": {
+        "dropped_features_count": 1,
+        "corrupted_sample": [
+          "CPIAUCSL"
+        ],
+        "resulting_bias": "NEUTRAL",
+        "resulting_bias_score": -8.1,
+        "score_shift": 0.3,
+        "resulting_regime": "State 3 (Low Vol / Expansion / Tight Policy/Yields)",
+        "uncertainty": 0.322,
+        "degradation_severity": "LOW"
+      },
+      "random_missing_25pct": {
+        "dropped_features_count": 2,
+        "corrupted_sample": [
+          "DTWEXBGS",
+          "VIXCLS"
+        ],
+        "resulting_bias": "NEUTRAL",
+        "resulting_bias_score": -7.8,
+        "score_shift": 0.0,
+        "resulting_regime": "State 3 (Low Vol / Expansion / Tight Policy/Yields)",
+        "uncertainty": 0.316,
+        "degradation_severity": "LOW"
+      }
+    },
+    "staleness_stress": {
+      "input_stale_1d": {
+        "stale_trading_days": 1,
+        "resulting_bias": "NEUTRAL",
+        "resulting_bias_score": -5.2,
+        "score_shift": 2.6,
+        "resulting_regime": "State 0 (Tight Policy/Yields)",
+        "uncertainty": 0.318,
+        "degradation_severity": "LOW"
+      },
+      "input_stale_3d": {
+        "stale_trading_days": 3,
+        "resulting_bias": "NEUTRAL",
+        "resulting_bias_score": -4.9,
+        "score_shift": 2.9,
+        "resulting_regime": "State 3 (Low Vol / Expansion / Tight Policy/Yields)",
+        "uncertainty": 0.287,
+        "degradation_severity": "LOW"
+      },
+      "input_stale_5d": {
+        "stale_trading_days": 5,
+        "resulting_bias": "NEUTRAL",
+        "resulting_bias_score": -3.2,
+        "score_shift": 4.6,
+        "resulting_regime": "State 3 (Low Vol / Expansion / Tight Policy/Yields)",
+        "uncertainty": 0.321,
+        "degradation_severity": "LOW"
+      }
+    },
+    "regime_shift_stress": {
+      "2008_GFC_deflationary_shock": {
+        "simulated_real_yield_shock": "-1.50%",
+        "simulated_vix_spike": "60.0",
+        "model4_response": "Safe-haven volatility stress overrides yields; switches to Gold Long / Safe-Haven hedge.",
+        "historical_regime": "State 1 (High Stress / Loose Yields)"
+      },
+      "2022_aggressive_fed_tightening": {
+        "simulated_real_yield_surge": "+2.00%",
+        "simulated_dollar_rally": "+15% DXY",
+        "model4_response": "Hawkish tightening regime engaged; switches to Gold Underweight / Bearish Gold (-36.5 score).",
+        "historical_regime": "Hawkish Tightening / State 0"
+      }
+    }
+  }
+}

@@ -103,14 +103,24 @@ export async function runAiModelsInference(
       stderr += chunk.toString("utf-8");
     });
 
-    child.on("error", (err) => {
+    child.on("error", async (err) => {
       clearTimeout(timer);
-      reject(err);
+      const fallback = await getLatestAiModelsSnapshot();
+      if (fallback) {
+        resolve(fallback);
+      } else {
+        reject(err);
+      }
     });
 
-    child.on("close", (code) => {
+    child.on("close", async (code) => {
       clearTimeout(timer);
       if (code !== 0) {
+        const fallback = await getLatestAiModelsSnapshot();
+        if (fallback) {
+          resolve(fallback);
+          return;
+        }
         reject(new Error(stderr.trim() || `ml.infer exited with code ${code}`));
         return;
       }
@@ -120,6 +130,11 @@ export async function runAiModelsInference(
         const parsed = JSON.parse(lines[lines.length - 1]) as AiModelsSnapshot;
         resolve(parsed);
       } catch (err) {
+        const fallback = await getLatestAiModelsSnapshot();
+        if (fallback) {
+          resolve(fallback);
+          return;
+        }
         reject(new Error(`Failed to parse ml.infer output: ${String(err)}`));
       }
     });

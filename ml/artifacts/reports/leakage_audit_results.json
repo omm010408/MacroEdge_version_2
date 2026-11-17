@@ -1,0 +1,313 @@
+{
+  "checked_at": "2026-11-15T10:47:21.660984+00:00",
+  "overall_status": "WARN",
+  "counts": {
+    "PASS": 13,
+    "WARN": 6,
+    "FAIL": 0
+  },
+  "checks": [
+    {
+      "check_id": "pit_fred_daily_macro_lag",
+      "category": "point_in_time",
+      "status": "PASS",
+      "severity": "CRITICAL",
+      "summary": "Model 4 applies point-in-time publication lags to daily FRED macro series.",
+      "details": {
+        "raw_vs_pit_mismatched_business_days": {
+          "CPIAUCSL": 8168,
+          "PAYEMS": 8291,
+          "PCEPI": 8261,
+          "GDPC1": 8303
+        },
+        "model4_uses_pit_alignment": true,
+        "example_2026_10_01_raw_cpi": 337.476,
+        "example_2026_10_01_pit_cpi": 334.131
+      }
+    },
+    {
+      "check_id": "pit_fred_monthly_tail_and_gdp",
+      "category": "point_in_time",
+      "status": "WARN",
+      "severity": "MEDIUM",
+      "summary": "fred_macro_monthly.csv has 1 incomplete trailing row(s) (max=2026-11-01) where monthly targets are NaN and daily series are partial-month averages; GDPC1 is quarterly-ffilled.",
+      "details": {
+        "raw_rows": 383,
+        "trimmed_rows": 382,
+        "raw_max_date": "2026-11-01",
+        "trimmed_max_date": "2026-10-01",
+        "incomplete_trailing_rows": 1,
+        "m1_handles_tail": true
+      }
+    },
+    {
+      "check_id": "pit_cftc_publication_lag",
+      "category": "point_in_time",
+      "status": "PASS",
+      "severity": "HIGH",
+      "summary": "Model 3 shifts CFTC Tuesday report dates to Friday publication dates.",
+      "details": {
+        "cftc_rows": 1200,
+        "tuesday_fraction": 0.9867,
+        "raw_max_date": "2026-11-03",
+        "pit_release_max_date": "2026-11-06",
+        "model3_uses_pit_cftc": true
+      }
+    },
+    {
+      "check_id": "pit_model4_future_as_of_date",
+      "category": "point_in_time",
+      "status": "PASS",
+      "severity": "MEDIUM",
+      "summary": "Model 4 as_of_date (2026-11-13) does not exceed generated_at (2026-11-15).",
+      "details": {
+        "as_of_date": "2026-11-13",
+        "generated_date": "2026-11-15",
+        "uses_w_fri": true
+      }
+    },
+    {
+      "check_id": "lookahead_intraday_bar_open_convention",
+      "category": "look_ahead",
+      "status": "PASS",
+      "severity": "CRITICAL",
+      "summary": "Intraday event return window strictly precedes release timestamp t0 for p0.",
+      "details": {
+        "code_uses_le_t0": false,
+        "event": "2026-11-10 08:30 ET CPI",
+        "true_5m_return_pct": -0.6741,
+        "recorded_xauusd_macro_events_ret_5m_pct": -0.6741,
+        "sign_flipped": false
+      }
+    },
+    {
+      "check_id": "lookahead_model3_full_sample_transforms",
+      "category": "look_ahead",
+      "status": "PASS",
+      "severity": "HIGH",
+      "summary": "Model 3 fits scalers and imputers strictly within training splits.",
+      "details": {
+        "detected_issues": []
+      }
+    },
+    {
+      "check_id": "lookahead_model4_full_sample_gmm",
+      "category": "look_ahead",
+      "status": "PASS",
+      "severity": "HIGH",
+      "summary": "Model 4 evaluates GMM/regimes using strictly expanding/rolling out-of-sample fits.",
+      "details": {
+        "full_sample_gmm_detected": false
+      }
+    },
+    {
+      "check_id": "lookahead_model1_full_series_robust_scale",
+      "category": "look_ahead",
+      "status": "PASS",
+      "severity": "MEDIUM",
+      "summary": "Model 1 computes outlier weights strictly inside each training fold.",
+      "details": {
+        "full_series_robust_scale": false
+      }
+    },
+    {
+      "check_id": "target_fabrication_model3_intraday_bridging",
+      "category": "target_leakage",
+      "status": "PASS",
+      "severity": "CRITICAL",
+      "summary": "Model 3 trains and evaluates strictly on real observed returns without synthetic bridging.",
+      "details": {
+        "code_contains_bridging": false,
+        "horizon_counts": {
+          "5m": {
+            "real": 13,
+            "bridged": 0,
+            "total": 13
+          },
+          "30m": {
+            "real": 13,
+            "bridged": 0,
+            "total": 13
+          },
+          "4h": {
+            "real": 134,
+            "bridged": 0,
+            "total": 134
+          },
+          "1d": {
+            "real": 1450,
+            "bridged": 0,
+            "total": 1450
+          }
+        }
+      }
+    },
+    {
+      "check_id": "target_synthetic_nlp_corpus_eval",
+      "category": "target_leakage",
+      "status": "PASS",
+      "severity": "HIGH",
+      "summary": "Model 2 separates real collected items in news_human_review_dataset.json and audits FinBERT/extraction transparently.",
+      "details": {
+        "has_synthetic_macro_nlp_corpus": false,
+        "has_news_human_review_dataset": true,
+        "has_model2_run_json": true,
+        "current_report_corpus_size": null
+      }
+    },
+    {
+      "check_id": "duplicate_event_type_dates",
+      "category": "duplicate_events",
+      "status": "PASS",
+      "severity": "CRITICAL",
+      "summary": "Zero duplicate (event_date, event_type) pairs (579 multi-indicator dates such as CPI+CORE_CPI).",
+      "details": {
+        "duplicate_event_date_type_pairs": 0,
+        "dates_with_multiple_events": 579,
+        "total_rows": 1450
+      }
+    },
+    {
+      "check_id": "duplicate_fred_release_101_fomc_daily",
+      "category": "duplicate_events",
+      "status": "WARN",
+      "severity": "HIGH",
+      "summary": "Raw fred_release_dates.csv has 1000 daily FOMC rows (2000-2018, median gap=1.0d) from FRED release_id=101; data_pipeline sanitizer now strips the corrupted FOMC daily burst (sanitized FOMC=0).",
+      "details": {
+        "raw_fomc_count": 1000,
+        "raw_fomc_min": "2000-04-07",
+        "raw_fomc_max": "2018-03-16",
+        "raw_fomc_median_gap_days": 1.0,
+        "sanitized_fomc_count": 0,
+        "sanitized_months_with_multiple_releases": {
+          "CPI": 19,
+          "NFP": 7,
+          "PCE": 57,
+          "PPI": 19
+        }
+      }
+    },
+    {
+      "check_id": "duplicate_fed_news_and_bls_gap",
+      "category": "duplicate_events",
+      "status": "WARN",
+      "severity": "MEDIUM",
+      "summary": "Cached fed_news.json has 45 items (3 duplicate URLs across fomc_press/fed_press_all, 0 bls_news items due to BLS HTTP 403); fetch_fed_news_feed now deduplicates to 42 items.",
+      "details": {
+        "raw_count": 45,
+        "deduplicated_count": 42,
+        "raw_duplicate_links": 3,
+        "bls_news_count": 0
+      }
+    },
+    {
+      "check_id": "timestamp_tz_and_intraday_coverage",
+      "category": "timestamp_timezone",
+      "status": "WARN",
+      "severity": "HIGH",
+      "summary": "Intraday spans are severely constrained (5m/30m ~60d, 1h ~730d), market_1h.csv has 11432 NaN XAUUSD rows (45.4%) from equity-hour outer join, and 0 bars at 08:30 ET.",
+      "details": {
+        "market_daily.csv": {
+          "rows": 7244,
+          "min_utc": "1999-01-01 00:00:00+00:00",
+          "max_utc": "2026-11-13 00:00:00+00:00",
+          "xauusd_nan_rows": 666,
+          "xauusd_non_null": 6578
+        },
+        "market_1h.csv": {
+          "rows": 25159,
+          "min_utc": "2023-12-14 14:30:00+00:00",
+          "max_utc": "2026-11-12 08:00:00+00:00",
+          "xauusd_nan_rows": 11432,
+          "xauusd_non_null": 13727,
+          "et_0830_bars": 0,
+          "et_1400_bars": 596
+        },
+        "market_30m.csv": {
+          "rows": 2598,
+          "min_utc": "2026-08-21 07:00:00+00:00",
+          "max_utc": "2026-11-12 08:00:00+00:00",
+          "xauusd_nan_rows": 346,
+          "xauusd_non_null": 2252,
+          "et_0830_bars": 49,
+          "et_1400_bars": 49
+        },
+        "market_5m.csv": {
+          "rows": 15514,
+          "min_utc": "2026-08-21 07:15:00+00:00",
+          "max_utc": "2026-11-12 08:10:00+00:00",
+          "xauusd_nan_rows": 2055,
+          "xauusd_non_null": 13459,
+          "et_0830_bars": 49,
+          "et_1400_bars": 49
+        }
+      }
+    },
+    {
+      "check_id": "alfred_vintage_revision_status",
+      "category": "alfred_vintage",
+      "status": "WARN",
+      "severity": "HIGH",
+      "summary": "fred_macro_monthly.csv and fred_macro_daily.csv contain latest-revised FRED observations (not ALFRED output_type=4 initial-release vintages). High-revision series (PAYEMS, GDPC1, PCEPI, PCEPILFE, INDPRO, RSAFS) carry historical revision hindsight.",
+      "details": {
+        "alfred_helper_available": true,
+        "cached_fred_csvs_use_initial_vintages": false,
+        "high_revision_series": [
+          "PAYEMS",
+          "GDPC1",
+          "PCEPI",
+          "PCEPILFE",
+          "INDPRO",
+          "RSAFS"
+        ],
+        "note": "ALFRED output_type=4 requires realtime_start=1776-07-04&realtime_end=9999-12-31; omitted realtime bounds return HTTP 400."
+      }
+    },
+    {
+      "check_id": "historical_consensus_absence",
+      "category": "historical_consensus_absence",
+      "status": "WARN",
+      "severity": "HIGH",
+      "summary": "Historical survey consensus is absent; models explicitly distinguish value forecasts from proxy surprises.",
+      "details": {
+        "historical_consensus_file_exists": false,
+        "xauusd_macro_events_has_unlabeled_consensus_col": false,
+        "model1_marks_ar_seasonal_proxy": true,
+        "model3_labels_proxy_source": true
+      }
+    },
+    {
+      "check_id": "embargo_model4_4w_overlap",
+      "category": "overlapping_horizon_embargo",
+      "status": "PASS",
+      "severity": "HIGH",
+      "summary": "Model 4 enforces a 4-week purge/embargo gap (idx - 4 / len(tr) - 4) for its 4-week overlapping target.",
+      "details": {
+        "idx_minus_4_in_oof": true,
+        "len_tr_minus_4_in_cv": true
+      }
+    },
+    {
+      "check_id": "embargo_model3_event_date_grouping",
+      "category": "overlapping_horizon_embargo",
+      "status": "PASS",
+      "severity": "HIGH",
+      "summary": "Model 3 groups walk-forward splits by event_date so same-day events never cross train/test boundaries.",
+      "details": {
+        "event_date_grouped_splits": true
+      }
+    },
+    {
+      "check_id": "embargo_untouched_final_holdout",
+      "category": "overlapping_horizon_embargo",
+      "status": "PASS",
+      "severity": "HIGH",
+      "summary": "Models 1, 3, and 4 all preserve and report an untouched final holdout period.",
+      "details": {
+        "model1_holdout_present": true,
+        "model3_holdout_present": true,
+        "model4_holdout_present": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "weekly_samples": 1177,
+  "oof_weeks": 917,
+  "validation_weeks": 813,
+  "untouched_holdout_weeks": 104,
+  "tuned_lr_c": 1.0,
+  "tuned_xgb_params": {
+    "n_estimators": 60,
+    "max_depth": 1,
+    "learning_rate": 0.04,
+    "reg_lambda": 15.0
+  },
+  "oof_4w_directional_accuracy": 0.5338,
+  "oof_4w_balanced_accuracy": 0.5041,
+  "oof_4w_roc_auc": 0.4734,
+  "oof_4w_brier": 0.2569,
+  "oof_strategy_sharpe": 0.502,
+  "oof_buy_hold_sharpe": 0.51,
+  "oof_strategy_cum_return_pct": 155.33,
+  "oof_buy_hold_cum_return_pct": 185.62,
+  "holdout_4w_directional_accuracy": 0.6058,
+  "holdout_4w_roc_auc": 0.3709,
+  "holdout_4w_brier": 0.2458,
+  "holdout_strategy_sharpe": 1.108,
+  "holdout_buy_hold_sharpe": 1.108,
+  "regime_stats": {
+    "State 0 (Tight Policy/Yields)": {
+      "weeks": 221,
+      "avg_xau_fwd_4w_pct": 1.08,
+      "xau_4w_win_rate": 0.579
+    },
+    "State 1 (High Stress / Loose Policy/Yields)": {
+      "weeks": 122,
+      "avg_xau_fwd_4w_pct": 0.38,
+      "xau_4w_win_rate": 0.492
+    },
+    "State 2 (Loose Policy/Yields)": {
+      "weeks": 368,
+      "avg_xau_fwd_4w_pct": 0.7,
+      "xau_4w_win_rate": 0.557
+    },
+    "State 3 (Low Vol / Expansion / Tight Policy/Yields)": {
+      "weeks": 206,
+      "avg_xau_fwd_4w_pct": 0.7,
+      "xau_4w_win_rate": 0.539
+    }
+  },
+  "primary_regime_detector": "Causal Gaussian HMM (6-factor, strictly forward-filtered)",
+  "prefix_invariance_verified": true
+}

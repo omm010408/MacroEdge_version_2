@@ -1,0 +1,324 @@
+{
+  "model_id": "model2_news_intelligence",
+  "phase": "Phase 4",
+  "status": "VALIDATED_NO_SCRATCH_TRAINING",
+  "generated_at": "2026-11-12T10:58:27.739462+00:00",
+  "architecture": {
+    "sentiment_backbone": "ProsusAI/finbert (pretrained, local cache)",
+    "structured_extractor": "Deterministic 12-field macro & cross-asset channel extractor",
+    "optional_synthesis": "Gemini API (gemini-2.5-flash) \u2014 active only when GEMINI_API_KEY is set",
+    "gemini_api_key_configured": false,
+    "trained_from_scratch": false,
+    "synthetic_corpus_as_ground_truth": false
+  },
+  "artifacts": {
+    "canonical_dir": "ml/artifacts/news_intelligence/",
+    "compatible_dir": "ml/artifacts/model2_news_intelligence/",
+    "human_review_dataset": "ml/data/news_human_review_dataset.json",
+    "run_metadata": "ml/artifacts/training_runs/model2_run.json"
+  },
+  "flat_metrics": {
+    "total_real_items": 45.0,
+    "held_out_audit_items": 23.0,
+    "pending_human_review_items": 22.0,
+    "structured_validity_rate": 1.0,
+    "duplicate_detection_f1_macro": 1.0,
+    "source_institution_accuracy": 1.0,
+    "source_speaker_accuracy": 1.0,
+    "topic_audit_accuracy": 1.0,
+    "topic_audit_f1_macro": 1.0,
+    "finbert_sentiment_audit_accuracy": 0.8696,
+    "finbert_sentiment_audit_f1_macro": 0.3101,
+    "policy_non_hallucination_acc": 1.0,
+    "xauusd_non_hallucination_acc": 1.0
+  },
+  "evaluation": {
+    "evaluated_at": "2026-11-12T10:58:27.737971+00:00",
+    "dataset_path": "ml/data/news_human_review_dataset.json",
+    "total_real_items": 45,
+    "held_out_audit_items": 23,
+    "pending_human_review_items": 22,
+    "finbert_active": true,
+    "gemini_api_key_configured": false,
+    "structured_output_validity": {
+      "valid_items": 45,
+      "total_items": 45,
+      "validity_rate": 1.0,
+      "required_field_count": 12
+    },
+    "duplicate_detection_audit": {
+      "n_samples": 23,
+      "labels": [
+        "UNIQUE",
+        "DUPLICATE"
+      ],
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "weighted_f1": 1.0,
+      "per_class": {
+        "UNIQUE": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 20
+        },
+        "DUPLICATE": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 3
+        }
+      },
+      "confusion_matrix": [
+        [
+          20,
+          0
+        ],
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    "source_attribution_audit": {
+      "n_audited": 23,
+      "institution_accuracy": 1.0,
+      "speaker_accuracy": 1.0,
+      "timestamp_utc_parse_rate": 1.0
+    },
+    "topic_classification_audit": {
+      "n_samples": 23,
+      "labels": [
+        "MONETARY_POLICY",
+        "GROWTH_LABOR",
+        "INFLATION",
+        "LIQUIDITY_CREDIT",
+        "REGULATION_SUPERVISION"
+      ],
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "weighted_f1": 1.0,
+      "per_class": {
+        "MONETARY_POLICY": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 11
+        },
+        "GROWTH_LABOR": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 4
+        },
+        "INFLATION": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 1
+        },
+        "LIQUIDITY_CREDIT": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 1
+        },
+        "REGULATION_SUPERVISION": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 6
+        }
+      },
+      "confusion_matrix": [
+        [
+          11,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          4,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          6
+        ]
+      ]
+    },
+    "finbert_text_sentiment_audit": {
+      "n_samples": 23,
+      "labels": [
+        "positive",
+        "negative",
+        "neutral"
+      ],
+      "accuracy": 0.8696,
+      "macro_f1": 0.3101,
+      "weighted_f1": 0.8898,
+      "per_class": {
+        "positive": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        },
+        "negative": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        },
+        "neutral": {
+          "precision": 0.9524,
+          "recall": 0.9091,
+          "f1": 0.9302,
+          "support": 22
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          20
+        ]
+      ]
+    },
+    "policy_stance_headline_audit": {
+      "n_samples": 23,
+      "labels": [
+        "HAWKISH",
+        "DOVISH",
+        "NEUTRAL"
+      ],
+      "accuracy": 1.0,
+      "macro_f1": 0.3333,
+      "weighted_f1": 1.0,
+      "per_class": {
+        "HAWKISH": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        },
+        "DOVISH": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        },
+        "NEUTRAL": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 23
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          23
+        ]
+      ],
+      "data_coverage_limitation": "All 23 audited fed_news.json RSS items lack statement/speech body text, so ground-truth policy_stance is NEUTRAL (0 HAWKISH / 0 DOVISH support). Metric measures non-hallucination abstention accuracy rather than full-text HAWKISH/DOVISH discrimination."
+    },
+    "xauusd_bias_headline_audit": {
+      "n_samples": 23,
+      "labels": [
+        "BULLISH",
+        "BEARISH",
+        "NEUTRAL"
+      ],
+      "accuracy": 1.0,
+      "macro_f1": 0.3333,
+      "weighted_f1": 1.0,
+      "per_class": {
+        "BULLISH": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        },
+        "BEARISH": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 0
+        },
+        "NEUTRAL": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 23
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          23
+        ]
+      ],
+      "data_coverage_limitation": "All 23 audited fed_news.json RSS items lack directional macro prints, so ground-truth xauusd_bias is NEUTRAL (0 BULLISH / 0 BEARISH support)."
+    }
+  },
+  "honest_limitations": [
+    "ml/data/fed_news.json contains 45 Fed RSS headlines/venues (42 unique after 3 cross-feed FOMC duplicates), without full FOMC statement or speech body texts.",
+    "BLS RSS feed was not present in the cached fed_news.json snapshot.",
+    "GEMINI_API_KEY is not configured in the current environment; gemini_active remains false and no simulated LLM output or numerical forecast is invented.",
+    "Because held_out_manual_audit RSS headlines lack directional macro prints, directional HAWKISH/DOVISH and XAUUSD BULLISH/BEARISH Macro-F1 require full-text human-labeled releases."
+  ]
+}
