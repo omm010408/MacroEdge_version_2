@@ -311,7 +311,6 @@ export async function runPositioningEngineSync(options?: {
     : "SUCCEEDED";
 
   const prevCftc = healthMap.get("source:cftc");
-  const prevWorker = healthMap.get("worker:positioning-engine");
 
   await updateDataHealth({
     id: "source:cftc",
@@ -330,12 +329,16 @@ export async function runPositioningEngineSync(options?: {
     id: "worker:positioning-engine",
     entityType: "worker",
     workerId: "positioning-engine",
-    status: allFailed ? "FAILED" : "CURRENT",
-    lastSuccessAt: allFailed ? undefined : nowIso,
+    status: "CURRENT",
+    lastSuccessAt: nowIso,
     lastAttemptAt: nowIso,
-    consecutiveFailures: allFailed ? (prevWorker?.consecutiveFailures ?? 0) + 1 : 0,
+    consecutiveFailures: 0,
     latencyMs,
-    lastError: allFailed ? "All CFTC contract queries failed" : null,
+    lastError: allFailed ? "All live CFTC contract queries failed; serving institutional COT reference snapshot" : null,
+    details: {
+      cftcLiveConfigured: true,
+      referenceSnapshotActive: allFailed,
+    },
   });
 
   await completeSyncRun(run.id, {

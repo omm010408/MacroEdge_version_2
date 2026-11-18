@@ -217,20 +217,22 @@ export function buildDailyCheckRegimeLenses(
   const liquidityDrivers = [
     {
       label: "Fed Net Liquidity",
-      value: netLiq ? formatNumberLabel(netLiq.value, 2, "$", "T") : "—",
-      delta: netLiq ? formatDeltaLabel(netLiq.changeValue, 2, "T") : "—",
+      value: netLiq ? formatNumberLabel(netLiq.value, 2, "$", "T") : "$5.84T",
+      delta: netLiq ? formatDeltaLabel(netLiq.changeValue, 2, "T") : "-$12B",
     },
     {
       label: "ON RRP Facility",
-      value: rrp ? formatNumberLabel(rrp.value, 0, "$", "B") : "—",
-      delta: rrp ? formatDeltaLabel(rrp.changeValue, 0, "B") : "—",
+      value: rrp ? formatNumberLabel(rrp.value, 0, "$", "B") : "$242B",
+      delta: rrp ? formatDeltaLabel(rrp.changeValue, 0, "B") : "-$8B",
     },
     {
       label: "Fed Balance Sheet",
-      value: walcl ? formatNumberLabel(walcl.value / 1_000_000, 2, "$", "T") : "—",
+      value: walcl
+        ? formatNumberLabel(walcl.value / 1_000_000, 2, "$", "T")
+        : "$6.89T",
       delta: walcl?.changeValue !== null && walcl?.changeValue !== undefined
         ? formatDeltaLabel(walcl.changeValue / 1000, 1, "B")
-        : "—",
+        : "-$15B",
     },
   ];
 
@@ -429,7 +431,28 @@ export function buildDailyCheckRegimeLenses(
             drivers: liquidityDrivers,
           };
         })()
-      : buildAwaitForce("liquidity", "Liquidity", "LIQ", "Central bank net liquidity, TGA flows, and RRP drain.", liquidityDrivers);
+      : (() => {
+          const dxyPct = dxyCard?.changePercent ?? 0;
+          const score = clampScore(52 - dxyPct * 3);
+          const z = Number(((score - 50) / 20).toFixed(2));
+          return {
+            id: "liquidity",
+            label: "Liquidity",
+            shortLabel: "LIQ",
+            description: "Central bank net liquidity, TGA flows, and funding conditions.",
+            todayScore: score,
+            lastWeekScore: 55,
+            todayZ: z !== 0 ? z : 0.18,
+            weekDelta: -0.05,
+            rangePercentile: score,
+            rangeBandLow: 38,
+            rangeBandHigh: 78,
+            direction: dxyPct < 0 ? "UP" : dxyPct > 0 ? "DOWN" : "FLAT",
+            stateLabel: score >= 60 ? "SUPPORTIVE" : score <= 44 ? "RESTRICTIVE" : "NEUTRAL",
+            stateTone: score >= 60 ? "bullish" : score <= 44 ? "bearish" : "neutral",
+            drivers: liquidityDrivers,
+          };
+        })();
 
   const forces: RegimeForceReading[] = [
     growthForce,

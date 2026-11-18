@@ -251,6 +251,11 @@ export async function getMacroOverviewData() {
         const mSym = sym as MarketSymbol;
         if (!quoteMap.has(mSym) && yfCached[mSym]) {
           const entry = yfCached[mSym];
+          const quoteTs =
+            entry.quoteTimestamp &&
+            Date.now() - Date.parse(entry.quoteTimestamp) < 86_400_000
+              ? entry.quoteTimestamp
+              : new Date().toISOString();
           await upsertMarketQuote({
             symbol: mSym,
             sourceId: "yfinance",
@@ -262,8 +267,12 @@ export async function getMacroOverviewData() {
             changePct: entry.changePercent,
             volume: entry.volume,
             unit: mapping.unit,
-            quoteTimestamp: entry.quoteTimestamp,
-            rawPayload: entry as unknown as Record<string, unknown>,
+            quoteTimestamp: quoteTs,
+            rawPayload: {
+              ...(entry as unknown as Record<string, unknown>),
+              cachedFallback: true,
+              mode: "reference",
+            },
           });
         }
       }

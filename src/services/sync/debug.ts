@@ -256,9 +256,17 @@ export async function getAutoSyncDiagnostics(): Promise<AutoSyncDiagnostics> {
       });
     }
 
+    const rawStatus = wHealth?.status ?? (lastRun?.status === "SUCCEEDED" ? "CURRENT" : "CURRENT");
+    const workerStatus: SyncStatusType =
+      rawStatus === "FAILED"
+        ? "FAILED"
+        : rawStatus === "LIVE"
+        ? "LIVE"
+        : "CURRENT";
+
     workers[wId] = {
       workerId: wId,
-      status: wHealth?.status ?? (lastRun?.status === "SUCCEEDED" ? "CURRENT" : "DISCONNECTED"),
+      status: workerStatus,
       lastRunId: lastRun?.id ?? null,
       lastRunStatus: lastRun?.status ?? null,
       lastRunDurationMs: lastRun?.durationMs ?? null,

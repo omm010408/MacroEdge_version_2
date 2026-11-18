@@ -293,25 +293,30 @@ const MACRO_PROVIDER_SERIES_MAP: Partial<Record<ProviderId, string[]>> = {
     "PCE_YOY",
     "CORE_PCE_YOY",
     "PPI_YOY",
+    "BREAKEVEN_10Y",
     "NFP_PAYEMS",
     "UNRATE",
     "AHE_YOY",
+    "ICSA",
+    "EFFR",
+    "US10Y_REAL",
+    "FED_WALCL",
+    "HY_OAS",
     "ISM_MFG",
     "ISM_SVC",
     "RETAIL_SALES_MOM",
     "CONSUMER_CONFIDENCE",
     "UST_AVG_NOTE_RATE",
-    "FED_EFFR_OFFICIAL",
   ],
 };
 
 function getSeriesKeysForMacroProvider(providerId: ProviderId): string[] | undefined {
-  const mapped = MACRO_PROVIDER_SERIES_MAP[providerId];
-  if (mapped && mapped.length > 0) return mapped;
   const fromRegistry = MACRO_SERIES_MAPPINGS.filter(
-    (m) => m.primaryProvider === providerId || m.fallbackProvider === providerId
+    (m) => m.primaryProvider === providerId
   ).map((m) => m.seriesKey);
-  return fromRegistry.length > 0 ? fromRegistry : undefined;
+  const mapped = MACRO_PROVIDER_SERIES_MAP[providerId] ?? [];
+  const combined = Array.from(new Set([...mapped, ...fromRegistry]));
+  return combined.length > 0 ? combined : undefined;
 }
 
 function defaultProviderForWorker(workerId: WorkerId): ProviderId {

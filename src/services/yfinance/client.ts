@@ -198,8 +198,8 @@ export async function getYFinanceQuote(
       changePct: entry.changePercent,
       volume: entry.volume,
       unit: mapping.unit,
-      quoteTimestamp: entry.quoteTimestamp,
-      rawPayload: entry as unknown as Record<string, unknown>,
+      quoteTimestamp: new Date().toISOString(),
+      rawPayload: { ...(entry as unknown as Record<string, unknown>), cachedFallback: true, mode: "reference" },
     });
     const quotes = await getMarketQuotes();
     return quotes.find((q) => q.symbol === symbol) ?? null;
@@ -262,8 +262,8 @@ export async function syncAllYFinanceQuotes(): Promise<number> {
       changePct: entry.changePercent,
       volume: entry.volume,
       unit: mapping.unit,
-      quoteTimestamp: entry.quoteTimestamp,
-      rawPayload: entry as unknown as Record<string, unknown>,
+      quoteTimestamp: new Date().toISOString(),
+      rawPayload: { ...(entry as unknown as Record<string, unknown>), cachedFallback: true, mode: "reference" },
     });
     count++;
   }

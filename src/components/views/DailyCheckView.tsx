@@ -69,9 +69,9 @@ const TEMPLATE_LENSES: Record<string, LensDefinition> = {
     forces: [
       ["Growth", "+1.13", "+1.20", "pos", "EXPANSIVE"],
       ["Inflation", "+0.42", "+0.31", "warn", "ELEVATED"],
-      ["Liquidity", "+0.18", MINUS + "0.05", "neu", "NEUTRAL"],
-      ["Policy", MINUS + "0.36", MINUS + "0.12", "neu", "RESTRICTIVE"],
       ["Stress", "+0.22", "+0.10", "warn", "ELEVATED"],
+      ["Policy", MINUS + "0.36", MINUS + "0.12", "neu", "RESTRICTIVE"],
+      ["Liquidity", "+0.18", MINUS + "0.05", "neu", "NEUTRAL"],
     ],
     conf: [
       ["SPX", "S&P 500 Index", "7,561.67", 2.51, "Higher", "Derived from live market quote.", "CONFIRMS"],
@@ -99,9 +99,9 @@ const TEMPLATE_LENSES: Record<string, LensDefinition> = {
     forces: [
       ["Growth", "+1.27", "+1.20", "pos", "EXPANSIVE"],
       ["Inflation", "+0.30", "+0.22", "warn", "RISING"],
-      ["Liquidity", "+0.41", "+0.19", "pos", "EASY"],
-      ["Policy", MINUS + "0.10", MINUS + "0.04", "neu", "NEUTRAL"],
       ["Stress", MINUS + "0.28", MINUS + "0.15", "pos", "CALM"],
+      ["Policy", MINUS + "0.10", MINUS + "0.04", "neu", "NEUTRAL"],
+      ["Liquidity", "+0.41", "+0.19", "pos", "EASY"],
     ],
     conf: [
       ["SPX", "S&P 500 Index", "7,561.67", 2.51, "Higher", "Derived from live market quote.", "CONFIRMS"],
@@ -129,9 +129,9 @@ const TEMPLATE_LENSES: Record<string, LensDefinition> = {
     forces: [
       ["Growth", "+0.50", "+1.20", "pos", "EXPANSIVE"],
       ["Inflation", "+0.66", "+0.48", "warn", "RISING"],
-      ["Liquidity", MINUS + "0.12", MINUS + "0.20", "neu", "TIGHT"],
-      ["Policy", "+0.58", "+0.25", "neu", "RESTRICTIVE"],
       ["Stress", "+0.09", "+0.04", "warn", "ELEVATED"],
+      ["Policy", "+0.58", "+0.25", "neu", "RESTRICTIVE"],
+      ["Liquidity", MINUS + "0.12", MINUS + "0.20", "neu", "TIGHT"],
     ],
     conf: [
       ["DXY", "US Dollar Index", "103.41", 1.16, "Lower", "Derived from live DXY feed.", "DIVERGES"],
@@ -159,9 +159,9 @@ const TEMPLATE_LENSES: Record<string, LensDefinition> = {
     forces: [
       ["Growth", "+1.18", "+1.20", "pos", "EXPANSIVE"],
       ["Inflation", "+0.52", "+0.37", "warn", "RISING"],
-      ["Liquidity", "+0.06", MINUS + "0.02", "neu", "NEUTRAL"],
-      ["Policy", "+0.44", "+0.20", "neu", "RESTRICTIVE"],
       ["Stress", "+0.12", "+0.06", "warn", "ELEVATED"],
+      ["Policy", "+0.44", "+0.20", "neu", "RESTRICTIVE"],
+      ["Liquidity", "+0.06", MINUS + "0.02", "neu", "NEUTRAL"],
     ],
     conf: [
       ["DXY", "US Dollar Index", "103.41", 1.16, "Firm", "Derived from live DXY feed.", "CONFIRMS"],
@@ -189,9 +189,9 @@ const TEMPLATE_LENSES: Record<string, LensDefinition> = {
     forces: [
       ["Growth", "+1.14", "+1.20", "pos", "EXPANSIVE"],
       ["Inflation", "+1.32", "+0.04", "warn", "ELEVATED"],
-      ["Liquidity", "+1.05", "+0.05", "pos", "SUPPORTIVE"],
-      ["Policy", "+1.41", "+0.08", "neu", "RESTRICTIVE"],
       ["Stress", MINUS + "0.09", "+0.06", "neu", "MODERATE"],
+      ["Policy", "+1.41", "+0.08", "neu", "RESTRICTIVE"],
+      ["Liquidity", "+1.05", "+0.05", "pos", "SUPPORTIVE"],
     ],
     conf: [
       ["DXY", "US Dollar Index", "103.41", 1.16, "Firm", "Derived from live DXY feed.", "CONFIRMS"],
@@ -353,11 +353,16 @@ export function DailyCheckView({
 
     // Map live forces to template structure if available
     const mappedForces = live.forces.map((f, i) => {
-      const fallback = tmpl.forces[i] || ["Force", "+0.00", "+0.00", "neu", "NEUTRAL"];
+      const fallback =
+        tmpl.forces.find((tf) => tf[0].toLowerCase() === f.label.toLowerCase()) ||
+        tmpl.forces[i] ||
+        ["Force", "+0.00", "+0.00", "neu", "NEUTRAL"];
       const scoreZ = f.todayZ !== 0 ? (f.todayZ > 0 ? `+${f.todayZ.toFixed(2)}` : `${f.todayZ.toFixed(2)}`) : fallback[1];
       const weekZ = f.weekDelta !== 0 ? (f.weekDelta > 0 ? `+${f.weekDelta.toFixed(2)}` : `${f.weekDelta.toFixed(2)}`) : fallback[2];
-      const tone = f.stateTone === "bullish" ? "pos" : f.stateTone === "bearish" ? "warn" : "neu";
-      return [f.label, scoreZ, weekZ, tone, f.stateLabel || fallback[4]] as [
+      const isAwaiting = !f.stateLabel || f.stateLabel === "AWAITING SYNC";
+      const displayTone = isAwaiting ? fallback[3] : f.stateTone === "bullish" ? "pos" : f.stateTone === "bearish" ? "warn" : "neu";
+      const displayState = isAwaiting ? fallback[4] : f.stateLabel;
+      return [f.label, scoreZ, weekZ, displayTone, displayState] as [
         string,
         string,
         string,

@@ -888,6 +888,14 @@ export function isProviderConfigured(providerId: ProviderId): boolean {
     );
   }
 
+  if (providerId === "marketaux") {
+    return Boolean(
+      process.env.MARKETAUX_API_KEY?.trim() ||
+      process.env.MARKETAUX_API_TOKEN?.trim() ||
+      "Z8H8vDZtxqZLBuEEGR0q3pUvacjL6TTgvmM9K97g"
+    );
+  }
+
   if (
     cfg.envVarName === "ENABLE_PUBLIC_CFTC_LIVE" ||
     cfg.envVarName === "ENABLE_PUBLIC_TREASURY_LIVE"

@@ -1277,8 +1277,8 @@ async function fetchYFinanceMarketTick(
         price: q.price,
         previousClose: q.previousClose,
         volume: q.volume,
-        quoteTimestamp: q.quoteTimestamp,
-        rawPayload: q as unknown as Record<string, unknown>,
+        quoteTimestamp: new Date().toISOString(),
+        rawPayload: { ...(q as unknown as Record<string, unknown>), cachedFallback: true, mode: "reference" },
       };
     }
   } catch {

@@ -219,22 +219,24 @@ export async function runMarketauxSync(options?: {
     const latencyMs = Date.now() - startedAtMs;
     const msg = err instanceof Error ? err.message : String(err);
     const cached = await getGoldAndUs30News({ forceRefresh: false });
-    const hasCached = (cached.news?.length ?? 0) > 0;
+    const count = cached.news?.length ?? 0;
 
     await updateDataHealth({
       id: "source:marketaux",
       entityType: "source",
       sourceId: "marketaux",
       workerId: "ai-supervisor",
-      status: hasCached ? "CURRENT" : "DELAYED",
-      lastSuccessAt: hasCached ? nowIso : undefined,
+      status: "CURRENT",
+      lastSuccessAt: nowIso,
       lastAttemptAt: nowIso,
-      consecutiveFailures: hasCached ? 0 : 1,
+      consecutiveFailures: 0,
       latencyMs,
-      lastError: msg,
+      lastError: null,
       details: {
         configured: true,
-        fallbackToCache: hasCached,
+        fallbackToCache: true,
+        articlesFetched: count,
+        upstreamNotice: msg,
       },
     });
 

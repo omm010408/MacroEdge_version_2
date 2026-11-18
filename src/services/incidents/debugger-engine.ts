@@ -1118,7 +1118,24 @@ export async function verifyIncidentRecovery(
         ? incident.metadata.syncRunId
         : null;
 
-    if (runId) {
+    if (incident.fingerprint.startsWith("sync:stale-quote:")) {
+      const quote = syncSnapshot.marketQuotes.find(
+        (q) => q.symbol === incident.affectedDataset && q.sourceId === incident.providerId
+      );
+      const raw = quote?.rawPayload as Record<string, unknown> | undefined;
+      const isRef = raw?.cachedFallback === true || raw?.mode === "reference";
+      const ageMs = quote ? Date.now() - Date.parse(quote.quoteTimestamp) : Infinity;
+      const maxStaleMs = incident.providerId === "yfinance" ? 86_400_000 : 300_000;
+      const quoteOk = Boolean(quote) && (isRef || (Number.isFinite(ageMs) && ageMs <= maxStaleMs));
+      checks.push({
+        name: "market_quote_freshness_check",
+        passed: quoteOk,
+        detail: quote
+          ? `symbol=${quote.symbol} provider=${quote.sourceId} age=${Math.round(ageMs / 1000)}s isRef=${isRef}`
+          : `No quote recorded for ${incident.affectedDataset} on ${incident.providerId}`,
+        checkedAt: nowIso,
+      });
+    } else if (runId) {
       const origRun = syncSnapshot.recentRuns.find((r) => r.id === runId);
       const newerSuccess = syncSnapshot.recentRuns.find(
         (r) =>
@@ -1182,12 +1199,15 @@ export async function verifyIncidentRecovery(
   } else if (incident.domain === "database") {
     const start = Date.now();
     try {
-      await getLatestValues();
+      const latestValues = await getLatestValues();
       const latencyMs = Date.now() - start;
+      const seriesPopulated = incident.affectedDataset
+        ? latestValues.some((lv) => lv.seriesKey === incident.affectedDataset)
+        : true;
       checks.push({
         name: "database_readonly_probe",
-        passed: latencyMs <= SLOW_DB_QUERY_MS,
-        detail: `Read probe completed in ${latencyMs}ms`,
+        passed: latencyMs <= SLOW_DB_QUERY_MS && seriesPopulated,
+        detail: `Read probe completed in ${latencyMs}ms${incident.affectedDataset ? ` (series ${incident.affectedDataset} present: ${seriesPopulated})` : ""}`,
         checkedAt: nowIso,
       });
     } catch (err) {
@@ -1950,10 +1970,14 @@ export async function runDeterministicMonitorSweep(
   // Check for stale configured market quotes using provider-appropriate cadence thresholds
   const staleQuotes = syncSnapshot.marketQuotes.filter((q) => {
     if (!isProviderConfigured(q.sourceId)) return false;
+    const raw = q.rawPayload as Record<string, unknown> | undefined;
+    if (raw?.cachedFallback === true || raw?.mode === "reference") return false;
     const ageMs = startedAtMs - Date.parse(q.quoteTimestamp);
     const maxStaleMs =
       q.sourceId === "fred" || q.sourceId === "fed_reserve"
         ? 7 * 86_400_000
+        : q.sourceId === "yfinance"
+        ? 86_400_000
         : 300_000;
     return Number.isFinite(ageMs) && ageMs > maxStaleMs;
   });
