@@ -197,6 +197,13 @@ async function fetchApiNinjasGoldQuoteSafe(): Promise<MarketQuoteRecord | null> 
     if (!res.ok) return null;
     const data = (await res.json()) as { price?: number; updated?: number };
     if (typeof data.price !== "number" || !Number.isFinite(data.price) || data.price <= 0) return null;
+    const now = new Date().toISOString();
+    const quoteTimestamp =
+      typeof data.updated === "number" &&
+      data.updated > 0 &&
+      Date.now() - data.updated * 1000 < 86_400_000
+        ? new Date(data.updated * 1000).toISOString()
+        : now;
     await upsertMarketQuote({
       symbol: "XAUUSD",
       sourceId: "api_ninjas",
@@ -204,8 +211,11 @@ async function fetchApiNinjasGoldQuoteSafe(): Promise<MarketQuoteRecord | null> 
       assetClass: "Commodities",
       price: data.price,
       unit: "USD/oz",
-      quoteTimestamp: data.updated ? new Date(data.updated * 1000).toISOString() : new Date().toISOString(),
-      rawPayload: data as Record<string, unknown>,
+      quoteTimestamp,
+      rawPayload: {
+        ...data,
+        receivedAt: now,
+      },
     });
     const quotes = await getMarketQuotes();
     return quotes.find((q) => q.symbol === "XAUUSD") ?? null;

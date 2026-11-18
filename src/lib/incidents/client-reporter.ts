@@ -69,6 +69,15 @@ export function reportFrontendIncident(
     return;
   }
 
+  // Filter out uninformative cross-origin script errors with no stack trace or filename
+  if (
+    (safeMessage === "Script error." || safeMessage === "Script error") &&
+    !options.stackTrace &&
+    (!safeComponent || safeComponent === "browser-window" || safeComponent.startsWith("browser:"))
+  ) {
+    return;
+  }
+
   const routePath =
     options.routePath ??
     (typeof window !== "undefined" ? window.location?.pathname ?? null : null);
@@ -155,6 +164,15 @@ export function installGlobalFrontendMonitors(): () => void {
   monitorsInstalled = true;
 
   const onWindowError = (event: ErrorEvent) => {
+    // Ignore cross-origin masked script errors (browser extensions, adblockers, etc.)
+    if (
+      event.message === "Script error." ||
+      event.message === "Script error" ||
+      (!event.filename && !event.error)
+    ) {
+      return;
+    }
+
     reportFrontendIncident({
       domain: "frontend",
       severity: "High",

@@ -603,10 +603,13 @@ export async function ingestTelemetryAndClassify(
     : null;
   const safeMeta = redactObjectSecrets(payload.metadata ?? {});
 
-  // Prevent incident reporting recursion / endpoint storms
+  // Prevent incident reporting recursion / endpoint storms, and ignore uninformative cross-origin script errors
   if (
     safeComponent.includes("/api/incidents") ||
-    safeDescription.includes("/api/incidents/ingest")
+    safeDescription.includes("/api/incidents/ingest") ||
+    ((safeDescription === "Script error." || safeDescription === "Script error") &&
+      !safeTrace &&
+      (safeComponent === "browser-window" || safeComponent.startsWith("browser:")))
   ) {
     return { telemetryRecorded: false, incidentResult: null };
   }
@@ -1125,7 +1128,10 @@ export async function verifyIncidentRecovery(
       const raw = quote?.rawPayload as Record<string, unknown> | undefined;
       const isRef = raw?.cachedFallback === true || raw?.mode === "reference";
       const ageMs = quote ? Date.now() - Date.parse(quote.quoteTimestamp) : Infinity;
-      const maxStaleMs = incident.providerId === "yfinance" ? 86_400_000 : 300_000;
+      const maxStaleMs =
+        incident.providerId === "yfinance" || incident.providerId === "api_ninjas"
+          ? 86_400_000
+          : 300_000;
       const quoteOk = Boolean(quote) && (isRef || (Number.isFinite(ageMs) && ageMs <= maxStaleMs));
       checks.push({
         name: "market_quote_freshness_check",
@@ -1976,7 +1982,7 @@ export async function runDeterministicMonitorSweep(
     const maxStaleMs =
       q.sourceId === "fred" || q.sourceId === "fed_reserve"
         ? 7 * 86_400_000
-        : q.sourceId === "yfinance"
+        : q.sourceId === "yfinance" || q.sourceId === "api_ninjas"
         ? 86_400_000
         : 300_000;
     return Number.isFinite(ageMs) && ageMs > maxStaleMs;

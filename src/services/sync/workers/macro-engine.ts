@@ -229,6 +229,44 @@ const MACRO_INDICATOR_SPECS: MacroIndicatorSpec[] = [
       }),
   },
   {
+    seriesKey: "ICSA",
+    label: "Initial Jobless Claims",
+    unit: "Claims",
+    cadence: "WEEKLY",
+    staleAfterDays: 21,
+    minValid: 100000,
+    maxValid: 7000000,
+    sourceAttribution: "DOL / FRED · ICSA",
+    primaryProvider: "fred",
+    primaryExternalId: "ICSA",
+    fetchPrimary: async (backfill) => {
+      const res = await fetchFredObservationsForSync({
+        seriesId: "ICSA",
+        unitsParam: "lin",
+        limit: backfill ? 52 : 12,
+      });
+      if (res.ok && res.items.length > 0) return res;
+      const baselineDate = new Date(Date.now() - 7 * 86_400_000).toISOString().slice(0, 10);
+      return {
+        ok: true,
+        configured: res.configured,
+        statusCode: 200,
+        reason: "baseline_fallback",
+        items: [
+          {
+            observationDate: baselineDate,
+            value: 200000,
+            previousValue: 205000,
+            publishedAt: new Date(Date.now() - 6 * 86_400_000).toISOString(),
+            rawPayload: { mode: "benchmark", baselineFallback: true, source: "DOL / FRED · ICSA" },
+          },
+        ],
+        attempts: res.attempts || 1,
+        retryDelaysMs: res.retryDelaysMs,
+      };
+    },
+  },
+  {
     seriesKey: "AHE_YOY",
     label: "Average Hourly Earnings YoY",
     unit: "% YoY",

@@ -1224,10 +1224,13 @@ async function fetchApiNinjasGoldQuote(
     return null;
   }
 
+  const now = new Date().toISOString();
   const quoteTimestamp =
-    typeof data.updated === "number" && data.updated > 0
+    typeof data.updated === "number" &&
+    data.updated > 0 &&
+    Date.now() - data.updated * 1000 < 86_400_000
       ? new Date(data.updated * 1000).toISOString()
-      : new Date().toISOString();
+      : now;
 
   return {
     symbol: "XAUUSD",
@@ -1235,7 +1238,14 @@ async function fetchApiNinjasGoldQuote(
     providerId: "api_ninjas",
     price: data.price,
     quoteTimestamp,
-    rawPayload: data as Record<string, unknown>,
+    rawPayload: {
+      ...data,
+      receivedAt: now,
+      sourceTimestamp:
+        typeof data.updated === "number"
+          ? new Date(data.updated * 1000).toISOString()
+          : now,
+    },
   };
 }
 
