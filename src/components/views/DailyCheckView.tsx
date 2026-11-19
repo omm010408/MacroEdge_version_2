@@ -374,9 +374,48 @@ export function DailyCheckView({
     const mappedRadar = live.forces.map((f, i) => f.todayScore || tmpl.radar[i] || 50);
     const mappedLast = live.forces.map((f, i) => f.lastWeekScore || tmpl.last[i] || 50);
 
+    const mappedConf =
+      live.confirmations && live.confirmations.length > 0
+        ? live.confirmations.map((c) => {
+            let numChg: number | null = null;
+            if (c.weeklyMoveLabel && c.weeklyMoveLabel !== "—") {
+              const cleaned = c.weeklyMoveLabel.replace("%", "").replace("+", "").trim();
+              const parsed = parseFloat(cleaned);
+              if (Number.isFinite(parsed)) {
+                numChg =
+                  c.weeklyMoveLabel.startsWith("-") || c.weeklyMoveLabel.startsWith("−")
+                    ? -Math.abs(parsed)
+                    : parsed;
+              }
+            }
+            return [
+              c.symbol,
+              c.name,
+              c.priceLabel,
+              numChg,
+              c.expectedDirection,
+              c.rationale,
+              c.confirms ? "CONFIRMS" : "DIVERGES",
+            ] as [string, string, string, number | null, string, string, "CONFIRMS" | "DIVERGES"];
+          })
+        : tmpl.conf;
+
+    const mappedCatalyst =
+      live.triggers && live.triggers[0]
+        ? {
+            name: live.triggers[0].title,
+            desc: live.triggers[0].condition,
+            foot: `${live.triggers[0].currentState}${
+              live.triggers[0].distance && live.triggers[0].distance !== "—"
+                ? ` (${live.triggers[0].distance})`
+                : ""
+            }`,
+          }
+        : tmpl.catalyst;
+
     return {
       ...tmpl,
-      headline: live.headline || tmpl.title,
+      title: live.headline || tmpl.title,
       desc: live.thesis || tmpl.desc,
       verdict: [
         live.biasLabel || tmpl.verdict[0],
@@ -390,11 +429,18 @@ export function DailyCheckView({
           ? "neutral"
           : tmpl.verdict[1]) as "bull" | "bear" | "mixed" | "neutral",
       ],
-      tick: [live.assetSymbol || tmpl.tick[0], live.assetPrice || tmpl.tick[1], live.assetChange1W || tmpl.tick[2], live.assetChangePositive ?? tmpl.tick[3]],
+      tick: [
+        live.assetSymbol || tmpl.tick[0],
+        live.assetPrice || tmpl.tick[1],
+        live.assetChange1W || tmpl.tick[2],
+        live.assetChangePositive ?? tmpl.tick[3],
+      ],
       note: live.nonDriverNote || tmpl.note,
       radar: mappedRadar.length === 5 ? mappedRadar : tmpl.radar,
       last: mappedLast.length === 5 ? mappedLast : tmpl.last,
       forces: mappedForces.length === 5 ? mappedForces : tmpl.forces,
+      conf: mappedConf,
+      catalyst: mappedCatalyst,
     };
   }, [currentLensKey, rawLenses]);
 
@@ -402,6 +448,23 @@ export function DailyCheckView({
   const confirmCount = useMemo(() => {
     return activeLens.conf.filter((c) => c[6] === "CONFIRMS").length;
   }, [activeLens]);
+
+  // Dynamic confirmation status:
+  // >= 4 confirming -> CONFIRMED (e.g. "CONFIRMED BEARISH" or "CONFIRMED BULLISH")
+  // 3 confirming -> "MIXED"
+  // <= 2 confirming -> "NOT CONFIRMED"
+  const confirmStatus = useMemo(() => {
+    if (confirmCount >= 4) {
+      const bias = activeLens.verdict[0];
+      if (bias === "BEARISH") return "CONFIRMED BEARISH";
+      if (bias === "BULLISH") return "CONFIRMED BULLISH";
+      return "CONFIRMED";
+    }
+    if (confirmCount === 3) {
+      return "MIXED";
+    }
+    return "NOT CONFIRMED";
+  }, [confirmCount, activeLens.verdict]);
 
   // Growth delta
   const growthDelta = useMemo(() => {
@@ -496,8 +559,7 @@ export function DailyCheckView({
             </div>
 
             <div className="dc-confirm">
-              {confirmCount} of 6 markets confirm{" "}
-              <b>{confirmCount >= 5 ? "CONFIRMED" : confirmCount >= 3 ? "PARTIAL" : "NOT CONFIRMED"}</b>
+              {confirmCount} of 6 markets confirm <b>{confirmStatus}</b>
             </div>
 
             <button
@@ -785,8 +847,12 @@ export function DailyCheckView({
                 {confirmCount} of 6 markets confirm the active {activeLens.regime} regime.
               </p>
             </div>
-            <span className={`state ${confirmCount >= 5 ? "ok" : ""}`}>
-              {confirmCount >= 5 ? "CONFIRMED" : confirmCount >= 3 ? "PARTIAL" : "NOT CONFIRMED"}
+            <span
+              className={`state ${
+                confirmCount >= 4 ? "ok" : confirmCount === 3 ? "warn" : ""
+              }`}
+            >
+              {confirmStatus}
             </span>
           </div>
 

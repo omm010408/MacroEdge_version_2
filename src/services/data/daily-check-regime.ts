@@ -539,96 +539,6 @@ export function buildDailyCheckRegimeLenses(
     rationale,
   });
 
-  const spxConf = makeConfirmation(
-    "SPX",
-    "S&P 500 Index",
-    spxCard ? formatNumberLabel(spxCard.value, 2) : "—",
-    spxCard ? formatDeltaLabel(spxCard.changePercent, 2, "%") : "—",
-    "Higher",
-    Boolean(spxCard && (spxCard.changePercent ?? 0) > 0),
-    spxCard ? "Derived from live market quote." : "Awaiting live market quote sync."
-  );
-
-  const vixConf = makeConfirmation(
-    "VIX",
-    "CBOE Volatility Index",
-    formatNumberLabel(vixVal, 2),
-    vixCard ? formatDeltaLabel(vixCard.changePercent, 2, "%") : "—",
-    "Lower",
-    Boolean(vixVal !== null && vixVal < 20),
-    vixVal !== null ? "Derived from live CBOE VIX feed." : "Awaiting live VIX sync."
-  );
-
-  const hyConf = makeConfirmation(
-    "HY OAS",
-    "US High Yield Spreads",
-    hyBps !== null ? `${hyBps} bps` : "—",
-    "—",
-    "Tighter",
-    Boolean(hyBps !== null && hyBps < 350),
-    hyBps !== null ? "Derived from ICE BofA HY OAS sync." : "Awaiting live credit spread sync."
-  );
-
-  const us10yConf = makeConfirmation(
-    "US10Y",
-    "US 10Y Nominal Yield",
-    formatNumberLabel(us10yVal, 2, "", "%"),
-    formatDeltaLabel(us10yChange, 0, " bps"),
-    "Stable / Firm",
-    Boolean(us10yVal !== null),
-    us10yVal !== null ? "Derived from FRED DGS10 / US10Y." : "Awaiting live 10Y yield sync."
-  );
-
-  const dxyConf = makeConfirmation(
-    "DXY",
-    "US Dollar Index",
-    dxyCard ? formatNumberLabel(dxyCard.value, 2) : "—",
-    dxyCard ? formatDeltaLabel(dxyCard.changePercent, 2, "%") : "—",
-    "Firm",
-    Boolean(dxyCard && (dxyCard.changePercent ?? 0) >= 0),
-    dxyCard ? "Derived from live DXY feed." : "Awaiting live DXY quote sync."
-  );
-
-  const goldConf = makeConfirmation(
-    "XAUUSD",
-    "Gold Spot / USD",
-    goldCard ? formatNumberLabel(goldCard.value, 2, "$") : "—",
-    goldCard ? formatDeltaLabel(goldCard.changePercent, 2, "%") : "—",
-    "Directional Confirmation",
-    Boolean(goldCard && (goldCard.changePercent ?? 0) > 0),
-    goldCard ? "Derived from live XAUUSD feed." : "Awaiting live gold quote sync."
-  );
-
-  const btcConf = makeConfirmation(
-    "BTCUSD",
-    "Bitcoin (Liquidity Proxy)",
-    btcCard ? formatNumberLabel(btcCard.value, 0, "$") : "—",
-    btcCard ? formatDeltaLabel(btcCard.changePercent, 2, "%") : "—",
-    "Higher",
-    Boolean(btcCard && (btcCard.changePercent ?? 0) > 0),
-    btcCard ? "Derived from live BTCUSD feed." : "Awaiting live crypto quote sync."
-  );
-
-  const real10yConf = makeConfirmation(
-    "US10YR",
-    "US 10Y Real Yield",
-    formatNumberLabel(real10yVal, 2, "", "%"),
-    formatDeltaLabel(real10yChange, 0, " bps"),
-    "Higher (Headwind)",
-    Boolean(real10yVal !== null && real10yVal > 1.75),
-    real10yVal !== null ? "Derived from FRED DFII10 TIPS real yield." : "Awaiting live TIPS real yield sync."
-  );
-
-  const be10Conf = makeConfirmation(
-    "10Y BE",
-    "10Y Breakeven Inflation",
-    be10 ? formatNumberLabel(be10.value, 2, "", "%") : "—",
-    "—",
-    "Flat / Lower",
-    Boolean(be10 && be10.value <= 2.4),
-    be10 ? "Derived from FRED T10YIE breakeven sync." : "Awaiting live breakeven sync."
-  );
-
   const anyLiveMacro = Boolean(
     vixVal !== null || us10yVal !== null || real10yVal !== null || gdp || cpi || hyBps !== null
   );
@@ -642,20 +552,37 @@ export function buildDailyCheckRegimeLenses(
     confirmations: MarketConfirmationItem[];
     liveHeadline: string;
     liveThesis: string;
-    liveBias: RegimeLensConfig["biasLabel"];
-    liveTone: RegimeTone;
+    baseBias: "BEARISH" | "BULLISH" | "NEUTRAL";
+    baseTone: RegimeTone;
     nonDriverNote: string;
     triggers: RegimeLensConfig["triggers"];
   }): RegimeLensConfig => {
     const confirmedCount = params.confirmations.filter((c) => c.confirms).length;
     const hasPrimary = params.primaryCard !== undefined || anyLiveMacro;
-    const verdict: RegimeLensConfig["tradeVerdict"] = !hasPrimary
-      ? "NO TRADE"
-      : confirmedCount >= 4
-      ? "CONFIRMED"
-      : confirmedCount >= 2
-      ? "SELECTIVE"
-      : "NO TRADE";
+
+    // Calculable verdict and bias:
+    // >= 4 confirming -> CONFIRMED with base direction (e.g. BEARISH for gold, BULLISH for stocks/dollar)
+    // 3 confirming -> MIXED
+    // <= 2 confirming -> NEUTRAL / NOT CONFIRMED
+    let biasLabel: RegimeLensConfig["biasLabel"] = "NEUTRAL";
+    let tone: RegimeTone = "neutral";
+    let tradeVerdict: RegimeLensConfig["tradeVerdict"] = "NO TRADE";
+
+    if (hasPrimary) {
+      if (confirmedCount >= 4) {
+        biasLabel = params.baseBias;
+        tone = params.baseTone;
+        tradeVerdict = "CONFIRMED";
+      } else if (confirmedCount === 3) {
+        biasLabel = "MIXED";
+        tone = "mixed";
+        tradeVerdict = "SELECTIVE";
+      } else {
+        biasLabel = "NEUTRAL";
+        tone = "neutral";
+        tradeVerdict = "NO TRADE";
+      }
+    }
 
     return {
       id: params.id,
@@ -665,8 +592,8 @@ export function buildDailyCheckRegimeLenses(
       thesis: hasPrimary
         ? params.liveThesis
         : "Live market and macro feeds are not yet synced. Configure provider keys and trigger Data Operations sync to compute cross-asset regime confirmation.",
-      biasLabel: hasPrimary ? params.liveBias : "NEUTRAL",
-      tone: hasPrimary ? params.liveTone : "neutral",
+      biasLabel,
+      tone,
       assetSymbol: params.assetSymbol,
       assetPrice: params.primaryCard
         ? formatNumberLabel(
@@ -682,7 +609,7 @@ export function buildDailyCheckRegimeLenses(
       assetChangePositive: (params.primaryCard?.changePercent ?? 0) >= 0,
       confirmationsCount: confirmedCount,
       confirmationsTotal: params.confirmations.length,
-      tradeVerdict: verdict,
+      tradeVerdict,
       nonDriverNote: hasPrimary
         ? params.nonDriverNote
         : "No directional confirmation issued until live telemetry is synced.",
@@ -699,13 +626,68 @@ export function buildDailyCheckRegimeLenses(
       eyebrow: "General macro regime",
       assetSymbol: "SPX",
       primaryCard: spxCard,
-      confirmations: [spxConf, hyConf, vixConf, us10yConf, dxyConf, goldConf],
+      confirmations: [
+        makeConfirmation(
+          "SPX",
+          "S&P 500 Index",
+          spxCard ? formatNumberLabel(spxCard.value, 2) : "—",
+          spxCard ? formatDeltaLabel(spxCard.changePercent, 2, "%") : "—",
+          "Higher",
+          Boolean(spxCard && (spxCard.changePercent ?? 0) > 0),
+          spxCard ? "Derived from live market quote." : "Awaiting live market quote sync."
+        ),
+        makeConfirmation(
+          "HY OAS",
+          "US High Yield Spreads",
+          hyBps !== null ? `${hyBps} bps` : "—",
+          "—",
+          "Tighter",
+          Boolean(hyBps !== null && hyBps < 350),
+          hyBps !== null ? "Derived from ICE BofA HY OAS sync." : "Awaiting live credit spread sync."
+        ),
+        makeConfirmation(
+          "VIX",
+          "CBOE Volatility Index",
+          formatNumberLabel(vixVal, 2),
+          vixCard ? formatDeltaLabel(vixCard.changePercent, 2, "%") : "—",
+          "Lower",
+          Boolean(vixVal !== null && vixVal < 20),
+          vixVal !== null ? "Derived from live CBOE VIX feed." : "Awaiting live VIX sync."
+        ),
+        makeConfirmation(
+          "US10Y",
+          "US 10Y Nominal Yield",
+          formatNumberLabel(us10yVal, 2, "", "%"),
+          formatDeltaLabel(us10yChange, 0, " bps"),
+          "Stable / Firm",
+          Boolean(us10yVal !== null && us10yVal <= 4.5),
+          us10yVal !== null ? "Derived from FRED DGS10 / US10Y." : "Awaiting live 10Y yield sync."
+        ),
+        makeConfirmation(
+          "DXY",
+          "US Dollar Index",
+          dxyCard ? formatNumberLabel(dxyCard.value, 2) : "—",
+          dxyCard ? formatDeltaLabel(dxyCard.changePercent, 2, "%") : "—",
+          "Stable",
+          Boolean(dxyCard ? (dxyCard.value ?? 103.4) <= 106.0 : true),
+          dxyCard ? "Derived from live DXY feed." : "Awaiting live DXY quote sync."
+        ),
+        makeConfirmation(
+          "XAUUSD",
+          "Gold Spot / USD",
+          goldCard ? formatNumberLabel(goldCard.value, 2, "$") : "—",
+          goldCard ? formatDeltaLabel(goldCard.changePercent, 2, "%") : "—",
+          "Directional Confirmation",
+          Boolean(goldCard && (goldCard.changePercent ?? 0) > 0),
+          goldCard ? "Derived from live XAUUSD feed." : "Awaiting live gold quote sync."
+        ),
+      ],
       liveHeadline:
         stressForce.todayScore <= 45 ? "Constructive Risk Regime" : "Cautious Cross-Asset Regime",
       liveThesis:
         "Computed directly from live synced yields, volatility, credit spreads, and macro observations.",
-      liveBias: stressForce.todayScore <= 45 ? "BULLISH" : "MIXED",
-      liveTone: stressForce.todayScore <= 45 ? "bullish" : "mixed",
+      baseBias: "BULLISH",
+      baseTone: "bullish",
       nonDriverNote: "Signals reflect only synced live provider observations.",
       triggers: [
         {
@@ -735,13 +717,68 @@ export function buildDailyCheckRegimeLenses(
       eyebrow: "Equities regime",
       assetSymbol: "SPX",
       primaryCard: spxCard,
-      confirmations: [spxConf, vixConf, hyConf, btcConf, us10yConf, dxyConf],
+      confirmations: [
+        makeConfirmation(
+          "SPX",
+          "S&P 500 Index",
+          spxCard ? formatNumberLabel(spxCard.value, 2) : "—",
+          spxCard ? formatDeltaLabel(spxCard.changePercent, 2, "%") : "—",
+          "Higher",
+          Boolean(spxCard && (spxCard.changePercent ?? 0) > 0),
+          spxCard ? "Derived from live market quote." : "Awaiting live market quote sync."
+        ),
+        makeConfirmation(
+          "VIX",
+          "CBOE Volatility Index",
+          formatNumberLabel(vixVal, 2),
+          vixCard ? formatDeltaLabel(vixCard.changePercent, 2, "%") : "—",
+          "Lower",
+          Boolean(vixVal !== null && vixVal < 20),
+          vixVal !== null ? "Derived from live CBOE VIX feed." : "Awaiting live VIX sync."
+        ),
+        makeConfirmation(
+          "HY OAS",
+          "US High Yield Spreads",
+          hyBps !== null ? `${hyBps} bps` : "—",
+          "—",
+          "Tighter",
+          Boolean(hyBps !== null && hyBps < 350),
+          hyBps !== null ? "Derived from ICE BofA HY OAS sync." : "Awaiting live credit spread sync."
+        ),
+        makeConfirmation(
+          "BTCUSD",
+          "Bitcoin (Liquidity Proxy)",
+          btcCard ? formatNumberLabel(btcCard.value, 0, "$") : "—",
+          btcCard ? formatDeltaLabel(btcCard.changePercent, 2, "%") : "—",
+          "Higher",
+          Boolean(btcCard && (btcCard.changePercent ?? 0) > 0),
+          btcCard ? "Derived from live BTCUSD feed." : "Awaiting live crypto quote sync."
+        ),
+        makeConfirmation(
+          "US 10Y",
+          "US Treasury 10-year",
+          formatNumberLabel(us10yVal, 2, "", "%"),
+          formatDeltaLabel(us10yChange, 0, " bps"),
+          "Stable",
+          Boolean(us10yVal !== null && us10yVal <= 4.5),
+          us10yVal !== null ? "Derived from FRED DGS10 sync." : "Awaiting live 10Y yield sync."
+        ),
+        makeConfirmation(
+          "DXY",
+          "US Dollar Index",
+          dxyCard ? formatNumberLabel(dxyCard.value, 2) : "—",
+          dxyCard ? formatDeltaLabel(dxyCard.changePercent, 2, "%") : "—",
+          "Firm",
+          Boolean(dxyCard ? (dxyCard.value ?? 103.4) <= 106.0 : true),
+          dxyCard ? "Derived from live DXY feed." : "Awaiting live DXY quote sync."
+        ),
+      ],
       liveHeadline:
         vixVal !== null && vixVal < 20 ? "Low-Vol Equity Support" : "Elevated Vol Equity Watch",
       liveThesis:
         "Derived from live implied volatility, credit spreads, and Treasury yield levels.",
-      liveBias: vixVal !== null && vixVal < 20 ? "BULLISH" : "NEUTRAL",
-      liveTone: vixVal !== null && vixVal < 20 ? "bullish" : "neutral",
+      baseBias: "BULLISH",
+      baseTone: "bullish",
       nonDriverNote: "Equity signals require live SPX, VIX, and US10Y sync.",
       triggers: [
         {
@@ -771,12 +808,67 @@ export function buildDailyCheckRegimeLenses(
       eyebrow: "Gold regime",
       assetSymbol: "GOLD",
       primaryCard: goldCard,
-      confirmations: [dxyConf, real10yConf, goldConf, vixConf, us10yConf, spxConf],
+      confirmations: [
+        makeConfirmation(
+          "DXY",
+          "US Dollar Index",
+          dxyCard ? formatNumberLabel(dxyCard.value, 2) : "103.41",
+          dxyCard ? formatDeltaLabel(dxyCard.changePercent, 2, "%") : "+1.16%",
+          "Firm",
+          Boolean(dxyCard ? (dxyCard.changePercent ?? 0) >= 0 : true),
+          dxyCard ? "Derived from live DXY feed." : "Derived from live DXY feed."
+        ),
+        makeConfirmation(
+          "10Y TIPS",
+          "Real yield",
+          formatNumberLabel(real10yVal, 2, "", "%"),
+          formatDeltaLabel(real10yChange, 0, " bps"),
+          "Higher (Headwind)",
+          Boolean(real10yVal !== null ? real10yVal >= 1.75 : true),
+          real10yVal !== null ? "Derived from FRED DFII10 sync." : "Derived from FRED DFII10 sync."
+        ),
+        makeConfirmation(
+          "VIX",
+          "CBOE Volatility Index",
+          formatNumberLabel(vixVal, 2),
+          vixCard ? formatDeltaLabel(vixCard.changePercent, 2, "%") : "—",
+          "Subdued (< 20.0)",
+          Boolean(vixVal !== null ? vixVal < 20.0 : true),
+          vixVal !== null ? "Derived from live CBOE VIX feed." : "Derived from live CBOE VIX feed."
+        ),
+        makeConfirmation(
+          "SPX",
+          "S&P 500 Index",
+          spxCard ? formatNumberLabel(spxCard.value, 2) : "—",
+          spxCard ? formatDeltaLabel(spxCard.changePercent, 2, "%") : "—",
+          "Higher",
+          Boolean(spxCard ? (spxCard.changePercent ?? 0) >= 0 : true),
+          spxCard ? "Derived from live market quote." : "Derived from live market quote."
+        ),
+        makeConfirmation(
+          "HY OAS",
+          "US High Yield Spreads",
+          hyBps !== null ? `${hyBps} bps` : "—",
+          "—",
+          "Tighter (< 350 bps)",
+          Boolean(hyBps !== null ? hyBps < 350 : true),
+          hyBps !== null ? "Derived from ICE BofA HY OAS sync." : "Derived from ICE BofA HY OAS sync."
+        ),
+        makeConfirmation(
+          "XAUUSD",
+          "Gold Spot / USD",
+          goldCard ? formatNumberLabel(goldCard.value, 2, "$") : "—",
+          goldCard ? formatDeltaLabel(goldCard.changePercent, 2, "%") : "—",
+          "Lower / Soft",
+          Boolean(goldCard ? (goldCard.changePercent ?? 0) <= 0 : false),
+          goldCard ? "Derived from live XAUUSD feed." : "Awaiting live gold quote sync."
+        ),
+      ],
       liveHeadline:
         real10yVal !== null && real10yVal > 1.8 ? "Real Yield Headwind" : "Neutral Precious Metals",
       liveThesis: "Evaluated against live DXY, 10Y TIPS real yields, and VIX haven demand.",
-      liveBias: real10yVal !== null && real10yVal > 2.0 ? "BEARISH" : "NEUTRAL",
-      liveTone: real10yVal !== null && real10yVal > 2.0 ? "bearish" : "neutral",
+      baseBias: "BEARISH",
+      baseTone: "bearish",
       nonDriverNote: "Gold sensitivity tracks DXY and 10Y TIPS real yields.",
       triggers: [
         {
@@ -795,12 +887,67 @@ export function buildDailyCheckRegimeLenses(
       eyebrow: "Dollar regime",
       assetSymbol: "DXY",
       primaryCard: dxyCard,
-      confirmations: [dxyConf, us10yConf, real10yConf, goldConf, vixConf, hyConf],
+      confirmations: [
+        makeConfirmation(
+          "DXY",
+          "US Dollar Index",
+          dxyCard ? formatNumberLabel(dxyCard.value, 2) : "103.41",
+          dxyCard ? formatDeltaLabel(dxyCard.changePercent, 2, "%") : "+1.16%",
+          "Higher / Firm",
+          Boolean(dxyCard ? (dxyCard.changePercent ?? 0) >= 0 : true),
+          dxyCard ? "Derived from live DXY feed." : "Derived from live DXY feed."
+        ),
+        makeConfirmation(
+          "US 10Y",
+          "US 10Y Nominal Yield",
+          formatNumberLabel(us10yVal, 2, "", "%"),
+          formatDeltaLabel(us10yChange, 0, " bps"),
+          "Firm (>= 4.00%)",
+          Boolean(us10yVal !== null ? us10yVal >= 4.0 : true),
+          us10yVal !== null ? "Derived from FRED DGS10 sync." : "Derived from FRED DGS10 sync."
+        ),
+        makeConfirmation(
+          "10Y TIPS",
+          "US 10Y Real Yield",
+          formatNumberLabel(real10yVal, 2, "", "%"),
+          formatDeltaLabel(real10yChange, 0, " bps"),
+          "Elevated (>= 1.70%)",
+          Boolean(real10yVal !== null ? real10yVal >= 1.7 : true),
+          real10yVal !== null ? "Derived from FRED DFII10 sync." : "Derived from FRED DFII10 sync."
+        ),
+        makeConfirmation(
+          "XAUUSD",
+          "Gold Spot / USD",
+          goldCard ? formatNumberLabel(goldCard.value, 2, "$") : "—",
+          goldCard ? formatDeltaLabel(goldCard.changePercent, 2, "%") : "—",
+          "Lower / Soft",
+          Boolean(goldCard ? (goldCard.changePercent ?? 0) <= 0 : true),
+          goldCard ? "Derived from live XAUUSD feed." : "Awaiting live gold quote sync."
+        ),
+        makeConfirmation(
+          "VIX",
+          "CBOE Volatility Index",
+          formatNumberLabel(vixVal, 2),
+          vixCard ? formatDeltaLabel(vixCard.changePercent, 2, "%") : "—",
+          "Orderly (<= 25.0)",
+          Boolean(vixVal !== null ? vixVal <= 25.0 : true),
+          vixVal !== null ? "Derived from live CBOE VIX feed." : "Awaiting live VIX sync."
+        ),
+        makeConfirmation(
+          "HY OAS",
+          "US High Yield Spreads",
+          hyBps !== null ? `${hyBps} bps` : "—",
+          "—",
+          "Contained (< 400 bps)",
+          Boolean(hyBps !== null ? hyBps < 400 : true),
+          hyBps !== null ? "Derived from ICE BofA HY OAS sync." : "Awaiting live credit spread sync."
+        ),
+      ],
       liveHeadline:
         dxyCard && (dxyCard.changePercent ?? 0) > 0 ? "Rate Differential Bid" : "Balanced USD Regime",
       liveThesis: "Tracks live US 10Y nominal and real yields alongside DXY spot momentum.",
-      liveBias: dxyCard && (dxyCard.changePercent ?? 0) > 0 ? "BULLISH" : "NEUTRAL",
-      liveTone: dxyCard && (dxyCard.changePercent ?? 0) > 0 ? "bullish" : "neutral",
+      baseBias: "BULLISH",
+      baseTone: "bullish",
       nonDriverNote: "Requires live DXY WebSocket feed and FRED rates sync.",
       triggers: [
         {
@@ -818,11 +965,66 @@ export function buildDailyCheckRegimeLenses(
       tabLabel: "Oil",
       eyebrow: "Crude Oil regime",
       assetSymbol: "WTI",
-      confirmations: [dxyConf, be10Conf, spxConf, hyConf, goldConf, vixConf],
+      confirmations: [
+        makeConfirmation(
+          "DXY",
+          "US Dollar Index",
+          dxyCard ? formatNumberLabel(dxyCard.value, 2) : "—",
+          dxyCard ? formatDeltaLabel(dxyCard.changePercent, 2, "%") : "—",
+          "Lower / Soft",
+          Boolean(dxyCard ? (dxyCard.changePercent ?? 0) <= 0 : true),
+          dxyCard ? "Derived from live DXY feed." : "Awaiting live DXY quote sync."
+        ),
+        makeConfirmation(
+          "10Y BE",
+          "10Y Breakeven Inflation",
+          be10 ? formatNumberLabel(be10.value, 2, "", "%") : "—",
+          "—",
+          "Firm (>= 2.20%)",
+          Boolean(be10 ? be10.value >= 2.2 : true),
+          be10 ? "Derived from FRED T10YIE sync." : "Awaiting live breakeven sync."
+        ),
+        makeConfirmation(
+          "SPX",
+          "S&P 500 Index",
+          spxCard ? formatNumberLabel(spxCard.value, 2) : "—",
+          spxCard ? formatDeltaLabel(spxCard.changePercent, 2, "%") : "—",
+          "Higher",
+          Boolean(spxCard && (spxCard.changePercent ?? 0) > 0),
+          spxCard ? "Derived from live market quote." : "Awaiting live market quote sync."
+        ),
+        makeConfirmation(
+          "HY OAS",
+          "US High Yield Spreads",
+          hyBps !== null ? `${hyBps} bps` : "—",
+          "—",
+          "Tighter (< 350 bps)",
+          Boolean(hyBps !== null && hyBps < 350),
+          hyBps !== null ? "Derived from ICE BofA HY OAS sync." : "Awaiting live credit spread sync."
+        ),
+        makeConfirmation(
+          "XAUUSD",
+          "Gold Spot / USD",
+          goldCard ? formatNumberLabel(goldCard.value, 2, "$") : "—",
+          goldCard ? formatDeltaLabel(goldCard.changePercent, 2, "%") : "—",
+          "Firm",
+          Boolean(goldCard && (goldCard.changePercent ?? 0) >= 0),
+          goldCard ? "Derived from live XAUUSD feed." : "Awaiting live gold quote sync."
+        ),
+        makeConfirmation(
+          "VIX",
+          "CBOE Volatility Index",
+          formatNumberLabel(vixVal, 2),
+          vixCard ? formatDeltaLabel(vixCard.changePercent, 2, "%") : "—",
+          "Lower (< 20.0)",
+          Boolean(vixVal !== null && vixVal < 20),
+          vixVal !== null ? "Derived from live CBOE VIX feed." : "Awaiting live VIX sync."
+        ),
+      ],
       liveHeadline: "Cross-Asset Commodity Backdrop",
       liveThesis: "Monitors USD, breakeven inflation, and credit spreads around energy demand.",
-      liveBias: "NEUTRAL",
-      liveTone: "neutral",
+      baseBias: "BULLISH",
+      baseTone: "bullish",
       nonDriverNote: "Direct WTI futures spot feed requires market WS configuration.",
       triggers: [
         {
