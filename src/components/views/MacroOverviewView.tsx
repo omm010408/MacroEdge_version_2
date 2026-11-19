@@ -61,14 +61,16 @@ const seedOf = (s: string) => {
 const rnd = (seed: number) => () =>
   ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
 
-function computeSeries(key: string, r: string): number[] {
+function computeSeries(key: string, r: string, livePrice?: number): number[] {
   const a = ASSETS[key] ?? ASSETS.US10Y;
+  const targetVal =
+    livePrice != null && Number.isFinite(livePrice) && livePrice > 0 ? livePrice : a.v;
   const R = RANGES[r] ?? RANGES["1Y"];
   const span = R.days / 364;
-  const start = a.v / (1 + a.drift * span);
+  const start = targetVal / (1 + a.drift * span);
   const rand = rnd(seedOf(key + r));
   const ph = [rand() * 6.28, rand() * 6.28, rand() * 6.28];
-  const amp = a.v * 0.0045 * Math.sqrt(span) + Math.abs(a.v - start) * 0.12;
+  const amp = targetVal * 0.0045 * Math.sqrt(span) + Math.abs(targetVal - start) * 0.12;
   const out: number[] = [];
   for (let i = 0; i < R.n; i++) {
     const t = i / (R.n - 1);
@@ -76,10 +78,10 @@ function computeSeries(key: string, r: string): number[] {
       Math.sin(t * 7.1 + ph[0]) * 0.55 +
       Math.sin(t * 19.3 + ph[1]) * 0.3 +
       Math.sin(t * 43.7 + ph[2]) * 0.15;
-    out.push(start + (a.v - start) * t + wob * amp);
+    out.push(start + (targetVal - start) * t + wob * amp);
   }
   out[0] = start;
-  out[out.length - 1] = a.v;
+  out[out.length - 1] = targetVal;
   return out;
 }
 
@@ -412,6 +414,17 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
     const map = new Map<string, MarketOverviewCardData>();
     for (const c of cards) {
       map.set(c.symbol, c);
+      map.set(c.symbol.toUpperCase(), c);
+      map.set(c.id, c);
+      map.set(c.id.toUpperCase(), c);
+      if (c.symbol === "SPX" || c.symbol === "SPX500") {
+        map.set("SPX", c);
+        map.set("SPX500", c);
+      }
+      if (c.symbol === "US02Y" || c.symbol === "US2Y") {
+        map.set("US02Y", c);
+        map.set("US2Y", c);
+      }
     }
     return map;
   }, [cards]);
@@ -576,8 +589,21 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
     return () => ro.disconnect();
   }, []);
 
-  const curAsset = ASSETS[asset] ?? ASSETS.US10Y;
-  const vals = useMemo(() => computeSeries(asset, range), [asset, range]);
+  const liveCard = cardMap.get(asset) ?? (asset === "SPX" ? cardMap.get("SPX500") : undefined);
+  const baseSpec = ASSETS[asset] ?? ASSETS.US10Y;
+  const livePrice =
+    liveCard?.value != null && Number.isFinite(liveCard.value) && liveCard.value > 0
+      ? liveCard.value
+      : baseSpec.v;
+
+  const curAsset: AssetSpec = useMemo(
+    () => ({
+      ...baseSpec,
+      v: livePrice,
+    }),
+    [baseSpec, livePrice]
+  );
+  const vals = useMemo(() => computeSeries(asset, range, livePrice), [asset, range, livePrice]);
   const ds = useMemo(() => computeDates(range, asOfDate), [asOfDate, range]);
   const chg = vals.length > 0 ? (vals[vals.length - 1] - vals[0]) / vals[0] : 0;
 
@@ -846,8 +872,10 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
           ? `${card.value.toFixed(2)}%`
           : card.value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const formattedChg =
-        card.changePercent != null
-          ? `${card.changePercent >= 0 ? "+" : ""}${card.changePercent.toFixed(2)}%`
+        card.deltaUnit === "bps" && card.change != null
+          ? `${card.change >= 0 ? "+" : "−"}${Math.abs(card.change)} bps`
+          : card.changePercent != null
+          ? `${card.changePercent >= 0 ? "+" : "−"}${Math.abs(card.changePercent).toFixed(2)}%`
           : defChg;
       return {
         val: formattedVal,

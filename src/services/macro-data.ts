@@ -32,12 +32,13 @@ import {
   getYFinanceQuote,
 } from "@/services/yfinance/client";
 import { MARKET_INSTRUMENT_MAPPINGS } from "@/services/sync/provider-registry";
-import type { MarketQuoteRecord, MarketSymbol } from "@/lib/sync/types";
+import type { LatestValueRecord, MarketQuoteRecord, MarketSymbol } from "@/lib/sync/types";
 import type {
   CentralBankItem,
   CorrelationAssetSeries,
   CreditSpreadSeriesPoint,
   DailyCheckEntry,
+  DataCadence,
   DatasetMeta,
   DealerMaturityBucket,
   EconomyLaborPoint,
@@ -131,6 +132,45 @@ function patchQuoteCard(
       frequency: "LIVE",
       units: quote.unit,
       mode: "LIVE_API",
+    },
+  };
+}
+
+function patchLatestValueCard(
+  card: MarketOverviewCardData,
+  record: LatestValueRecord,
+  isBpsChange = false
+): MarketOverviewCardData {
+  const previous = record.previousValue;
+  const rawDelta =
+    record.changeValue !== null && record.changeValue !== undefined
+      ? record.changeValue
+      : previous !== null
+      ? record.value - previous
+      : null;
+  const change = Number.isFinite(rawDelta)
+    ? isBpsChange
+      ? Math.round((rawDelta as number) * 100)
+      : Number((rawDelta as number).toFixed(card.decimals))
+    : null;
+
+  return {
+    ...card,
+    value: Number(record.value.toFixed(card.decimals)),
+    previous: previous !== null ? Number(previous.toFixed(card.decimals)) : null,
+    change,
+    changePercent: Number.isFinite(record.changePct)
+      ? Number((record.changePct as number).toFixed(2))
+      : null,
+    meta: {
+      source: `${record.sourceId} · ${record.externalSeriesId || record.seriesKey}`,
+      seriesId: record.seriesKey,
+      observationDate: record.observationDate,
+      releaseDate: record.observationDate,
+      lastUpdated: record.updatedAt,
+      frequency: record.cadence,
+      units: record.unit,
+      mode: record.status === "LIVE" ? "LIVE_API" : "AWAITING_SYNC",
     },
   };
 }
@@ -238,6 +278,36 @@ export async function getMacroOverviewData() {
       fetchFredReleaseDates(14, 14).catch(() => []),
     ]);
 
+  const anyConfigured = isProviderConfigured("fred") || anyWsConfigured();
+  if (!anyConfigured) {
+    return {
+      cards: MARKET_OVERVIEW_CARDS.map((card) => ({
+        ...card,
+        value: null,
+        previous: null,
+        change: null,
+        changePercent: null,
+        sparkline: [],
+        meta: {
+          ...card.meta,
+          mode: "UNCONFIGURED" as FeedMode,
+        },
+      })),
+      regimeFactors: [],
+      calendarEvents: [],
+      correlationAssets: [],
+      meta: {
+        source: "MacroEdge Cross-Asset Feeds",
+        seriesId: "MACRO-OVERVIEW",
+        observationDate: new Date().toISOString().slice(0, 10),
+        lastUpdated: new Date().toISOString(),
+        frequency: "DAILY" as DataCadence,
+        units: "Multi-Asset",
+        mode: "UNCONFIGURED" as FeedMode,
+      } satisfies DatasetMeta,
+    };
+  }
+
   const quoteMap = new Map<MarketSymbol, MarketQuoteRecord>(
     quotes.map((q) => [q.symbol, q])
   );
@@ -319,51 +389,70 @@ export async function getMacroOverviewData() {
   }
 
   const wsEnabled = anyWsConfigured();
-  const anyConfigured = isProviderConfigured("fred") || wsEnabled;
-  const wsMode: FeedMode = wsEnabled ? "AWAITING_SYNC" : "UNCONFIGURED";
+  const cardFallbackMode: FeedMode =
+    isProviderConfigured("fred") || wsEnabled ? "AWAITING_SYNC" : "UNCONFIGURED";
+  const latestMap = new Map(latestValues.map((v) => [v.seriesKey, v]));
 
   const cards = MARKET_OVERVIEW_CARDS.map((card) => {
-    if (!anyConfigured) {
-      return {
-        ...card,
-        value: null,
-        previous: null,
-        change: null,
-        changePercent: null,
-        sparkline: [],
-        meta: {
-          ...card.meta,
-          mode: "UNCONFIGURED" as FeedMode,
-        },
-      };
-    }
-
-    const symbolMap: Record<string, MarketSymbol | undefined> = {
-      dxy: "DXY",
-      xauusd: "XAUUSD",
-      spx: "SPX500",
-      btcusd: "BTCUSD",
+    // 1. Direct market quote (highest fidelity live price)
+    const symbolMap: Record<string, MarketSymbol[]> = {
+      dxy: ["DXY"],
+      xauusd: ["XAUUSD"],
+      spx: ["SPX500", "SPX" as MarketSymbol],
+      btcusd: ["BTCUSD"],
       ...(!isProviderConfigured("fred")
-        ? { us10y: "US10Y" as MarketSymbol, us02y: "US2Y" as MarketSymbol }
+        ? { us10y: ["US10Y" as MarketSymbol], us02y: ["US2Y" as MarketSymbol] }
         : {}),
     };
-    const mSym = symbolMap[card.id];
-    const quote = mSym ? quoteMap.get(mSym) : undefined;
-    if (quote && Number.isFinite(quote.price)) {
-      const symBars = (mSym ? barsBySymbol.get(mSym) : undefined) ?? [];
-      return patchQuoteCard(
-        card,
-        quote,
-        symBars,
-        card.deltaUnit === "bps"
-      );
+    const candidateSymbols = symbolMap[card.id] ?? [];
+    for (const sym of candidateSymbols) {
+      const quote = quoteMap.get(sym);
+      if (quote && Number.isFinite(quote.price) && quote.price > 0) {
+        const symBars = barsBySymbol.get(sym) ?? [];
+        return patchQuoteCard(
+          card,
+          quote,
+          symBars,
+          card.deltaUnit === "bps"
+        );
+      }
     }
 
-    if (card.id === "us10y") return patchFredCard(card, us10y, true);
-    if (card.id === "us02y") return patchFredCard(card, us02y, true);
-    if (card.id === "us10y-real") return patchFredCard(card, us10yr, true);
-    if (card.id === "vix") return patchFredCard(card, vix, false);
-    if (card.id === "spx" && sp500.available) return patchFredCard(card, sp500, false);
+    // 2. Live FRED fetch if available
+    if (card.id === "us10y" && us10y.available && us10y.observations.length > 0) {
+      return patchFredCard(card, us10y, true);
+    }
+    if (card.id === "us02y" && us02y.available && us02y.observations.length > 0) {
+      return patchFredCard(card, us02y, true);
+    }
+    if (card.id === "us10y-real" && us10yr.available && us10yr.observations.length > 0) {
+      return patchFredCard(card, us10yr, true);
+    }
+    if (card.id === "vix" && vix.available && vix.observations.length > 0) {
+      return patchFredCard(card, vix, false);
+    }
+    if (card.id === "spx" && sp500.available && sp500.observations.length > 0) {
+      return patchFredCard(card, sp500, false);
+    }
+
+    // 3. Fallback to latest stored observations from database / local sync state
+    const latestKeysMap: Record<string, string[]> = {
+      us10y: ["US10Y", "DGS10"],
+      us02y: ["US2Y", "DGS2"],
+      "us10y-real": ["US10Y_REAL", "DFII10"],
+      vix: ["VIX", "VIXCLS"],
+      spx: ["SPX500", "SP500"],
+      dxy: ["DXY", "DXY_BROAD"],
+      xauusd: ["XAUUSD"],
+      btcusd: ["BTCUSD"],
+    };
+    const candidateKeys = latestKeysMap[card.id] ?? [];
+    for (const key of candidateKeys) {
+      const lv = latestMap.get(key);
+      if (lv && Number.isFinite(lv.value) && lv.value > 0) {
+        return patchLatestValueCard(card, lv, card.deltaUnit === "bps");
+      }
+    }
 
     return {
       ...card,
@@ -374,12 +463,10 @@ export async function getMacroOverviewData() {
       sparkline: [],
       meta: {
         ...card.meta,
-        mode: wsMode,
+        mode: cardFallbackMode,
       },
     };
   });
-
-  const latestMap = new Map(latestValues.map((v) => [v.seriesKey, v]));
   const regimeFactors: MacroRegimeFactor[] = [];
 
   const gdp = latestMap.get("REAL_GDP_QOQ");
@@ -516,7 +603,7 @@ export async function getMacroOverviewData() {
           lastUpdated: new Date().toISOString(),
           frequency: "DAILY",
           units: "Multi-Asset",
-          mode: anyConfigured ? "AWAITING_SYNC" : "UNCONFIGURED",
+          mode: (isProviderConfigured("fred") || anyWsConfigured()) ? "AWAITING_SYNC" : "UNCONFIGURED",
         };
 
   const calendarEvents = buildEconomicCalendarEvents({
@@ -1267,7 +1354,7 @@ export async function getInflationDashboardData() {
           lastUpdated: new Date().toISOString(),
           frequency: "MONTHLY",
           units: "% YoY",
-          mode: anyConfigured ? "AWAITING_SYNC" : "UNCONFIGURED",
+          mode: (isProviderConfigured("fred") || anyWsConfigured()) ? "AWAITING_SYNC" : "UNCONFIGURED",
         };
 
   return {
@@ -1395,7 +1482,7 @@ export async function getFixedIncomeRatesData() {
           lastUpdated: new Date().toISOString(),
           frequency: "DAILY",
           units: "% / bps",
-          mode: anyConfigured ? "AWAITING_SYNC" : "UNCONFIGURED",
+          mode: (isProviderConfigured("fred") || anyWsConfigured()) ? "AWAITING_SYNC" : "UNCONFIGURED",
         } satisfies DatasetMeta),
   };
 }

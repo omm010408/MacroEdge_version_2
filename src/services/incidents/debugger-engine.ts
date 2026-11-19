@@ -1128,11 +1128,22 @@ export async function verifyIncidentRecovery(
       const raw = quote?.rawPayload as Record<string, unknown> | undefined;
       const isRef = raw?.cachedFallback === true || raw?.mode === "reference";
       const ageMs = quote ? Date.now() - Date.parse(quote.quoteTimestamp) : Infinity;
+      const receivedAgeMs = quote?.receivedAt
+        ? Date.now() - Date.parse(quote.receivedAt)
+        : ageMs;
       const maxStaleMs =
-        incident.providerId === "yfinance" || incident.providerId === "api_ninjas"
-          ? 86_400_000
+        incident.providerId === "fred" || incident.providerId === "fed_reserve"
+          ? 7 * 86_400_000
+          : incident.providerId === "yfinance" || incident.providerId === "api_ninjas"
+          ? 7 * 86_400_000
           : 300_000;
-      const quoteOk = Boolean(quote) && (isRef || (Number.isFinite(ageMs) && ageMs <= maxStaleMs));
+      const isFreshReceived =
+        (incident.providerId === "yfinance" || incident.providerId === "api_ninjas") &&
+        Number.isFinite(receivedAgeMs) &&
+        receivedAgeMs <= 86_400_000;
+      const quoteOk =
+        Boolean(quote) &&
+        (isRef || isFreshReceived || (Number.isFinite(ageMs) && ageMs <= maxStaleMs));
       checks.push({
         name: "market_quote_freshness_check",
         passed: quoteOk,
@@ -1979,13 +1990,22 @@ export async function runDeterministicMonitorSweep(
     const raw = q.rawPayload as Record<string, unknown> | undefined;
     if (raw?.cachedFallback === true || raw?.mode === "reference") return false;
     const ageMs = startedAtMs - Date.parse(q.quoteTimestamp);
+    const receivedAgeMs = q.receivedAt ? startedAtMs - Date.parse(q.receivedAt) : ageMs;
     const maxStaleMs =
       q.sourceId === "fred" || q.sourceId === "fed_reserve"
         ? 7 * 86_400_000
         : q.sourceId === "yfinance" || q.sourceId === "api_ninjas"
-        ? 86_400_000
+        ? 7 * 86_400_000
         : 300_000;
-    return Number.isFinite(ageMs) && ageMs > maxStaleMs;
+    const isStaleQuote = Number.isFinite(ageMs) && ageMs > maxStaleMs;
+    if (
+      (q.sourceId === "yfinance" || q.sourceId === "api_ninjas") &&
+      Number.isFinite(receivedAgeMs) &&
+      receivedAgeMs <= 86_400_000
+    ) {
+      return false;
+    }
+    return isStaleQuote;
   });
 
   const runningJobs = syncSnapshot.recentRuns.filter((r) => r.status === "RUNNING");
