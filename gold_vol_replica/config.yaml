@@ -1,0 +1,48 @@
+index_name: "GLD 30-day implied volatility (VIX-methodology replica)"
+underlying_symbol: "GLD"
+constant_maturity_days: 30
+minutes_in_year: 525600
+constant_maturity_minutes: 43200
+
+# Contract & Expiration Specifications
+contracts:
+  settlement_type: "PM"
+  settlement_time_et: "16:00"
+  expiry_rule: "third_friday_or_thursday_holiday"
+  min_days_to_expiration: 7
+  selection_method: "nearest_term_2b"
+
+# Pricing & Filtering
+pricing:
+  quote_source: "NBBO"
+  series_level_filter: false # Not listed for GVZ in Document 1; confirmed in Document 2 Sec 6
+  index_level_filter:
+    enabled: true
+    session: "RTH"
+    threshold_points: 0.50
+    threshold_period_seconds: 30
+
+# Schedule & Publication
+schedule:
+  calculation_interval_seconds: 15
+  rth_start_et: "09:31:00"
+  rth_end_et: "16:00:00"
+  timezone: "America/New_York"
+  publication_decimals: 2
+
+# Yield Curve Configuration (FRED Constant Maturity Treasury)
+cmt_yields:
+  use_prior_business_day: true
+  maturities_days:
+    DGS1MO: 30
+    DGS2MO: 60
+    DGS3MO: 91
+    DGS6MO: 182
+    DGS1: 365
+    DGS2: 730
+    DGS3: 1095
+    DGS5: 1825
+    DGS7: 2555
+    DGS10: 3650
+    DGS20: 7300
+    DGS30: 10950

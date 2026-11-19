@@ -17,9 +17,31 @@ export interface InferenceRequestPayload {
   use_finbert?: boolean;
 }
 
+async function readFileWithFallbacks(primaryPath: string, subPath: string): Promise<string | null> {
+  const candidates = [
+    primaryPath,
+    path.resolve(ROOT_DIR, subPath),
+    path.resolve(__dirname, "..", "..", "..", subPath),
+    path.resolve(__dirname, "..", "..", subPath),
+    path.resolve(__dirname, "..", subPath),
+  ];
+  for (const cand of candidates) {
+    try {
+      return await fs.readFile(cand, "utf-8");
+    } catch {
+      // try next candidate
+    }
+  }
+  return null;
+}
+
 export async function getLatestAiModelsSnapshot(): Promise<AiModelsSnapshot | null> {
   try {
-    const raw = await fs.readFile(LATEST_INFERENCE_PATH, "utf-8");
+    const raw = await readFileWithFallbacks(
+      LATEST_INFERENCE_PATH,
+      path.join("ml", "artifacts", "latest_inference.json")
+    );
+    if (!raw) return null;
     return JSON.parse(raw) as AiModelsSnapshot;
   } catch {
     return null;
@@ -41,7 +63,11 @@ export async function getLatestAiBiasSummary(): Promise<AiBiasSummary | null> {
 
 export async function getTrainingSummary(): Promise<Record<string, unknown> | null> {
   try {
-    const raw = await fs.readFile(TRAINING_SUMMARY_PATH, "utf-8");
+    const raw = await readFileWithFallbacks(
+      TRAINING_SUMMARY_PATH,
+      path.join("ml", "artifacts", "reports", "training_summary.json")
+    );
+    if (!raw) return null;
     return JSON.parse(raw) as Record<string, unknown>;
   } catch {
     return null;

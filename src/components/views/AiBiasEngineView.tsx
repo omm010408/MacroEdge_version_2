@@ -161,7 +161,14 @@ export function AiBiasEngineView({
             Trained artifacts not loaded yet. Click below to run live 4-model inference across
             FRED macro series, FinBERT news intelligence, and XAUUSD reaction models.
           </p>
-          {error && <p className="mt-3 text-xs text-[#E5485D]">{error}</p>}
+          {error && (
+            <div className="mx-auto mt-3 max-w-lg rounded-lg border border-[#E5485D]/20 bg-[#E5485D]/10 p-3 text-left">
+              <p className="text-xs font-semibold text-[#E5485D]">Inference Notice</p>
+              <pre className="mt-1 max-h-32 overflow-auto font-mono text-[11px] text-[#E5485D]/90 whitespace-pre-wrap">
+                {error}
+              </pre>
+            </div>
+          )}
           <button
             onClick={() => runSimulation(false)}
             disabled={loading}
