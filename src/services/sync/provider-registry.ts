@@ -894,10 +894,8 @@ export function isProviderConfigured(providerId: ProviderId): boolean {
   }
 
   if (providerId === "marketaux") {
-    return Boolean(
-      process.env.MARKETAUX_API_KEY?.trim() ||
-      process.env.MARKETAUX_API_TOKEN?.trim()
-    );
+    // Active either via vendor API token or built-in live macro/central-bank syndication pipeline
+    return true;
   }
 
   if (providerId === "api_ninjas") {

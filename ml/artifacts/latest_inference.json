@@ -551,7 +551,7 @@
     }
   ],
   "target_asset": "US30",
-  "generated_at": "2026-11-20T16:37:45.194647+00:00",
+  "generated_at": "2026-11-20T18:04:03.553545+00:00",
   "phase8_macro_reasoning": {
     "asset": "XAUUSD",
     "overall_bias": "BEARISH",
@@ -7364,7 +7364,7 @@
   },
   "model3_market_reaction": {
     "model": "Model 3 \u2014 Conditional Market Reaction to US Macro Surprises (US30)",
-    "generated_at": "2026-11-20T16:37:45.194628+00:00",
+    "generated_at": "2026-11-20T18:04:03.553527+00:00",
     "target_asset": "US30",
     "event_type": "CPI",
     "input_surprise_z": 0.0,
@@ -7479,7 +7479,7 @@
   },
   "model4_macro_regime_bias": {
     "model": "Model 4 \u2014 Point-in-Time Macro Regime (Rules + Causal HMM/GMM/K-Means) + Bias Engine",
-    "generated_at": "2026-11-20T16:37:45.194518+00:00",
+    "generated_at": "2026-11-20T18:04:03.553418+00:00",
     "as_of_date": "2026-11-20",
     "primary_asset": "US30",
     "spot_xauusd": 3919.7,
@@ -7649,7 +7649,7 @@
   },
   "us30_model4": {
     "model": "Model 4 \u2014 Point-in-Time Macro Regime (Rules + Causal HMM/GMM/K-Means) + Bias Engine",
-    "generated_at": "2026-11-20T16:37:45.194518+00:00",
+    "generated_at": "2026-11-20T18:04:03.553418+00:00",
     "as_of_date": "2026-11-20",
     "primary_asset": "US30",
     "spot_xauusd": 3919.7,
@@ -7819,7 +7819,7 @@
   },
   "us30_model3": {
     "model": "Model 3 \u2014 Conditional Market Reaction to US Macro Surprises (US30)",
-    "generated_at": "2026-11-20T16:37:45.194628+00:00",
+    "generated_at": "2026-11-20T18:04:03.553527+00:00",
     "target_asset": "US30",
     "event_type": "CPI",
     "input_surprise_z": 0.0,
@@ -7934,7 +7934,7 @@
   },
   "xauusd_model4": {
     "model": "Model 4 \u2014 Point-in-Time Macro Regime (Rules + Causal HMM/GMM/K-Means) + Bias Engine",
-    "generated_at": "2026-11-20T16:37:45.194518+00:00",
+    "generated_at": "2026-11-20T18:04:03.553418+00:00",
     "as_of_date": "2026-11-20",
     "primary_asset": "XAUUSD",
     "spot_xauusd": 3919.7,
@@ -8119,7 +8119,7 @@
   },
   "xauusd_model3": {
     "model": "Model 3 \u2014 Conditional Market Reaction to US Macro Surprises",
-    "generated_at": "2026-11-20T16:37:45.194529+00:00",
+    "generated_at": "2026-11-20T18:04:03.553429+00:00",
     "event_type": "CPI",
     "input_surprise_z": 0.0,
     "spot_xauusd": 3919.7,

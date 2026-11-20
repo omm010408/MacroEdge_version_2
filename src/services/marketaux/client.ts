@@ -395,9 +395,17 @@ export async function getGoldAndUs30News(options: {
 
   let rawArticles: MarketauxArticle[] = [];
 
-  // 1. If API key is explicitly configured, attempt Marketaux API
+  // 1. If not forcing refresh, check if recent cached articles exist
+  if (!forceRefresh) {
+    const cached = await getMarketauxCachedNews();
+    if (cached.length > 0) {
+      rawArticles = cached;
+    }
+  }
+
+  // 2. If API key is explicitly configured and forceRefresh or cache empty, attempt Marketaux API
   const apiKey = process.env.MARKETAUX_API_KEY?.trim();
-  if (apiKey) {
+  if (apiKey && (forceRefresh || rawArticles.length === 0)) {
     try {
       rawArticles = await fetchMarketauxNews({
         symbols: "GLD,DIA,^DJI,XAU,TLT",
@@ -408,21 +416,23 @@ export async function getGoldAndUs30News(options: {
     }
   }
 
-  // 2. Fetch live syndication feeds (Federal Reserve official, Gold GC=F, Dow ^DJI)
+  // 3. Fetch live syndication feeds (Federal Reserve official, Gold GC=F, Dow ^DJI)
   // Ensures minute-by-minute news even when vendor API is rate-limited or unconfigured
-  try {
-    const liveSyndicated = await fetchLiveSyndicatedNews();
-    if (liveSyndicated.length > 0) {
-      const existingUuids = new Set(rawArticles.map((a) => a.uuid));
-      for (const item of liveSyndicated) {
-        if (!existingUuids.has(item.uuid)) {
-          rawArticles.push(item);
-          existingUuids.add(item.uuid);
+  if (forceRefresh || rawArticles.length < 5) {
+    try {
+      const liveSyndicated = await fetchLiveSyndicatedNews();
+      if (liveSyndicated.length > 0) {
+        const existingUuids = new Set(rawArticles.map((a) => a.uuid));
+        for (const item of liveSyndicated) {
+          if (!existingUuids.has(item.uuid)) {
+            rawArticles.push(item);
+            existingUuids.add(item.uuid);
+          }
         }
       }
+    } catch (err) {
+      console.warn("[news] Live syndication fetch error:", err);
     }
-  } catch (err) {
-    console.warn("[news] Live syndication fetch error:", err);
   }
 
   // 3. Fallback to cached articles if live fetch returned nothing

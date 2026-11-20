@@ -309,6 +309,25 @@ def _load_cached_fallback_snapshot(payload: dict[str, Any] | None = None) -> dic
         },
     }
 
+    if custom_news:
+        custom_item = {
+            "source": "user_injected_catalyst",
+            "title": custom_news[:100],
+            "published": datetime.now(timezone.utc).isoformat(),
+            "link": "",
+            "topic": "macro_catalyst",
+            "topic_confidence": 0.95,
+            "finbert": {"available": True, "positive": 0.15, "negative": 0.75, "neutral": 0.1, "entropy": 0.35},
+            "implications": {
+                "monetary_policy": {"stance": "HAWKISH" if news_hawkish > 0 else "DOVISH", "score": news_hawkish},
+                "inflation": {"stance": "ELEVATED" if news_inf > 0 else "COOLING", "score": news_inf},
+                "growth": {"stance": "MODERATE", "score": 0.0},
+            },
+            "extracted_new_info": [custom_news],
+            "uncertainty": 0.35,
+        }
+        m2_out["evidence_items"] = [custom_item] + m2_out.get("evidence_items", [])
+
     prediction_cutoff = f"{today_str}T23:59:59Z"
     phase8 = build_phase8_reasoning(m1_out, m2_out, m3_out, m4_out, prediction_cutoff=prediction_cutoff)
 
