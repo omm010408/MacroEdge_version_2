@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { AiBiasSummary, AiModelsSnapshot } from "@/lib/ai-models/types";
-import { computeEverydayBiasSnapshot } from "./everyday-bias-engine";
+import { computeEverydayBiasSnapshot } from "@/services/ai-models/everyday-bias-engine";
 
 const ROOT_DIR = process.cwd();
 const VENV_PYTHON = path.join(ROOT_DIR, ".venv", "bin", "python");

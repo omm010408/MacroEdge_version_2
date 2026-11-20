@@ -1330,7 +1330,13 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
                 </p>
               </section>
 
-              <EconomicCalendar events={calendarEvents} defaultRange="today" defaultTz="ist" />
+              <EconomicCalendar
+                events={calendarEvents}
+                defaultRange="today"
+                defaultTz="local"
+                defaultCurrency="USD"
+                defaultImpacts={{ HIGH: true, MEDIUM: true, LOW: false, NON_ECONOMIC: false }}
+              />
             </div>
 
             {/* Desks Section */}

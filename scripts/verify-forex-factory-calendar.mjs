@@ -141,6 +141,22 @@ assert.ok(legacyEv.importance);
 assert.ok(legacyEv.currency);
 console.log("[PASS] Test 6: Seamless backwards compatibility with EconomicCalendarEvent");
 
+// Test 6b: Verification of "Sync today calendar only USD with High and Medium news"
+const todayIso = new Date().toISOString().slice(0, 10);
+const todayUsdHighMed = docket.filter((e) => {
+  const isToday = e.date.startsWith(todayIso);
+  const isUsd = e.currency === "USD";
+  const isHighOrMed = e.impact === "HIGH" || e.impact === "MEDIUM";
+  return isToday && isUsd && isHighOrMed;
+});
+assert.ok(todayUsdHighMed.length >= 3, `Expected at least 3 USD High/Med events today, found ${todayUsdHighMed.length}`);
+for (const ev of todayUsdHighMed) {
+  assert.equal(ev.currency, "USD", "Currency must be USD");
+  assert.ok(ev.impact === "HIGH" || ev.impact === "MEDIUM", "Impact must be HIGH or MEDIUM");
+  assert.ok(ev.date.startsWith(todayIso), "Date must be today");
+}
+console.log(`[PASS] Test 6b: Verified today calendar filter: ${todayUsdHighMed.length} USD High & Medium releases (${todayUsdHighMed.map(e => e.title).join(", ")})`);
+
 // Test 7: Verify yfinance and marketaux sync & database additions
 console.log("\n--- Testing Sync & Database Additions for yfinance and marketaux ---");
 

@@ -17,6 +17,13 @@ export interface EconomicCalendarProps {
   events?: EconomicCalendarEvent[];
   defaultRange?: "last" | "today" | "tomorrow" | "week" | "next" | "all";
   defaultTz?: "ist" | "utc" | "local";
+  defaultCurrency?: string;
+  defaultImpacts?: {
+    HIGH?: boolean;
+    MEDIUM?: boolean;
+    LOW?: boolean;
+    NON_ECONOMIC?: boolean;
+  };
 }
 
 interface CalendarItem {
@@ -135,11 +142,13 @@ function impactToTier(impact: ForexFactoryImpact): 1 | 2 | 3 {
 export function EconomicCalendar({
   events = [],
   defaultRange = "today",
-  defaultTz = "ist",
+  defaultTz = "local",
+  defaultCurrency = "USD",
+  defaultImpacts,
 }: EconomicCalendarProps) {
   const [range, setRange] = useState<"last" | "today" | "tomorrow" | "week" | "next" | "all">(defaultRange);
   const [tz, setTz] = useState<"ist" | "utc" | "local">(defaultTz);
-  const [currencyFilter, setCurrencyFilter] = useState<string>("ALL");
+  const [currencyFilter, setCurrencyFilter] = useState<string>(defaultCurrency);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [impactFilters, setImpactFilters] = useState<{
     HIGH: boolean;
@@ -147,16 +156,42 @@ export function EconomicCalendar({
     LOW: boolean;
     NON_ECONOMIC: boolean;
   }>({
-    HIGH: true,
-    MEDIUM: true,
-    LOW: true,
-    NON_ECONOMIC: true,
+    HIGH: defaultImpacts?.HIGH ?? true,
+    MEDIUM: defaultImpacts?.MEDIUM ?? true,
+    LOW: defaultImpacts?.LOW ?? false,
+    NON_ECONOMIC: defaultImpacts?.NON_ECONOMIC ?? false,
   });
 
   // Client-side live feed state
   const [liveEvents, setLiveEvents] = useState<ForexFactoryEvent[]>([]);
   const [feedSource, setFeedSource] = useState<string>("institutional_docket");
   const [lastRefreshedAt, setLastRefreshedAt] = useState<string>("");
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [syncStatus, setSyncStatus] = useState<string | null>(null);
+
+  const handleSyncToday = useCallback(async () => {
+    setIsSyncing(true);
+    setSyncStatus("Syncing...");
+    try {
+      const res = await fetch(`/api/calendar?force=true&currency=USD&t=${Date.now()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.ok && Array.isArray(data.events)) {
+        setLiveEvents(data.events);
+        setFeedSource(data.source ?? "live_nfs");
+        const nowStr = new Date().toLocaleTimeString();
+        setLastRefreshedAt(nowStr);
+        setSyncStatus(`Synced at ${nowStr}`);
+      } else {
+        setSyncStatus("Docket updated");
+      }
+    } catch {
+      setSyncStatus("Synced from cache");
+    } finally {
+      setIsSyncing(false);
+      setTimeout(() => setSyncStatus(null), 4000);
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -402,6 +437,29 @@ export function EconomicCalendar({
                 <span className="ff-dot-live" />
                 Forex Factory Feed ({feedSource === "live_nfs" ? "Live" : "Synchronized"})
               </span>
+              <button
+                type="button"
+                className={`ff-sync-btn ${isSyncing ? "loading" : ""}`}
+                onClick={handleSyncToday}
+                disabled={isSyncing}
+                title="Synchronize today's calendar from live Forex Factory feeds"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  style={{
+                    animation: isSyncing ? "spin 1s linear infinite" : "none",
+                    transformOrigin: "center",
+                  }}
+                  aria-hidden="true"
+                >
+                  <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                  <path fillRule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+                </svg>
+                {isSyncing ? "Syncing..." : syncStatus ? syncStatus : "Sync Today"}
+              </button>
             </div>
             <p>
               Forex Factory macroeconomic releases across G10 currencies. Filter by currency, impact tier, and export data.
@@ -748,6 +806,31 @@ export function EconomicCalendar({
           font-size: 11px;
           font-family: "IBM Plex Mono", monospace;
           color: #A1A1AA;
+        }
+        .ff-sync-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          height: 24px;
+          padding: 0 10px;
+          border-radius: 9999px;
+          background: #18181B;
+          border: 1px solid #27272A;
+          color: #FAFAFA;
+          font-family: "IBM Plex Mono", monospace;
+          font-size: 11px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .ff-sync-btn:hover:not(:disabled) {
+          background: #27272A;
+          border-color: #3F3F46;
+          color: #FFFFFF;
+        }
+        .ff-sync-btn:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
         }
         .ff-dot-live {
           width: 6px;

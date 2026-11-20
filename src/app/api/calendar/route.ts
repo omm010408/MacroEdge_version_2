@@ -15,6 +15,7 @@ export async function GET(request: Request) {
     const force = searchParams.get("force") === "true";
     const currency = searchParams.get("currency")?.toUpperCase();
     const impact = searchParams.get("impact")?.toUpperCase();
+    const range = searchParams.get("range")?.toLowerCase();
     const format = searchParams.get("format")?.toLowerCase();
 
     const result = await getForexFactoryCalendar({ forceRefresh: force });
@@ -25,7 +26,13 @@ export async function GET(request: Request) {
     }
 
     if (impact && impact !== "ALL") {
-      events = events.filter((e) => e.impact === impact);
+      const impacts = impact.split(",").map((s) => s.trim());
+      events = events.filter((e) => impacts.includes(e.impact));
+    }
+
+    if (range === "today") {
+      const todayIso = new Date().toISOString().slice(0, 10);
+      events = events.filter((e) => e.date.startsWith(todayIso));
     }
 
     // CSV Download
@@ -64,6 +71,45 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to load economic calendar";
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const currency = searchParams.get("currency")?.toUpperCase() || "USD";
+    const impact = searchParams.get("impact")?.toUpperCase() || "HIGH,MEDIUM";
+    const range = searchParams.get("range")?.toLowerCase() || "today";
+
+    const result = await getForexFactoryCalendar({ forceRefresh: true });
+    let events = result.events;
+
+    if (currency && currency !== "ALL") {
+      events = events.filter((e) => e.currency === currency);
+    }
+
+    if (impact && impact !== "ALL") {
+      const impacts = impact.split(",").map((s) => s.trim());
+      events = events.filter((e) => impacts.includes(e.impact));
+    }
+
+    if (range === "today") {
+      const todayIso = new Date().toISOString().slice(0, 10);
+      events = events.filter((e) => e.date.startsWith(todayIso));
+    }
+
+    return NextResponse.json({
+      ok: true,
+      synced: true,
+      source: result.source,
+      lastUpdated: result.lastUpdated,
+      total: events.length,
+      events,
+      legacyEvents: events.map(toEconomicCalendarEvent),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Economic calendar sync failed";
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

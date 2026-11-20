@@ -232,7 +232,7 @@ export async function computeEverydayBiasSnapshot(
   const mlBiasScore = round((mlProbUp4w - 0.5) * 200, 1);
 
   // 6. Model 1 (Economic Forecast) & Catalyst Surprise
-  let surpriseZ =
+  const surpriseZ =
     typeof options.surpriseZ === "number" && Number.isFinite(options.surpriseZ)
       ? options.surpriseZ
       : 0.0;
@@ -258,7 +258,7 @@ export async function computeEverydayBiasSnapshot(
   const customNews = options.customNewsText?.trim() || "";
   let newsHawkishScore = 0.0;
   let newsInflationScore = 0.0;
-  let newsGrowthScore = 0.0;
+  const newsGrowthScore = 0.0;
   let newsUncertainty = 0.42;
 
   if (customNews) {
