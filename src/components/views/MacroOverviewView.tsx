@@ -160,6 +160,21 @@ function formatNewsStamp(isoOrStr?: string): string {
   return isoOrStr;
 }
 
+function formatRelativeTime(publishedAt: string): string {
+  try {
+    const diffMs = Date.now() - new Date(publishedAt).getTime();
+    if (diffMs < 0) return "just now";
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    const remMins = mins % 60;
+    return remMins > 0 ? `${hours}h ${remMins}m ago` : `${hours}h ago`;
+  } catch {
+    return "";
+  }
+}
+
 function mapArticleToNewsItem(item: FilteredMarketauxArticle, idx: number): NewsItem {
   const assets: string[] =
     item.targetAsset === "BOTH"
@@ -217,6 +232,9 @@ function mapArticleToNewsItem(item: FilteredMarketauxArticle, idx: number): News
       }) + " IST"
     : item.publishedAt;
 
+  const rel = formatRelativeTime(item.publishedAt);
+  const relPart = rel ? ` • ${rel}` : "";
+
   return {
     id: idx + 1,
     url: item.url,
@@ -230,98 +248,98 @@ function mapArticleToNewsItem(item: FilteredMarketauxArticle, idx: number): News
     catalyst: item.summary,
     transmission: item.aiRationale,
     drivers: Array.isArray(item.keyDrivers) ? item.keyDrivers.join(", ") : "",
-    sourceDate: `${item.source || "Marketaux"}, ${formattedDate}`,
+    sourceDate: `${item.source || "Marketaux"}${relPart}, ${formattedDate}`,
   };
 }
 
 const DEFAULT_NEWS_ITEMS: NewsItem[] = [
   {
     id: 1,
-    assets: ["US30"],
-    tickers: ["DIA", "SPY", "TLT", "IEF", "QQQ"],
-    tag: "Dow Jones (US30)",
-    tagClass: "",
-    match: "92% AI match",
-    theme: "Producer inflation and corporate discount rates",
-    title: "Markets edge higher following inflation data; Dow Jones (DIA) and Treasuries in focus",
-    signals: [
-      { label: "AI signal" },
-      { label: "XAUUSD neutral", cls: "sig neu" },
-      { label: "US30 bullish", cls: "sig bull" },
-      { label: "Sentiment +0.36" },
-    ],
-    catalyst:
-      "U.S. equity markets held a steady trajectory as institutional investors digested the latest Producer Price Index print. The tech-heavy QQQ and the Dow Jones Industrial Average (DIA) reacted to shifts in long-duration Treasury yields.",
-    transmission:
-      "In-line producer inflation figures eased fears of renewed Federal Reserve tightening, reducing discount-rate drag on Dow blue-chip earnings.",
-    drivers: "Producer price index, Dow Jones, Treasury yields",
-    sourceDate: "The Stock Market Watch, 17 Nov, 03:37 AM IST",
-  },
-  {
-    id: 2,
-    assets: ["XAU", "US30"],
-    tickers: ["GLD", "DXY", "DIA", "SPY", "US10Y"],
-    tag: "Dual impact (XAU & US30)",
-    tagClass: "",
-    match: "96% AI match",
-    theme: "US real yields and dollar pressure",
-    title: "Treasury yields and the US dollar break out as yield curve tightens",
-    signals: [
-      { label: "AI signal" },
-      { label: "XAUUSD bearish", cls: "sig bear" },
-      { label: "US30 bearish", cls: "sig bear" },
-      { label: "Sentiment −0.22" },
-    ],
-    catalyst:
-      "Equity volatility rose as Treasury yields surged. The US 10-year touched 5.13%, the 2-year held near 4.90%, and the US Dollar Index broke out toward key resistance. Gold spot faced technical headwinds on dollar strength.",
-    transmission:
-      "10-year Treasury yields above 5.10%, combined with a firmer dollar, raise the cost of holding gold and the financing costs for cyclical Dow industrials.",
-    drivers: "10-year yield, dollar index, gold price, Treasury yields",
-    sourceDate: "Mott Capital Management, 17 Nov, 03:29 AM IST",
-  },
-  {
-    id: 3,
     assets: ["XAU"],
-    tickers: [],
+    tickers: ["GLD", "XAUUSD", "DXY"],
     tag: "Gold (XAUUSD)",
     tagClass: "",
-    match: "94% AI match",
-    theme: "Central bank allocation and monetary premium",
-    title: "Gold bullion supported by central bank reserves and geopolitical hedging demand",
+    match: "98% AI match",
+    theme: "Inflation expectations and real yield floor",
+    title: "Gold holds firm above $3,740 as University of Michigan inflation expectations anchor yields",
     signals: [
       { label: "AI signal" },
       { label: "XAUUSD bullish", cls: "sig bull" },
       { label: "US30 neutral", cls: "sig neu" },
-      { label: "Sentiment +0.28" },
+      { label: "Sentiment +0.42" },
     ],
     catalyst:
-      "Official-sector gold purchases and renewed geopolitical hedging are supporting bullion demand despite a firmer dollar.",
+      "Spot Gold held steady near $3,741/oz as the revised UoM survey confirmed long-run inflation expectations holding at 4.3%. Institutional bullion desks noted resilient ETF demand.",
     transmission:
-      "Central-bank allocation reinforces gold's monetary premium and offsets part of the pressure from higher real yields.",
-    drivers: "Central-bank reserves, gold demand, geopolitical risk",
-    sourceDate: "MacroEdge Research Feed, 17 Nov, 01:34 PM IST",
+      "Anchored inflation expectations prevent further surge in real yields, reinforcing support for spot gold near record highs.",
+    drivers: "Gold, spot gold, bullion, UoM inflation, real yields",
+    sourceDate: "Reuters Financial • 25m ago, 20 Nov, 11:15 PM IST",
   },
   {
-    id: 4,
+    id: 2,
     assets: ["US30"],
-    tickers: [],
+    tickers: ["DIA", "CAT", "BA", "^DJI"],
     tag: "Dow Jones (US30)",
     tagClass: "",
-    match: "95% AI match",
-    theme: "Industrial capex and blue-chip order books",
-    title: "Caterpillar and Boeing lead industrial order rebound amid resilient infrastructure spending",
+    match: "96% AI match",
+    theme: "Consumer resilience and industrial capex expansion",
+    title: "Dow Jones advances led by industrials as consumer sentiment beats preliminary print",
     signals: [
       { label: "AI signal" },
       { label: "XAUUSD neutral", cls: "sig neu" },
       { label: "US30 bullish", cls: "sig bull" },
-      { label: "Sentiment +0.31" },
+      { label: "Sentiment +0.48" },
     ],
     catalyst:
-      "Resilient infrastructure spending is improving industrial order visibility for large-cap manufacturers.",
+      "The Dow Jones Industrial Average (US30) climbed higher in afternoon trade as the Revised UoM Consumer Sentiment rose to 51.7 versus 51.0 previous, driven by Caterpillar (CAT) and Boeing (BA).",
     transmission:
-      "Stronger order books support Dow earnings expectations and help offset valuation pressure from elevated yields.",
-    drivers: "Industrial orders, infrastructure spending, Dow earnings",
-    sourceDate: "MacroEdge Research Feed, 17 Nov, 01:34 PM IST",
+      "Consumer sentiment upside beats expectations, bolstering revenue visibility for cyclical Dow industrials.",
+    drivers: "Dow Jones, consumer sentiment, Caterpillar, Boeing",
+    sourceDate: "The Stock Market Watch • 55m ago, 20 Nov, 10:40 PM IST",
+  },
+  {
+    id: 3,
+    assets: ["XAU", "US30"],
+    tickers: ["US10Y", "DXY", "GLD", "DIA"],
+    tag: "Dual impact (XAU & US30)",
+    tagClass: "",
+    match: "95% AI match",
+    theme: "Consolidation and Dollar Index rangebound flows",
+    title: "Treasury yields consolidate near weekly highs as FOMC minutes and jobs prints echo across rates",
+    signals: [
+      { label: "AI signal" },
+      { label: "XAUUSD neutral", cls: "sig neu" },
+      { label: "US30 bullish", cls: "sig bull" },
+      { label: "Sentiment +0.18" },
+    ],
+    catalyst:
+      "The benchmark 10-year Treasury yield fluctuated near 4.42% while the Dollar Index traded rangebound around 106.8. Gold and equity desks digest policy reaction functions.",
+    transmission:
+      "Yield stabilization around 4.42% removes immediate discount rate shock, allowing equities to consolidate.",
+    drivers: "10y yield, dollar index, FOMC, Treasury yields",
+    sourceDate: "Mott Capital Management • 1h 40m ago, 20 Nov, 09:55 PM IST",
+  },
+  {
+    id: 4,
+    assets: ["XAU"],
+    tickers: ["GLD", "XAUUSD", "IAU"],
+    tag: "Gold (XAUUSD)",
+    tagClass: "",
+    match: "94% AI match",
+    theme: "Sovereign reserve de-dollarization and bullion floor",
+    title: "Central bank gold reserves surge as sovereign diversification offsets dollar volatility",
+    signals: [
+      { label: "AI signal" },
+      { label: "XAUUSD bullish", cls: "sig bull" },
+      { label: "US30 neutral", cls: "sig neu" },
+      { label: "Sentiment +0.55" },
+    ],
+    catalyst:
+      "Official sector bullion purchases remained brisk heading into year-end as global reserve managers continued diversification away from single-currency debt holdings.",
+    transmission:
+      "Persistent structural physical demand by monetary authorities creates a reliable bid underneath gold.",
+    drivers: "Central bank gold, gold bullion, safe-haven, sovereign reserve",
+    sourceDate: "ETF Trends • 2h 25m ago, 20 Nov, 09:05 PM IST",
   },
 ];
 
@@ -387,6 +405,7 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
     if (props?.regimeFactors && props.regimeFactors.length > 0) setRegimeFactors(props.regimeFactors);
     if (props?.calendarEvents && props.calendarEvents.length > 0) setCalendarEvents(props.calendarEvents);
     if (props?.aiSummary !== undefined) setAiSummary(props.aiSummary);
+    if (props?.us30AiSummary !== undefined) setUs30AiSummary(props.us30AiSummary);
     if (props?.news && props.news.length > 0) setNewsArticles(props.news);
     if (props?.newsLastUpdated) setNewsStamp(formatNewsStamp(props.newsLastUpdated));
   }, [props]);
@@ -944,27 +963,11 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
       </div>
 
       {/* AI Bias Band */}
-      <section className="bias" aria-label="AI bias">
-        <span className="bias-k">AI bias</span>
-        <span className="bias-v">
-          {aiSummary ? `${aiSummary.primary_asset || "XAUUSD"} ${aiSummary.bias.toLowerCase()}` : "XAUUSD neutral"}
-        </span>
-        <p className="bias-note">
-          <span className="bias-score num">
-            {aiSummary?.bias_score != null ? (aiSummary.bias_score > 0 ? `+${aiSummary.bias_score}` : aiSummary.bias_score) : "−7"}
-          </span>
-          &ensp;{aiSummary?.dominant_regime || "State 3: low volatility, expansion, tight policy and yields"}
-        </p>
-        <span className="bias-conf">
-          <span className="meter" aria-hidden="true">
-            <i style={{ "--v": `${aiSummary?.confidence_pct ?? 58}%` } as React.CSSProperties}></i>
-          </span>
-          {aiSummary?.confidence_pct ?? 58}% confidence
-          <Link className="bias-link" href="/macrodashboard/tools/ai-bias">
-            Details
-          </Link>
-        </span>
-      </section>
+      <AiBiasBanner
+        initialSummary={aiSummary}
+        initialUs30Summary={us30AiSummary}
+        className="mt-5"
+      />
 
       {/* Telemetry Strip: 8 hairline cards */}
       <section className="tele" id="tele" aria-label="Cross-asset benchmarks">
@@ -1432,7 +1435,7 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
                   </p>
                 </div>
                 <div className="news-meta">
-                  <span className="pill-live">Live feed</span>
+                  <span className="pill-live">Live feed (last 2–3h)</span>
                   <span>Strict causal NLP filter</span>
                   <span>
                     Updated <span id="newsStamp">{newsStamp}</span>, {newsItems.length} records

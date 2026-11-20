@@ -28,6 +28,21 @@ interface GoldUs30NewsSectionProps {
   lastUpdated?: string;
 }
 
+function formatRelativeTime(publishedAt: string): string {
+  try {
+    const diffMs = Date.now() - new Date(publishedAt).getTime();
+    if (diffMs < 0) return "just now";
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    const remMins = mins % 60;
+    return remMins > 0 ? `${hours}h ${remMins}m ago` : `${hours}h ago`;
+  } catch {
+    return "";
+  }
+}
+
 export function GoldUs30NewsSection({
   initialNews,
   lastUpdated: initialLastUpdated,
@@ -207,11 +222,11 @@ export function GoldUs30NewsSection({
                 </h2>
                 <span className="inline-flex items-center gap-1 rounded-full border border-[#22C55E]/30 bg-[#22C55E]/10 px-2 py-0.5 font-mono-num text-[9px] font-semibold uppercase tracking-wide text-[#22C55E]">
                   <Zap className="h-2.5 w-2.5" />
-                  Live feed
+                  Live feed (last 2–3h)
                 </span>
               </div>
               <p className="mt-1 max-w-2xl text-[11px] leading-relaxed text-[#6B6B6B]">
-                AI-filtered catalysts mapped to Gold and US30 with directional impact and transmission context.
+                AI-filtered catalysts published within the rolling 2–3 hour window mapped to Gold and US30 with directional impact and transmission context.
               </p>
             </div>
           </div>
@@ -653,6 +668,14 @@ export function GoldUs30NewsSection({
                   <div className="flex items-center gap-2 text-[#6B6B6B] font-mono-num text-[10px]">
                     <span className="text-[#A3A3A3] font-medium">{item.source}</span>
                     <span>•</span>
+                    {formatRelativeTime(item.publishedAt) && (
+                      <>
+                        <span className="text-[#22C55E] font-medium">
+                          {formatRelativeTime(item.publishedAt)}
+                        </span>
+                        <span>•</span>
+                      </>
+                    )}
                     <span>
                       {new Date(item.publishedAt).toLocaleDateString([], {
                         month: "short",

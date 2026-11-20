@@ -138,8 +138,8 @@ export async function runMarketauxSync(options?: {
   if (!configured) {
     const latencyMs = Date.now() - startedAtMs;
     // When API key is not configured, load curated institutional news reference cache
-    // and persist into database store so macro insights and database records are available
-    const cached = await getGoldAndUs30News({ forceRefresh: false });
+    // strictly within the rolling 2-3 hour window and persist into database store
+    const cached = await getGoldAndUs30News({ forceRefresh: false, maxAgeHours: 3 });
     const count = cached.news?.length ?? 0;
     let inserted = 0;
     for (const article of cached.news ?? []) {
@@ -169,7 +169,7 @@ export async function runMarketauxSync(options?: {
           basedOnLatestAt: article.publishedAt,
           confidenceNote: `Relevance ${article.relevanceScore}/100 (Sentiment: ${article.sentimentScore > 0 ? "+" : ""}${article.sentimentScore.toFixed(2)})`,
           rawPayload: { ...(article as unknown as Record<string, unknown>), provider: "marketaux", mode: "reference_cache" },
-          expiresAt: new Date(Date.now() + 86400000 * 3).toISOString(),
+          expiresAt: new Date(Date.now() + 3600000 * 3).toISOString(),
         });
         inserted += 1;
       } catch {
@@ -217,7 +217,7 @@ export async function runMarketauxSync(options?: {
   }
 
   try {
-    const result = await getGoldAndUs30News({ forceRefresh: true });
+    const result = await getGoldAndUs30News({ forceRefresh: true, maxAgeHours: 3 });
     const count = result.news?.length ?? 0;
     const latencyMs = Date.now() - startedAtMs;
 
@@ -249,7 +249,7 @@ export async function runMarketauxSync(options?: {
           basedOnLatestAt: article.publishedAt,
           confidenceNote: `Relevance ${article.relevanceScore}/100 (Sentiment: ${article.sentimentScore > 0 ? "+" : ""}${article.sentimentScore.toFixed(2)})`,
           rawPayload: { ...(article as unknown as Record<string, unknown>), provider: "marketaux" },
-          expiresAt: new Date(Date.now() + 86400000 * 3).toISOString(),
+          expiresAt: new Date(Date.now() + 3600000 * 3).toISOString(),
         });
         inserted += 1;
       } catch {

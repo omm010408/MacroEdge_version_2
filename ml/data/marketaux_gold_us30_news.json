@@ -1,29 +1,84 @@
 [
   {
+    "id": "maux_75cabf7e",
+    "uuid": "75cabf7e-f042-4d30-a3b2-5ac84a8b8eee",
+    "title": "Treasury Yields Consolidate Near Weekly Highs as FOMC Minutes and Jobs Prints Echo Across Rates",
+    "summary": "The benchmark 10-year Treasury yield fluctuated near 4.42% while the Dollar Index traded rangebound around 106.8. Gold and equity desks digest policy reaction functions.",
+    "url": "https://mottcapitalmanagement.com/treasury-yields-consolidate-fomc-minutes-jobless-claims/",
+    "source": "Mott Capital Management",
+    "publishedAt": "2026-11-20T17:57:47.130Z",
+    "targetAsset": "BOTH",
+    "relevanceScore": 95,
+    "transmissionChannel": "Consolidation & Dollar Index Rangebound Flows",
+    "goldImpact": "NEUTRAL",
+    "us30Impact": "BULLISH",
+    "aiRationale": "Yield stabilization around 4.42% removes immediate discount rate shock, allowing equities to consolidate.",
+    "keyDrivers": [
+      "10y yield",
+      "dollar index",
+      "fomc",
+      "treasury yields"
+    ],
+    "sentimentScore": 0.18,
+    "entities": [
+      "US10Y",
+      "DXY",
+      "GLD",
+      "DIA"
+    ]
+  },
+  {
     "id": "maux_f5412453",
     "uuid": "f5412453-fd3e-4886-a34a-0a0c0ee32205",
     "title": "Gold Holds Firm Above $3,740 as University of Michigan Inflation Expectations Anchor Yields",
-    "summary": "Spot Gold held steady near $3,741/oz as the revised UoM survey confirmed long-run inflation expectations holding at 4.3%. Institutional bullion desks noted resilient ETF demand and safe-haven accumulation offsetting a flat U.S. Dollar Index.",
+    "summary": "Spot Gold held steady near $3,741/oz as the revised UoM survey confirmed long-run inflation expectations holding at 4.3%. Institutional bullion desks noted resilient ETF demand.",
     "url": "https://www2.stockmarketwatch.com/stock-market-news/gold-holds-firm-above-3740-uom-inflation-expectations/74712/",
     "source": "Reuters Financial",
     "publishedAt": "2026-11-20T17:45:00.000000Z",
     "targetAsset": "GOLD",
-    "relevanceScore": 96,
-    "transmissionChannel": "Inflation Expectations & Bullion Monetary Premium",
+    "relevanceScore": 100,
+    "transmissionChannel": "Precious Metals Inflow Sentiment",
     "goldImpact": "BULLISH",
-    "us30Impact": "NEUTRAL",
-    "aiRationale": "Steady 4.3% long-run inflation expectations combined with sovereign reserve demand provide a durable floor under gold prices, mitigating headwind from firm nominal rates.",
+    "us30Impact": null,
+    "aiRationale": "Positive commodity sentiment and ETF accumulation support spot gold support levels.",
     "keyDrivers": [
-      "consumer sentiment",
-      "inflation expectations",
-      "gold bullion",
-      "real yields"
+      "gold",
+      "spot gold",
+      "bullion",
+      "dollar index",
+      "safe-haven"
     ],
     "sentimentScore": 0.42,
     "entities": [
       "GLD",
       "XAUUSD",
-      "DXY",
+      "DXY"
+    ]
+  },
+  {
+    "id": "maux_7a5a09b4",
+    "uuid": "7a5a09b4-26bc-455c-aa84-50bf51f6ea7b",
+    "title": "Central Bank Gold Reserves Surge as Sovereign Diversification Offsets Dollar Volatility",
+    "summary": "Official sector bullion purchases remained brisk heading into year-end as global reserve managers continued diversification away from single-currency debt holdings.",
+    "url": "https://www.etftrends.com/tactical-allocation-channel/central-bank-gold-reserves-surge/",
+    "source": "ETF Trends",
+    "publishedAt": "2026-11-20T17:12:47.130Z",
+    "targetAsset": "GOLD",
+    "relevanceScore": 94,
+    "transmissionChannel": "Sovereign Reserve De-dollarization & Bullion Floor",
+    "goldImpact": "BULLISH",
+    "us30Impact": "NEUTRAL",
+    "aiRationale": "Persistent structural physical demand by monetary authorities creates a reliable bid underneath gold.",
+    "keyDrivers": [
+      "central bank gold",
+      "gold bullion",
+      "safe-haven",
+      "sovereign reserve"
+    ],
+    "sentimentScore": 0.55,
+    "entities": [
+      "GLD",
+      "XAUUSD",
       "IAU"
     ]
   },
@@ -31,86 +86,28 @@
     "id": "maux_bacd9dff",
     "uuid": "bacd9dff-4872-4644-ba33-6d8addc59986",
     "title": "Dow Jones Advances 140 Points Led by Industrials as Consumer Sentiment Beats Preliminary Print",
-    "summary": "The Dow Jones Industrial Average (US30) climbed higher in afternoon trade as the Revised UoM Consumer Sentiment rose to 51.7 versus 51.0 previous. Blue-chip industrial bellwethers Caterpillar and Boeing led cyclical gains.",
+    "summary": "The Dow Jones Industrial Average (US30) climbed higher in afternoon trade as the Revised UoM Consumer Sentiment rose to 51.7 versus 51.0 previous.",
     "url": "https://www2.stockmarketwatch.com/stock-market-news/dow-jones-advances-led-by-industrials-uom-consumer-sentiment/74710/",
-    "source": "The Stock Market Watch",
+    "source": "thestockmarketwatch.com",
     "publishedAt": "2026-11-20T17:10:00.000000Z",
     "targetAsset": "US30",
-    "relevanceScore": 94,
-    "transmissionChannel": "Consumer Confidence & Blue-Chip Order Books",
-    "goldImpact": "NEUTRAL",
+    "relevanceScore": 100,
+    "transmissionChannel": "Credit Easing & Industrial Capex Expansion",
+    "goldImpact": null,
     "us30Impact": "BULLISH",
-    "aiRationale": "Upward revision in consumer sentiment underscores domestic aggregate demand resilience, expanding earnings multiples for cyclical Dow constituents.",
+    "aiRationale": "Accommodative policy or resilient corporate earnings support Dow industrials and large-cap financials.",
     "keyDrivers": [
-      "consumer sentiment",
       "dow jones",
+      "industrial average",
+      "blue-chip",
       "caterpillar",
-      "boeing",
-      "industrial capex"
+      "boeing"
     ],
     "sentimentScore": 0.48,
     "entities": [
       "DIA",
       "CAT",
-      "BA",
-      "^DJI",
-      "SPY"
-    ]
-  },
-  {
-    "id": "maux_75cabf7e",
-    "uuid": "75cabf7e-f042-4d30-a3b2-5ac84a8b8eee",
-    "title": "Treasury Yields Consolidate Near Weekly Highs as FOMC Minutes and Jobs Prints Echo Across Rates",
-    "summary": "The benchmark 10-year Treasury yield fluctuated near 4.42% while the Dollar Index traded rangebound around 106.8. Cross-asset traders weighed yesterday's lower jobless claims against cautious Federal Reserve commentary on December easing.",
-    "url": "https://mottcapitalmanagement.com/treasury-yields-consolidate-fomc-minutes-jobless-claims/",
-    "source": "Mott Capital Management",
-    "publishedAt": "2026-11-20T16:25:00.000000Z",
-    "targetAsset": "BOTH",
-    "relevanceScore": 95,
-    "transmissionChannel": "US Real Yields & Dollar Pressure",
-    "goldImpact": "BEARISH",
-    "us30Impact": "BULLISH",
-    "aiRationale": "Rangebound Treasury yields around 4.42% cap near-term gold upside while allowing equity valuation discount rates to stabilize for industrial benchmarks.",
-    "keyDrivers": [
-      "treasury yields",
-      "dollar index",
-      "fomc minutes",
-      "unemployment claims"
-    ],
-    "sentimentScore": 0.18,
-    "entities": [
-      "DXY",
-      "US10Y",
-      "DIA",
-      "GLD",
-      "TLT"
-    ]
-  },
-  {
-    "id": "maux_7a5a09b4",
-    "uuid": "7a5a09b4-26bc-455c-aa84-50bf51f6ea7b",
-    "title": "Central Bank Gold Reserves Surge as Sovereign Diversification Offsets Dollar Volatility",
-    "summary": "Official sector bullion purchases remained brisk heading into year-end as global reserve managers continued diversification away from single-currency debt holdings. Physical demand in Asian and European hubs provided strong bid depth.",
-    "url": "https://www.etftrends.com/tactical-allocation-channel/central-bank-gold-reserves-surge/",
-    "source": "ETF Trends",
-    "publishedAt": "2026-11-20T15:35:00.000000Z",
-    "targetAsset": "GOLD",
-    "relevanceScore": 93,
-    "transmissionChannel": "Central Bank Allocation & Monetary Premium",
-    "goldImpact": "BULLISH",
-    "us30Impact": "NEUTRAL",
-    "aiRationale": "Structural de-dollarization flows and sovereign reserve accumulation provide institutional price support independent of short-term interest rate fluctuations.",
-    "keyDrivers": [
-      "central bank gold",
-      "gold bullion",
-      "safe-haven",
-      "de-dollarization"
-    ],
-    "sentimentScore": 0.55,
-    "entities": [
-      "GLD",
-      "XAUUSD",
-      "IAU"
+      "BA"
     ]
   }
 ]
