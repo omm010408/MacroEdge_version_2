@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fetchJsonWithTimeout } from "@/services/http";
@@ -273,6 +274,112 @@ export async function fetchMarketauxNews(options: {
 }
 
 /**
+ * Pure regex-based RSS XML parser to extract live articles without external dependencies.
+ */
+function parseRssXml(xml: string, defaultSource: string, defaultSymbol: string): MarketauxArticle[] {
+  const items: MarketauxArticle[] = [];
+  const itemRegex = /<item[\s\S]*?<\/item>/gi;
+  const matchItems = xml.match(itemRegex) || [];
+
+  for (const itemXml of matchItems) {
+    const titleMatch = itemXml.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i);
+    const linkMatch = itemXml.match(/<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i);
+    const descMatch = itemXml.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i);
+    const pubDateMatch = itemXml.match(/<pubDate>([\s\S]*?)<\/pubDate>/i);
+
+    const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, "").trim() : "";
+    if (!title) continue;
+
+    const link = linkMatch ? linkMatch[1].trim() : "";
+    const rawDesc = descMatch ? descMatch[1].replace(/<[^>]+>/g, "").trim() : "";
+    const pubDateStr = pubDateMatch ? pubDateMatch[1].trim() : "";
+
+    let publishedAt = new Date().toISOString();
+    if (pubDateStr) {
+      const parsedDate = new Date(pubDateStr);
+      if (!isNaN(parsedDate.getTime())) {
+        publishedAt = parsedDate.toISOString();
+      }
+    }
+
+    const uuid = `synd_${crypto.createHash("md5").update(title + link).digest("hex").slice(0, 12)}`;
+
+    items.push({
+      uuid,
+      title,
+      description: rawDesc || title,
+      snippet: rawDesc || title,
+      url: link,
+      language: "en",
+      publishedAt,
+      source: defaultSource,
+      sentimentScore: null,
+      entities: [
+        {
+          symbol: defaultSymbol,
+          name: defaultSource,
+        },
+      ],
+    });
+  }
+
+  return items;
+}
+
+/**
+ * Fetch live institutional syndication feeds directly (Federal Reserve official press releases,
+ * Yahoo Finance Gold GC=F, Yahoo Finance Dow Jones ^DJI).
+ * High reliability, zero API key quotas, always fresh.
+ */
+export async function fetchLiveSyndicatedNews(): Promise<MarketauxArticle[]> {
+  const feeds = [
+    {
+      url: "https://www.federalreserve.gov/feeds/press_all.xml",
+      source: "Federal Reserve Board",
+      symbol: "DXY",
+    },
+    {
+      url: "https://feeds.finance.yahoo.com/rss/2.0/headline?s=GC=F",
+      source: "Yahoo Finance (Gold)",
+      symbol: "GLD",
+    },
+    {
+      url: "https://feeds.finance.yahoo.com/rss/2.0/headline?s=%5EDJI",
+      source: "Yahoo Finance (Dow Jones)",
+      symbol: "DIA",
+    },
+  ];
+
+  const results: MarketauxArticle[] = [];
+
+  await Promise.allSettled(
+    feeds.map(async (feed) => {
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 6000);
+        const res = await fetch(feed.url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+            Accept: "application/rss+xml, application/xml, text/xml, */*",
+          },
+          signal: controller.signal,
+        });
+        clearTimeout(timer);
+        if (res.ok) {
+          const xml = await res.text();
+          const parsed = parseRssXml(xml, feed.source, feed.symbol);
+          results.push(...parsed);
+        }
+      } catch (err) {
+        console.warn(`[news-syndication] Failed to fetch feed ${feed.source}:`, err);
+      }
+    })
+  );
+
+  return results;
+}
+
+/**
  * Primary institutional API service: Fetches, AI-filters, and classifies news
  * strictly affecting GOLD (XAUUSD) and US30 (Dow Jones).
  */
@@ -288,29 +395,45 @@ export async function getGoldAndUs30News(options: {
 
   let rawArticles: MarketauxArticle[] = [];
 
-  if (forceRefresh) {
-    // Attempt live fetch specifically for Gold and Dow 30 components
-    rawArticles = await fetchMarketauxNews({
-      symbols: "GLD,DIA,^DJI,XAU,TLT",
-      limit: 3,
-    });
+  // 1. If API key is explicitly configured, attempt Marketaux API
+  const apiKey = process.env.MARKETAUX_API_KEY?.trim();
+  if (apiKey) {
+    try {
+      rawArticles = await fetchMarketauxNews({
+        symbols: "GLD,DIA,^DJI,XAU,TLT",
+        limit: 3,
+      });
+    } catch {
+      // Continue to live syndication feeds
+    }
   }
 
+  // 2. Fetch live syndication feeds (Federal Reserve official, Gold GC=F, Dow ^DJI)
+  // Ensures minute-by-minute news even when vendor API is rate-limited or unconfigured
+  try {
+    const liveSyndicated = await fetchLiveSyndicatedNews();
+    if (liveSyndicated.length > 0) {
+      const existingUuids = new Set(rawArticles.map((a) => a.uuid));
+      for (const item of liveSyndicated) {
+        if (!existingUuids.has(item.uuid)) {
+          rawArticles.push(item);
+          existingUuids.add(item.uuid);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("[news] Live syndication fetch error:", err);
+  }
+
+  // 3. Fallback to cached articles if live fetch returned nothing
   if (rawArticles.length === 0) {
     rawArticles = await getMarketauxCachedNews();
   }
 
-  if (rawArticles.length === 0) {
-    rawArticles = await fetchMarketauxNews({
-      symbols: "GLD,DIA,^DJI,XAU,TLT",
-      limit: 3,
-    });
-  }
-
-  // Run through AI Filter
+  // 4. Run through AI Filter
   const filtered = filterMarketauxNewsForGoldAndUs30(rawArticles);
 
-  // If fewer than 2 filtered items found from live feed, merge institutional fallback reference items
+  // If fewer than 3 filtered items, merge reference items
   if (filtered.length < 3) {
     const seenUuids = new Set(filtered.map((f) => f.uuid));
     for (const item of INSTITUTIONAL_FALLBACK_ARTICLES) {
@@ -319,9 +442,10 @@ export async function getGoldAndUs30News(options: {
         seenUuids.add(item.uuid);
       }
     }
-    // Re-sort
-    filtered.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
   }
+
+  // Always sort newest first
+  filtered.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
   // Persist filtered cache
   try {
