@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { AiBiasSummary, AiModelsSnapshot } from "@/lib/ai-models/types";
+import { computeEverydayBiasSnapshot } from "./everyday-bias-engine";
 
 const ROOT_DIR = process.cwd();
 const VENV_PYTHON = path.join(ROOT_DIR, ".venv", "bin", "python");
@@ -36,15 +37,23 @@ async function readFileWithFallbacks(primaryPath: string, subPath: string): Prom
 }
 
 export async function getLatestAiModelsSnapshot(): Promise<AiModelsSnapshot | null> {
+  const today = new Date().toISOString().slice(0, 10);
   try {
     const raw = await readFileWithFallbacks(
       LATEST_INFERENCE_PATH,
       path.join("ml", "artifacts", "latest_inference.json")
     );
-    if (!raw) return null;
-    return JSON.parse(raw) as AiModelsSnapshot;
+    if (raw) {
+      const parsed = JSON.parse(raw) as AiModelsSnapshot;
+      // If the cached file is already computed for TODAY and has valid model4 output, reuse it
+      if (parsed.model4_macro_regime_bias?.as_of_date === today) {
+        return parsed;
+      }
+    }
+    // If not computed for today or file missing/stale, compute live everyday bias snapshot for today!
+    return await computeEverydayBiasSnapshot();
   } catch {
-    return null;
+    return await computeEverydayBiasSnapshot().catch(() => null);
   }
 }
 
@@ -77,6 +86,27 @@ export async function getTrainingSummary(): Promise<Record<string, unknown> | nu
 export async function runAiModelsInference(
   payload: InferenceRequestPayload = {}
 ): Promise<AiModelsSnapshot> {
+  // If refresh_data is requested or interactive scenario inputs are provided, compute live everyday bias directly
+  if (
+    payload.refresh_data ||
+    payload.custom_news_text ||
+    payload.surprise_z !== undefined ||
+    payload.event_type ||
+    payload.consensus_overrides
+  ) {
+    try {
+      return await computeEverydayBiasSnapshot({
+        eventType: payload.event_type,
+        surpriseZ: payload.surprise_z,
+        customNewsText: payload.custom_news_text,
+        refreshData: payload.refresh_data,
+        consensusOverrides: payload.consensus_overrides,
+      });
+    } catch {
+      // Fallback to python subprocess if TypeScript engine encounters an unexpected issue
+    }
+  }
+
   const mlServiceUrl = process.env.ML_SERVICE_URL?.trim();
   if (mlServiceUrl) {
     const controller = new AbortController();
@@ -97,6 +127,14 @@ export async function runAiModelsInference(
         throw new Error(body.detail || `ML service returned HTTP ${response.status}.`);
       }
       return body.snapshot;
+    } catch {
+      // Fallback to local everyday computation
+      return await computeEverydayBiasSnapshot({
+        eventType: payload.event_type,
+        surpriseZ: payload.surprise_z,
+        customNewsText: payload.custom_news_text,
+        refreshData: payload.refresh_data,
+      });
     } finally {
       clearTimeout(timer);
     }
@@ -107,7 +145,7 @@ export async function runAiModelsInference(
     .then(() => VENV_PYTHON)
     .catch(() => "python3");
 
-  return new Promise<AiModelsSnapshot>((resolve, reject) => {
+  return new Promise<AiModelsSnapshot>((resolve) => {
     const child = spawn(pythonBin, ["-m", "ml.infer", "--stdin"], {
       cwd: ROOT_DIR,
       env: process.env,
@@ -117,9 +155,15 @@ export async function runAiModelsInference(
     let stdout = "";
     let stderr = "";
 
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       child.kill("SIGKILL");
-      reject(new Error("AI model inference timed out after 90s."));
+      const fallback = await computeEverydayBiasSnapshot({
+        eventType: payload.event_type,
+        surpriseZ: payload.surprise_z,
+        customNewsText: payload.custom_news_text,
+        refreshData: payload.refresh_data,
+      });
+      resolve(fallback);
     }, 90_000);
 
     child.stdout.on("data", (chunk: Buffer) => {
@@ -129,25 +173,27 @@ export async function runAiModelsInference(
       stderr += chunk.toString("utf-8");
     });
 
-    child.on("error", async (err) => {
+    child.on("error", async () => {
       clearTimeout(timer);
-      const fallback = await getLatestAiModelsSnapshot();
-      if (fallback) {
-        resolve(fallback);
-      } else {
-        reject(err);
-      }
+      const fallback = await computeEverydayBiasSnapshot({
+        eventType: payload.event_type,
+        surpriseZ: payload.surprise_z,
+        customNewsText: payload.custom_news_text,
+        refreshData: payload.refresh_data,
+      });
+      resolve(fallback);
     });
 
     child.on("close", async (code) => {
       clearTimeout(timer);
       if (code !== 0) {
-        const fallback = await getLatestAiModelsSnapshot();
-        if (fallback) {
-          resolve(fallback);
-          return;
-        }
-        reject(new Error(stderr.trim() || `ml.infer exited with code ${code}`));
+        const fallback = await computeEverydayBiasSnapshot({
+          eventType: payload.event_type,
+          surpriseZ: payload.surprise_z,
+          customNewsText: payload.custom_news_text,
+          refreshData: payload.refresh_data,
+        });
+        resolve(fallback);
         return;
       }
       try {
@@ -155,13 +201,14 @@ export async function runAiModelsInference(
         const lines = stdout.trim().split("\n");
         const parsed = JSON.parse(lines[lines.length - 1]) as AiModelsSnapshot;
         resolve(parsed);
-      } catch (err) {
-        const fallback = await getLatestAiModelsSnapshot();
-        if (fallback) {
-          resolve(fallback);
-          return;
-        }
-        reject(new Error(`Failed to parse ml.infer output: ${String(err)}`));
+      } catch {
+        const fallback = await computeEverydayBiasSnapshot({
+          eventType: payload.event_type,
+          surpriseZ: payload.surprise_z,
+          customNewsText: payload.custom_news_text,
+          refreshData: payload.refresh_data,
+        });
+        resolve(fallback);
       }
     });
 
