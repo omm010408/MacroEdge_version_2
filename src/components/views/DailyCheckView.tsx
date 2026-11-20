@@ -449,6 +449,20 @@ export function DailyCheckView({
     return activeLens.conf.filter((c) => c[6] === "CONFIRMS").length;
   }, [activeLens]);
 
+  // Dynamic calculated verdict:
+  // >= 4 confirming -> base verdict (e.g. BEARISH / BULLISH)
+  // 3 confirming -> MIXED
+  // <= 2 confirming -> NEUTRAL
+  const calculatedVerdict = useMemo(() => {
+    if (confirmCount >= 4) {
+      return activeLens.verdict;
+    }
+    if (confirmCount === 3) {
+      return ["MIXED", "mixed"] as const;
+    }
+    return ["NEUTRAL", "neutral"] as const;
+  }, [confirmCount, activeLens.verdict]);
+
   // Dynamic confirmation status:
   // >= 4 confirming -> CONFIRMED (e.g. "CONFIRMED BEARISH" or "CONFIRMED BULLISH")
   // 3 confirming -> "MIXED"
@@ -485,7 +499,7 @@ export function DailyCheckView({
     const today = new Date().toISOString().slice(0, 10);
     const newRecord: HistoryRecord = {
       date: today,
-      assess: `${activeLens.name} · ${activeLens.verdict[0]}`,
+      assess: `${activeLens.name} · ${calculatedVerdict[0]}`,
       bias: "—",
       note: trimmed,
     };
@@ -537,14 +551,14 @@ export function DailyCheckView({
 
             <div className="dc-verdict">
               <span
-                className={`pill ${activeLens.verdict[1]}`}
+                className={`pill ${calculatedVerdict[1]}`}
                 style={
-                  activeLens.verdict[1] === "mixed"
+                  calculatedVerdict[1] === "mixed"
                     ? { borderColor: activeLens.color, color: activeLens.color }
                     : undefined
                 }
               >
-                {activeLens.verdict[0]}
+                {calculatedVerdict[0]}
               </span>
               <span className="dc-tick">
                 {activeLens.tick[0]} <b>{activeLens.tick[1]}</b>{" "}

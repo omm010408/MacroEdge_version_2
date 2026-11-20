@@ -1467,10 +1467,23 @@ export async function runMarketEngineCycle(options?: {
           let tick: RawMarketTickInput | null = null;
           let usedProvider: ProviderId = activeProvider;
 
-          const candidates: ProviderId[] = [
-            mapping.primaryProvider,
-            ...mapping.fallbackProviders,
-          ];
+          const candidates: ProviderId[] =
+            options?.providerId === "yfinance"
+              ? [
+                  "yfinance",
+                  mapping.primaryProvider,
+                  ...mapping.fallbackProviders.filter((p) => p !== "yfinance"),
+                ]
+              : options?.providerId
+              ? [
+                  options.providerId,
+                  mapping.primaryProvider,
+                  ...mapping.fallbackProviders.filter((p) => p !== options.providerId),
+                ]
+              : [
+                  mapping.primaryProvider,
+                  ...mapping.fallbackProviders,
+                ];
 
           let lastCandidateError: unknown = null;
           for (const candidate of candidates) {

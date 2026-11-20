@@ -467,7 +467,8 @@ begin
         and excluded.tick_seq >= public.market_quotes.tick_seq
       )
     )
-  );
+  )
+  or excluded.dedup_hash = public.market_quotes.dedup_hash;
 
   get diagnostics v_updated = row_count;
 

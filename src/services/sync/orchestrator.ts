@@ -619,15 +619,34 @@ export async function dispatchSyncJob(
   }> = [];
 
   if (options.workerId) {
-    const resolvedProvider =
-      options.providerId ?? defaultProviderForWorker(options.workerId);
-    targetWorkers = [
-      {
-        workerId: options.workerId,
-        providerId: resolvedProvider,
-        seriesKeys: options.seriesKeys,
-      },
-    ];
+    if (options.providerId) {
+      targetWorkers = [
+        {
+          workerId: options.workerId,
+          providerId: options.providerId,
+          seriesKeys: options.seriesKeys,
+        },
+      ];
+    } else if (options.workerId === "market-engine") {
+      targetWorkers = [
+        { workerId: "market-engine", providerId: "coinbase_ws" },
+        { workerId: "market-engine", providerId: "yfinance" },
+      ];
+    } else if (options.workerId === "ai-supervisor") {
+      targetWorkers = [
+        { workerId: "ai-supervisor", providerId: "marketaux" },
+        { workerId: "ai-supervisor", providerId: "gemini" },
+      ];
+    } else {
+      const resolvedProvider = defaultProviderForWorker(options.workerId);
+      targetWorkers = [
+        {
+          workerId: options.workerId,
+          providerId: resolvedProvider,
+          seriesKeys: options.seriesKeys,
+        },
+      ];
+    }
   } else if (options.providerId) {
     const cfg = getProviderConfig(options.providerId);
     const seriesKeysForProvider =
@@ -645,6 +664,7 @@ export async function dispatchSyncJob(
   } else {
     targetWorkers = [
       { workerId: "market-engine", providerId: "coinbase_ws" },
+      { workerId: "market-engine", providerId: "yfinance" },
       {
         workerId: "macro-engine",
         providerId: "fred",

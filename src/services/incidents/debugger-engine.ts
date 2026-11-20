@@ -35,6 +35,7 @@ import {
   getSeriesMapping,
   isProviderConfigured,
   MACRO_SERIES_MAPPINGS,
+  PROVIDER_REGISTRY,
 } from "@/services/sync/provider-registry";
 import {
   getLatestValues,
@@ -1019,17 +1020,33 @@ export async function executeSafeIdempotentRecovery(
         }
       }
     } else if (action === "run_backfill_series") {
+      const targetSeriesKey = incident.affectedDataset;
+      const mapping = targetSeriesKey ? getSeriesMapping(targetSeriesKey) : null;
+      const targetProvider =
+        mapping?.primaryProvider ??
+        (incident.providerId as ProviderId | null) ??
+        undefined;
+      const targetWorker = mapping
+        ? PROVIDER_REGISTRY[mapping.primaryProvider]?.ownerWorker ?? "macro-engine"
+        : ((incident.workerId as WorkerId | null) ?? "macro-engine");
       await runBackfillJob({
-        workerId: (incident.workerId as WorkerId | null) ?? "macro-engine",
-        providerId: (incident.providerId as ProviderId | null) ?? undefined,
-        seriesKeys: incident.affectedDataset ? [incident.affectedDataset] : undefined,
+        workerId: targetWorker,
+        providerId: targetProvider,
+        seriesKeys: targetSeriesKey ? [targetSeriesKey] : undefined,
         trigger: "recovery",
       });
     } else if (action === "reconnect_market_daemon") {
       const { runMarketEngineCycle } = await import(
         "@/services/sync/workers/market-engine"
       );
-      await runMarketEngineCycle({ trigger: "recovery" });
+      const targetProvider = (incident.providerId as ProviderId | null) ?? undefined;
+      await runMarketEngineCycle({
+        trigger: "recovery",
+        providerId: targetProvider,
+        symbols: incident.affectedDataset
+          ? [incident.affectedDataset as import("@/lib/sync/types").MarketSymbol]
+          : undefined,
+      });
     } else if (action === "recompute_derived_metrics") {
       const { runLiquidityRiskEngineSync } = await import(
         "@/services/sync/workers/liquidity-risk-engine"

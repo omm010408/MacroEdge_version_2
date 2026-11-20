@@ -44,14 +44,17 @@ export interface MacroRegimeFactor {
 export interface EconomicCalendarEvent {
   id: string;
   event: string;
-  country: "US" | "EZ" | "UK" | "JP" | "CN" | "CA" | "AU" | "CH";
+  country: "US" | "EZ" | "UK" | "JP" | "CN" | "CA" | "AU" | "CH" | string;
+  currency?: string;
   bucket: "today" | "this-week" | "next-week";
   releaseTime: string;
   previous: string;
   consensus: string;
   actual: string | null;
-  importance: "HIGH" | "MEDIUM" | "LOW";
+  importance: "HIGH" | "MEDIUM" | "LOW" | "NON_ECONOMIC";
   unit: string;
+  betterThanExpected?: boolean | null;
+  rawDate?: string;
 }
 
 export type CotSignal = "Extreme Long" | "Neutral" | "Extreme Short";

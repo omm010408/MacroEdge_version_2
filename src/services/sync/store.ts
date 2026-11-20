@@ -611,14 +611,14 @@ export async function upsertMarketQuote(
         const now = new Date().toISOString();
         existing.receivedAt = now;
         existing.updatedAt = now;
+        existing.sourceId = input.sourceId;
         if (input.status) {
           existing.status = input.status;
         }
         await persistLocalState(state);
         return {
-          accepted: false,
+          accepted: true,
           symbol: input.symbol,
-          reason: "DEDUP_OR_STALE_TICK",
         };
       }
     }

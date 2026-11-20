@@ -1,5 +1,9 @@
 import type { EconomicCalendarEvent } from "@/lib/types";
 import type { LatestValueRecord } from "@/lib/sync/types";
+import {
+  getInstitutionalForexFactoryDocket,
+  toEconomicCalendarEvent,
+} from "@/services/data/forex-factory";
 
 export interface FredReleaseDateItem {
   releaseId: number;
@@ -413,6 +417,17 @@ export function buildEconomicCalendarEvents(options: {
           });
         }
       }
+    }
+  }
+
+  // 3. Merge institutional Forex Factory docket events for global currency coverage (GBP, EUR, USD, JPY, CAD, AUD, etc.)
+  const ffEvents = getInstitutionalForexFactoryDocket(now.toISOString());
+  for (const ff of ffEvents) {
+    const legacy = toEconomicCalendarEvent(ff);
+    const key = `ff-${ff.currency}-${ff.title}-${ff.date.slice(0, 10)}`;
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      events.push(legacy);
     }
   }
 
