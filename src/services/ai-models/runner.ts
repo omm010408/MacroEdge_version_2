@@ -10,6 +10,7 @@ const LATEST_INFERENCE_PATH = path.join(ROOT_DIR, "ml", "artifacts", "latest_inf
 const TRAINING_SUMMARY_PATH = path.join(ROOT_DIR, "ml", "artifacts", "reports", "training_summary.json");
 
 export interface InferenceRequestPayload {
+  target_asset?: "XAUUSD" | "US30";
   event_type?: string;
   surprise_z?: number | null;
   consensus_overrides?: Record<string, number>;
@@ -36,7 +37,9 @@ async function readFileWithFallbacks(primaryPath: string, subPath: string): Prom
   return null;
 }
 
-export async function getLatestAiModelsSnapshot(): Promise<AiModelsSnapshot | null> {
+export async function getLatestAiModelsSnapshot(
+  targetAsset: "XAUUSD" | "US30" = "XAUUSD"
+): Promise<AiModelsSnapshot | null> {
   const today = new Date().toISOString().slice(0, 10);
   try {
     const raw = await readFileWithFallbacks(
@@ -47,13 +50,34 @@ export async function getLatestAiModelsSnapshot(): Promise<AiModelsSnapshot | nu
       const parsed = JSON.parse(raw) as AiModelsSnapshot;
       // If the cached file is already computed for TODAY and has valid model4 output, reuse it
       if (parsed.model4_macro_regime_bias?.as_of_date === today) {
+        if (targetAsset === "US30") {
+          if (parsed.us30_model4 && parsed.us30_model3) {
+            return {
+              ...parsed,
+              target_asset: "US30",
+              model4_macro_regime_bias: parsed.us30_model4,
+              model3_market_reaction: parsed.us30_model3,
+            };
+          }
+          return await computeEverydayBiasSnapshot({ targetAsset: "US30" });
+        }
+        if (targetAsset === "XAUUSD") {
+          if (parsed.xauusd_model4 && parsed.xauusd_model3) {
+            return {
+              ...parsed,
+              target_asset: "XAUUSD",
+              model4_macro_regime_bias: parsed.xauusd_model4,
+              model3_market_reaction: parsed.xauusd_model3,
+            };
+          }
+        }
         return parsed;
       }
     }
     // If not computed for today or file missing/stale, compute live everyday bias snapshot for today!
-    return await computeEverydayBiasSnapshot();
+    return await computeEverydayBiasSnapshot({ targetAsset });
   } catch {
-    return await computeEverydayBiasSnapshot().catch(() => null);
+    return await computeEverydayBiasSnapshot({ targetAsset }).catch(() => null);
   }
 }
 
@@ -86,27 +110,9 @@ export async function getTrainingSummary(): Promise<Record<string, unknown> | nu
 export async function runAiModelsInference(
   payload: InferenceRequestPayload = {}
 ): Promise<AiModelsSnapshot> {
-  // If refresh_data is requested or interactive scenario inputs are provided, compute live everyday bias directly
-  if (
-    payload.refresh_data ||
-    payload.custom_news_text ||
-    payload.surprise_z !== undefined ||
-    payload.event_type ||
-    payload.consensus_overrides
-  ) {
-    try {
-      return await computeEverydayBiasSnapshot({
-        eventType: payload.event_type,
-        surpriseZ: payload.surprise_z,
-        customNewsText: payload.custom_news_text,
-        refreshData: payload.refresh_data,
-        consensusOverrides: payload.consensus_overrides,
-      });
-    } catch {
-      // Fallback to python subprocess if TypeScript engine encounters an unexpected issue
-    }
-  }
+  const targetAsset: "XAUUSD" | "US30" = payload.target_asset === "US30" ? "US30" : "XAUUSD";
 
+  // If a dedicated remote ML microservice is explicitly configured via ML_SERVICE_URL, attempt it
   const mlServiceUrl = process.env.ML_SERVICE_URL?.trim();
   if (mlServiceUrl) {
     const controller = new AbortController();
@@ -123,29 +129,68 @@ export async function runAiModelsInference(
         snapshot?: AiModelsSnapshot;
         detail?: string;
       };
-      if (!response.ok || !body.ok || !body.snapshot) {
-        throw new Error(body.detail || `ML service returned HTTP ${response.status}.`);
+      if (response.ok && body.ok && body.snapshot) {
+        return body.snapshot;
       }
-      return body.snapshot;
     } catch {
-      // Fallback to local everyday computation
-      return await computeEverydayBiasSnapshot({
-        eventType: payload.event_type,
-        surpriseZ: payload.surprise_z,
-        customNewsText: payload.custom_news_text,
-        refreshData: payload.refresh_data,
-      });
+      // Fall through to native TypeScript engine
     } finally {
       clearTimeout(timer);
     }
   }
 
+  // 1. Primary Engine: Pure TypeScript Everyday Bias & Macro Intelligence Engine
+  // In-process, calibrated for both XAUUSD and US30, zero subprocess overhead, zero python dependency
+  try {
+    const snapshot = await computeEverydayBiasSnapshot({
+      targetAsset,
+      eventType: payload.event_type,
+      surpriseZ: payload.surprise_z,
+      customNewsText: payload.custom_news_text,
+      refreshData: payload.refresh_data,
+      consensusOverrides: payload.consensus_overrides,
+    });
+    if (snapshot?.model4_macro_regime_bias) {
+      return snapshot;
+    }
+  } catch (err) {
+    console.warn("TypeScript EverydayBiasEngine warning, attempting secondary fallbacks:", err);
+  }
+
+  // 2. Secondary fallback: Local Python subprocess (if python is available and trained)
   const pythonBin = await fs
     .access(VENV_PYTHON)
     .then(() => VENV_PYTHON)
     .catch(() => "python3");
 
   return new Promise<AiModelsSnapshot>((resolve) => {
+    let resolved = false;
+    const safeResolve = async (val?: AiModelsSnapshot | null) => {
+      if (resolved) return;
+      resolved = true;
+      if (val?.model4_macro_regime_bias) {
+        resolve(val);
+        return;
+      }
+      try {
+        const fallback = await computeEverydayBiasSnapshot({
+          targetAsset,
+          eventType: payload.event_type,
+          surpriseZ: payload.surprise_z,
+          customNewsText: payload.custom_news_text,
+          refreshData: payload.refresh_data,
+          consensusOverrides: payload.consensus_overrides,
+        });
+        resolve(fallback);
+      } catch {
+        const raw = await readFileWithFallbacks(
+          LATEST_INFERENCE_PATH,
+          path.join("ml", "artifacts", "latest_inference.json")
+        );
+        resolve(raw ? (JSON.parse(raw) as AiModelsSnapshot) : ({} as AiModelsSnapshot));
+      }
+    };
+
     const child = spawn(pythonBin, ["-m", "ml.infer", "--stdin"], {
       cwd: ROOT_DIR,
       env: process.env,
@@ -153,62 +198,33 @@ export async function runAiModelsInference(
     });
 
     let stdout = "";
-    let stderr = "";
 
-    const timer = setTimeout(async () => {
+    const timer = setTimeout(() => {
       child.kill("SIGKILL");
-      const fallback = await computeEverydayBiasSnapshot({
-        eventType: payload.event_type,
-        surpriseZ: payload.surprise_z,
-        customNewsText: payload.custom_news_text,
-        refreshData: payload.refresh_data,
-      });
-      resolve(fallback);
-    }, 90_000);
+      void safeResolve(null);
+    }, 15_000);
 
     child.stdout.on("data", (chunk: Buffer) => {
       stdout += chunk.toString("utf-8");
     });
-    child.stderr.on("data", (chunk: Buffer) => {
-      stderr += chunk.toString("utf-8");
-    });
 
-    child.on("error", async () => {
+    child.on("error", () => {
       clearTimeout(timer);
-      const fallback = await computeEverydayBiasSnapshot({
-        eventType: payload.event_type,
-        surpriseZ: payload.surprise_z,
-        customNewsText: payload.custom_news_text,
-        refreshData: payload.refresh_data,
-      });
-      resolve(fallback);
+      void safeResolve(null);
     });
 
-    child.on("close", async (code) => {
+    child.on("close", (code) => {
       clearTimeout(timer);
       if (code !== 0) {
-        const fallback = await computeEverydayBiasSnapshot({
-          eventType: payload.event_type,
-          surpriseZ: payload.surprise_z,
-          customNewsText: payload.custom_news_text,
-          refreshData: payload.refresh_data,
-        });
-        resolve(fallback);
+        void safeResolve(null);
         return;
       }
       try {
-        // Parse the last JSON line in stdout in case any library emitted info lines
         const lines = stdout.trim().split("\n");
         const parsed = JSON.parse(lines[lines.length - 1]) as AiModelsSnapshot;
-        resolve(parsed);
+        void safeResolve(parsed);
       } catch {
-        const fallback = await computeEverydayBiasSnapshot({
-          eventType: payload.event_type,
-          surpriseZ: payload.surprise_z,
-          customNewsText: payload.custom_news_text,
-          refreshData: payload.refresh_data,
-        });
-        resolve(fallback);
+        void safeResolve(null);
       }
     });
 

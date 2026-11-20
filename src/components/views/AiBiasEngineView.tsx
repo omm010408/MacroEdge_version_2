@@ -61,6 +61,10 @@ export function AiBiasEngineView({
   initialSnapshot: AiModelsSnapshot | null;
 }) {
   const [snapshot, setSnapshot] = useState<AiModelsSnapshot | null>(initialSnapshot);
+  const [selectedAsset, setSelectedAsset] = useState<"XAUUSD" | "US30">(
+    initialSnapshot?.target_asset ??
+      (initialSnapshot?.model4_macro_regime_bias?.primary_asset === "US30" ? "US30" : "XAUUSD")
+  );
   const [activeTab, setActiveTab] = useState<ModelTab>("model1");
   const [eventType, setEventType] = useState<string>(
     initialSnapshot?.scenario_inputs?.event_type ?? "CPI"
@@ -80,10 +84,22 @@ export function AiBiasEngineView({
       if (newsParam) {
         setCustomNewsText(decodeURIComponent(newsParam));
       }
+      const assetParam = params.get("asset")?.toUpperCase();
+      if (assetParam === "US30" || assetParam === "XAUUSD") {
+        setSelectedAsset(assetParam);
+      }
     }
   }, []);
 
-  async function runSimulation(refreshData = false) {
+  // Auto-load snapshot if missing on initial render
+  useEffect(() => {
+    if (!snapshot || !snapshot.model4_macro_regime_bias) {
+      void runSimulation(false, selectedAsset);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function runSimulation(refreshData = false, asset = selectedAsset) {
     setLoading(true);
     setError(null);
     try {
@@ -91,6 +107,7 @@ export function AiBiasEngineView({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          target_asset: asset,
           event_type: eventType,
           surprise_z: useAutoSurprise ? null : manualSurpriseZ,
           custom_news_text: customNewsText.trim(),
@@ -115,8 +132,28 @@ export function AiBiasEngineView({
 
   const m1 = snapshot?.model1_economic_forecast;
   const m2 = snapshot?.model2_news_intelligence;
-  const m3 = snapshot?.model3_market_reaction;
-  const m4 = snapshot?.model4_macro_regime_bias;
+
+  const m4 = useMemo(() => {
+    if (!snapshot) return null;
+    if (selectedAsset === "US30" && snapshot.us30_model4) {
+      return snapshot.us30_model4;
+    }
+    if (selectedAsset === "XAUUSD" && snapshot.xauusd_model4) {
+      return snapshot.xauusd_model4;
+    }
+    return snapshot.model4_macro_regime_bias;
+  }, [snapshot, selectedAsset]);
+
+  const m3 = useMemo(() => {
+    if (!snapshot) return null;
+    if (selectedAsset === "US30" && snapshot.us30_model3) {
+      return snapshot.us30_model3;
+    }
+    if (selectedAsset === "XAUUSD" && snapshot.xauusd_model3) {
+      return snapshot.xauusd_model3;
+    }
+    return snapshot.model3_market_reaction;
+  }, [snapshot, selectedAsset]);
 
   const horizonChartData = useMemo(() => {
     if (!m3) return [];
@@ -148,6 +185,23 @@ export function AiBiasEngineView({
     ];
   }, [m4]);
 
+  if (loading && (!snapshot || !m4)) {
+    return (
+      <div className="space-y-6 p-6">
+        <Breadcrumbs />
+        <div className="rounded-xl border border-white/[0.08] bg-[#0A0D12] p-12 text-center">
+          <RefreshCw className="mx-auto mb-3 h-8 w-8 text-[#FFFFFF] animate-spin" />
+          <h2 className="text-lg font-semibold text-white">
+            Calibrating MacroEdge 4-Model AI Engine
+          </h2>
+          <p className="mx-auto mt-2 max-w-lg text-sm text-[#9299A3]">
+            Synthesizing point-in-time FRED indicators, central bank sentiment, and live {selectedAsset} market reaction distributions...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!snapshot || !m4 || !m1 || !m2 || !m3) {
     return (
       <div className="space-y-6 p-6">
@@ -158,8 +212,7 @@ export function AiBiasEngineView({
             AI Bias & Macro Intelligence Engine
           </h2>
           <p className="mx-auto mt-2 max-w-lg text-sm text-[#9299A3]">
-            Trained artifacts not loaded yet. Click below to run live 4-model inference across
-            FRED macro series, FinBERT news intelligence, and XAUUSD reaction models.
+            Click below to run live 4-model inference across FRED macro series, FinBERT news intelligence, and {selectedAsset} reaction models.
           </p>
           {error && (
             <div className="mx-auto mt-3 max-w-lg rounded-lg border border-[#E5485D]/20 bg-[#E5485D]/10 p-3 text-left">
@@ -170,7 +223,7 @@ export function AiBiasEngineView({
             </div>
           )}
           <button
-            onClick={() => runSimulation(false)}
+            onClick={() => runSimulation(false, selectedAsset)}
             disabled={loading}
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#FFFFFF] px-4 py-2 text-xs font-semibold text-[#050608] hover:bg-[#E2E6EC] disabled:opacity-50"
           >
@@ -194,12 +247,45 @@ export function AiBiasEngineView({
             MacroEdge 4-Model AI Bias & Reaction Engine
           </h1>
           <p className="text-xs text-[#9299A3]">
-            Trained on historical FRED releases, FinBERT/Gemini central-bank intelligence, and real XAUUSD reactions.
+            Trained on historical FRED releases, FinBERT/Gemini central-bank intelligence, and real {selectedAsset} macroeconomic reaction models.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Institutional Asset Selector: Gold (XAUUSD) vs Dow Jones (US30) */}
+          <div className="flex items-center rounded-lg border border-white/[0.12] bg-[#0E1218] p-1">
+            <button
+              type="button"
+              onClick={() => setSelectedAsset("XAUUSD")}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-semibold transition-all",
+                selectedAsset === "XAUUSD"
+                  ? "bg-[#D9B45C] text-[#050608] shadow-sm"
+                  : "text-[#9299A3] hover:text-white"
+              )}
+            >
+              <span className="h-2 w-2 rounded-full bg-[#D9B45C] ring-2 ring-[#D9B45C]/30" />
+              XAUUSD (Gold)
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedAsset("US30")}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-semibold transition-all",
+                selectedAsset === "US30"
+                  ? "bg-[#3B82F6] text-white shadow-sm"
+                  : "text-[#9299A3] hover:text-white"
+              )}
+            >
+              <span className="h-2 w-2 rounded-full bg-[#3B82F6] ring-2 ring-[#3B82F6]/30" />
+              US30 (Dow Jones 30)
+            </button>
+          </div>
+
           <span className="rounded border border-white/[0.08] bg-[#0E1218] px-2.5 py-1 font-mono-num text-[11px] text-[#9299A3]">
-            As of {m4.as_of_date} · XAUUSD ${m4.spot_xauusd.toLocaleString()}
+            As of {m4.as_of_date} · {m4.primary_asset}{" "}
+            {m4.primary_asset === "US30"
+              ? `${(m4.spot_us30 ?? m4.spot_price ?? 43450).toLocaleString()} pts`
+              : `$${m4.spot_xauusd.toLocaleString()}`}
           </span>
           <button
             onClick={() => runSimulation(true)}
@@ -305,13 +391,45 @@ export function AiBiasEngineView({
               <div className="space-y-1.5">
                 {Object.entries(m4.cross_asset_biases).map(([sym, item]) => {
                   const t = biasTone(item.bias);
+                  const isSelected = sym === selectedAsset;
+                  const isClickable = sym === "XAUUSD" || sym === "US30";
                   return (
-                    <div key={sym} className="flex items-center justify-between text-xs">
-                      <span className="font-mono-num font-semibold text-white">{sym}</span>
+                    <button
+                      key={sym}
+                      type="button"
+                      disabled={!isClickable}
+                      onClick={() => {
+                        if (isClickable) setSelectedAsset(sym as "XAUUSD" | "US30");
+                      }}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded px-2 py-1 text-xs transition-colors text-left",
+                        isSelected
+                          ? "border border-white/[0.2] bg-white/[0.08]"
+                          : isClickable
+                          ? "hover:bg-white/[0.04]"
+                          : "opacity-80"
+                      )}
+                    >
+                      <div className="flex items-center gap-1.5 font-mono-num font-semibold text-white">
+                        {isSelected && (
+                          <span
+                            className={cn(
+                              "h-1.5 w-1.5 rounded-full",
+                              sym === "US30" ? "bg-[#3B82F6]" : "bg-[#D9B45C]"
+                            )}
+                          />
+                        )}
+                        <span>{sym}</span>
+                        {isClickable && (
+                          <span className="text-[10px] text-[#9299A3]">
+                            {sym === "US30" ? "Dow" : "Gold"}
+                          </span>
+                        )}
+                      </div>
                       <span className={cn("rounded px-2 py-0.5 font-mono-num text-[11px] font-semibold", t.bg, t.text)}>
                         {item.bias} ({item.score > 0 ? `+${item.score}` : item.score})
                       </span>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -423,8 +541,8 @@ export function AiBiasEngineView({
         {[
           { id: "model1", label: "Model 1 · Economic Forecast", icon: Flame },
           { id: "model2", label: "Model 2 · News Intelligence", icon: Newspaper },
-          { id: "model3", label: "Model 3 · Market Reaction (XAUUSD)", icon: Activity },
-          { id: "model4", label: "Model 4 · Evidence & Backtest", icon: BrainCircuit },
+          { id: "model3", label: `Model 3 · Market Reaction (${selectedAsset})`, icon: Activity },
+          { id: "model4", label: `Model 4 · Evidence & Backtest (${selectedAsset})`, icon: BrainCircuit },
         ].map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
@@ -645,7 +763,7 @@ export function AiBiasEngineView({
                     {row.expected_return_pct !== null ? (row.expected_return_pct > 0 ? `+${row.expected_return_pct}%` : `${row.expected_return_pct}%`) : "—"}
                   </div>
                   <div className="font-mono-num text-xs text-[#9299A3]">
-                    Est. Move: {row.expected_usd_move !== null ? (row.expected_usd_move > 0 ? `+$${row.expected_usd_move}` : `$${row.expected_usd_move}`) : "—"}/oz
+                    Est. Move: {row.expected_usd_move !== null ? (row.expected_usd_move > 0 ? `+${row.expected_usd_move}` : `${row.expected_usd_move}`) : "—"} {selectedAsset === "US30" ? "pts" : "/oz"}
                   </div>
                   <div className="mt-3 space-y-1 border-t border-white/[0.06] pt-2 text-[11px]">
                     <div className="flex justify-between">
@@ -684,7 +802,7 @@ export function AiBiasEngineView({
           <div className="grid gap-4 lg:grid-cols-12">
             <div className="rounded-xl border border-white/[0.08] bg-[#0A0D12] p-4 lg:col-span-5">
               <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#FFFFFF]">
-                Expected XAUUSD Return (%) Across Horizons ({m3.event_type}, {m3.input_surprise_z}σ)
+                Expected {selectedAsset} Return (%) Across Horizons ({m3.event_type}, {m3.input_surprise_z}σ)
               </div>
               <div className="h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -718,7 +836,7 @@ export function AiBiasEngineView({
                     <th className="py-2">Surprise Z</th>
                     <th className="py-2">Real 10Y</th>
                     <th className="py-2">VIX</th>
-                    <th className="py-2">Actual XAU 1D</th>
+                    <th className="py-2">Actual {selectedAsset === "US30" ? "US30 1D" : "XAU 1D"}</th>
                     <th className="py-2">Sim</th>
                   </tr>
                 </thead>
@@ -799,7 +917,7 @@ export function AiBiasEngineView({
                   <th className="px-4 py-3">Current Reading</th>
                   <th className="px-4 py-3">5Y Z-Score</th>
                   <th className="px-4 py-3">Rule Weight</th>
-                  <th className="px-4 py-3">XAUUSD Contribution</th>
+                  <th className="px-4 py-3">{selectedAsset === "US30" ? "US30 Contribution" : "XAUUSD Contribution"}</th>
                   <th className="px-4 py-3">Signal</th>
                 </tr>
               </thead>

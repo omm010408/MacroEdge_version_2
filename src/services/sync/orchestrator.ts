@@ -9,7 +9,9 @@ import type {
   WorkerId,
 } from "@/lib/sync/types";
 import {
+  getActiveMarketWsProvider,
   getProviderConfig,
+  isProviderConfigured,
   listProviders,
   MACRO_SERIES_MAPPINGS,
   PROVIDER_REGISTRY,
@@ -322,7 +324,7 @@ function getSeriesKeysForMacroProvider(providerId: ProviderId): string[] | undef
 function defaultProviderForWorker(workerId: WorkerId): ProviderId {
   switch (workerId) {
     case "market-engine":
-      return "coinbase_ws";
+      return getActiveMarketWsProvider();
     case "macro-engine":
       return "fred";
     case "positioning-engine":
@@ -628,8 +630,15 @@ export async function dispatchSyncJob(
         },
       ];
     } else if (options.workerId === "market-engine") {
+      const activeWs = getActiveMarketWsProvider();
       targetWorkers = [
-        { workerId: "market-engine", providerId: "coinbase_ws" },
+        { workerId: "market-engine", providerId: activeWs },
+        ...(isProviderConfigured("twelve_data_ws") && activeWs !== "twelve_data_ws"
+          ? [{ workerId: "market-engine" as WorkerId, providerId: "twelve_data_ws" as ProviderId }]
+          : []),
+        ...(activeWs !== "coinbase_ws"
+          ? [{ workerId: "market-engine" as WorkerId, providerId: "coinbase_ws" as ProviderId }]
+          : []),
         { workerId: "market-engine", providerId: "yfinance" },
       ];
     } else if (options.workerId === "ai-supervisor") {
@@ -662,8 +671,15 @@ export async function dispatchSyncJob(
       },
     ];
   } else {
+    const activeWs = getActiveMarketWsProvider();
     targetWorkers = [
-      { workerId: "market-engine", providerId: "coinbase_ws" },
+      { workerId: "market-engine", providerId: activeWs },
+      ...(isProviderConfigured("twelve_data_ws") && activeWs !== "twelve_data_ws"
+        ? [{ workerId: "market-engine" as WorkerId, providerId: "twelve_data_ws" as ProviderId }]
+        : []),
+      ...(activeWs !== "coinbase_ws"
+        ? [{ workerId: "market-engine" as WorkerId, providerId: "coinbase_ws" as ProviderId }]
+        : []),
       { workerId: "market-engine", providerId: "yfinance" },
       {
         workerId: "macro-engine",
@@ -806,12 +822,16 @@ export async function runScheduledOrchestratorTick(options?: {
     }
 
     if (cfg.ownerWorker === "market-engine") {
-      // Market engine probes all WS streams in one cycle when unconfigured; avoid 4x redundant runs
-      if (!marketEngineQueued) {
-        dueTasks.push({ workerId: "market-engine", providerId: cfg.id });
-        marketEngineQueued = true;
+      if (cfg.transport === "websocket") {
+        // Market engine probes the active/configured WS stream once per cycle
+        if (!marketEngineQueued) {
+          const activeWs = getActiveMarketWsProvider();
+          const targetWs = isProviderConfigured(activeWs) ? activeWs : cfg.id;
+          dueTasks.push({ workerId: "market-engine", providerId: targetWs });
+          marketEngineQueued = true;
+        }
+        continue;
       }
-      continue;
     }
 
     dueTasks.push({

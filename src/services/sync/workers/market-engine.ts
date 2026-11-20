@@ -999,13 +999,22 @@ async function fetchTwelveDataQuoteUnqueued(
     return cache.quotes.get(symbol)!;
   }
 
-  // Twelve Data charges one credit per symbol. Rotate through capped batches so
-  // the worker can cover every mapped instrument without exceeding the plan.
-  const symbolsToBatch = Object.values(MARKET_INSTRUMENT_MAPPINGS)
+  // Prioritize primary Twelve Data instruments (Forex & Crypto pairs)
+  const primaryTwelveDataSymbols = [
+    "EUR/USD",
+    "USD/JPY",
+    "GBP/USD",
+    "USD/CHF",
+    "AUD/USD",
+    "USD/CAD",
+    "XAU/USD",
+    "BTC/USD",
+  ];
+  const allMapped = Object.values(MARKET_INSTRUMENT_MAPPINGS)
     .filter((m) => Boolean(m.externalSymbols.twelve_data_ws))
     .map((m) => m.externalSymbols.twelve_data_ws as string);
+  const uniqueSymbols = Array.from(new Set([...primaryTwelveDataSymbols, ...allMapped]));
 
-  const uniqueSymbols = Array.from(new Set(symbolsToBatch));
   const cursor = globalThis.__macroedgeTwelveDataBatchCursor ?? 0;
   const batchSymbols = uniqueSymbols
     .slice(cursor, cursor + TWELVE_DATA_MAX_SYMBOLS_PER_BATCH)
@@ -1043,6 +1052,21 @@ async function fetchTwelveDataQuoteUnqueued(
 
     const data = (await res.json()) as Record<string, unknown>;
 
+    // Handle Twelve Data root error format (e.g. invalid api key, rate limit, quota)
+    if (
+      data &&
+      typeof data === "object" &&
+      (("status" in data && data.status === "error") ||
+        ("code" in data && typeof data.code === "number" && data.code >= 400))
+    ) {
+      const msg = typeof data.message === "string" ? data.message : "TwelveData API error";
+      if (cache.quotes.has(symbol)) return cache.quotes.get(symbol)!;
+      throw new ProviderRequestError(`TwelveData error: ${msg}`, {
+        statusCode: typeof data.code === "number" ? data.code : 400,
+        retryable: false,
+      });
+    }
+
     // Build reverse map from external symbol to MarketSymbol
     const extToSymbolMap = new Map<string, MarketSymbol>();
     for (const [sKey, m] of Object.entries(MARKET_INSTRUMENT_MAPPINGS)) {
@@ -1075,6 +1099,9 @@ async function fetchTwelveDataQuoteUnqueued(
       for (const [extKey, rawVal] of Object.entries(data)) {
         if (!rawVal || typeof rawVal !== "object") continue;
         const entry = rawVal as Record<string, unknown>;
+        if (entry.status === "error" || (typeof entry.code === "number" && entry.code >= 400)) {
+          continue; // plan restriction on individual symbol (e.g. index/bond)
+        }
         const price = entry.close ?? entry.price;
         if (price === undefined || price === null) continue;
 
@@ -1713,14 +1740,16 @@ export async function runMarketEngineCycle(options?: {
       }
       const successIso = new Date().toISOString();
       for (const pid of successfulProviders) {
+        const isWs = PROVIDER_REGISTRY[pid]?.transport === "websocket";
         await updateDataHealth({
           id: `source:${pid}`,
           entityType: "source",
           sourceId: pid,
           workerId: "market-engine",
-          status: "CURRENT",
+          status: isWs ? "LIVE" : "CURRENT",
           lastSuccessAt: successIso,
           lastAttemptAt: successIso,
+          freshnessSeconds: 0,
           consecutiveFailures: 0,
           details: { configured: isProviderConfigured(pid) },
         });

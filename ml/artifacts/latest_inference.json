@@ -550,7 +550,8 @@
       "status": "PROMOTED"
     }
   ],
-  "generated_at": "2026-11-20T13:53:41.931462+00:00",
+  "target_asset": "US30",
+  "generated_at": "2026-11-20T16:37:45.194647+00:00",
   "phase8_macro_reasoning": {
     "asset": "XAUUSD",
     "overall_bias": "BEARISH",
@@ -1105,6 +1106,7 @@
     ]
   },
   "scenario_inputs": {
+    "target_asset": "US30",
     "event_type": "CPI",
     "surprise_z": 0.0,
     "custom_news_supplied": false,
@@ -7361,11 +7363,13 @@
     }
   },
   "model3_market_reaction": {
-    "model": "Model 3 \u2014 Conditional Market Reaction to US Macro Surprises",
-    "generated_at": "2026-11-20T13:53:41.931424+00:00",
+    "model": "Model 3 \u2014 Conditional Market Reaction to US Macro Surprises (US30)",
+    "generated_at": "2026-11-20T16:37:45.194628+00:00",
+    "target_asset": "US30",
     "event_type": "CPI",
     "input_surprise_z": 0.0,
-    "spot_xauusd": 3919.7,
+    "spot_price": 52297.1,
+    "spot_us30": 52297.1,
     "market_conditions": {
       "real10y_level": 1.96,
       "dxy_level": 103.9,
@@ -7375,17 +7379,17 @@
       "5m": {
         "horizon": "5m",
         "direction": "NEUTRAL",
-        "prob_up": 0.5,
+        "prob_up": 0.46,
         "prob_flat": 0.1,
-        "prob_down": 0.4,
-        "expected_return_pct": -0.0,
-        "expected_usd_move": -0.0,
+        "prob_down": 0.44,
+        "expected_return_pct": -0.07,
+        "expected_usd_move": -36.6,
         "distribution_pct": {
-          "p10": -0.5,
-          "p25": -0.2,
-          "p50": -0.0,
-          "p75": 0.2,
-          "p90": 0.5
+          "p10": -0.67,
+          "p25": -0.32,
+          "p50": -0.07,
+          "p75": 0.18,
+          "p90": 0.53
         },
         "metrics": {
           "horizon": "5m",
@@ -7396,18 +7400,18 @@
       },
       "30m": {
         "horizon": "30m",
-        "direction": "NEUTRAL",
-        "prob_up": 0.5,
+        "direction": "BEARISH",
+        "prob_up": 0.46,
         "prob_flat": 0.1,
-        "prob_down": 0.4,
-        "expected_return_pct": -0.0,
-        "expected_usd_move": -0.0,
+        "prob_down": 0.44,
+        "expected_return_pct": -0.13,
+        "expected_usd_move": -68.0,
         "distribution_pct": {
-          "p10": -0.5,
-          "p25": -0.2,
-          "p50": -0.0,
-          "p75": 0.2,
-          "p90": 0.5
+          "p10": -0.73,
+          "p25": -0.38,
+          "p50": -0.13,
+          "p75": 0.12,
+          "p90": 0.47
         },
         "metrics": {
           "horizon": "30m",
@@ -7418,18 +7422,18 @@
       },
       "4h": {
         "horizon": "4h",
-        "direction": "NEUTRAL",
-        "prob_up": 0.5,
+        "direction": "BEARISH",
+        "prob_up": 0.46,
         "prob_flat": 0.1,
-        "prob_down": 0.4,
-        "expected_return_pct": -0.0,
-        "expected_usd_move": -0.0,
+        "prob_down": 0.44,
+        "expected_return_pct": -0.18,
+        "expected_usd_move": -94.1,
         "distribution_pct": {
-          "p10": -0.5,
-          "p25": -0.2,
-          "p50": -0.0,
-          "p75": 0.2,
-          "p90": 0.5
+          "p10": -0.78,
+          "p25": -0.43,
+          "p50": -0.18,
+          "p75": 0.07,
+          "p90": 0.42
         },
         "metrics": {
           "horizon": "4h",
@@ -7440,18 +7444,18 @@
       },
       "1d": {
         "horizon": "1d",
-        "direction": "NEUTRAL",
-        "prob_up": 0.5,
+        "direction": "BEARISH",
+        "prob_up": 0.46,
         "prob_flat": 0.1,
-        "prob_down": 0.4,
-        "expected_return_pct": -0.0,
-        "expected_usd_move": -0.0,
+        "prob_down": 0.44,
+        "expected_return_pct": -0.21,
+        "expected_usd_move": -109.8,
         "distribution_pct": {
-          "p10": -0.5,
-          "p25": -0.2,
-          "p50": -0.0,
-          "p75": 0.2,
-          "p90": 0.5
+          "p10": -0.81,
+          "p25": -0.46,
+          "p50": -0.21,
+          "p75": 0.04,
+          "p90": 0.39
         },
         "metrics": {
           "horizon": "1d",
@@ -7466,16 +7470,471 @@
         "event_date": "2024-03-12",
         "event_type": "CPI",
         "surprise_z": 0.0,
-        "xau_ret_1d_pct": -0.0,
+        "xau_ret_1d_pct": -0.21,
         "real10y_level": 1.96,
         "vix_level": 18.7,
-        "similarity": 0.88
+        "similarity": 0.86
       }
     ]
   },
   "model4_macro_regime_bias": {
     "model": "Model 4 \u2014 Point-in-Time Macro Regime (Rules + Causal HMM/GMM/K-Means) + Bias Engine",
-    "generated_at": "2026-11-20T13:53:41.931419+00:00",
+    "generated_at": "2026-11-20T16:37:45.194518+00:00",
+    "as_of_date": "2026-11-20",
+    "primary_asset": "US30",
+    "spot_xauusd": 3919.7,
+    "bias": "BEARISH",
+    "bias_score": -13.7,
+    "confidence_pct": 71.6,
+    "uncertainty": 0.284,
+    "uncertainty_breakdown": {
+      "cross_model_disagreement": 0.25,
+      "news_ambiguity": 0.42,
+      "regime_entropy": 0.084
+    },
+    "regime": {
+      "dominant_regime": "State 0 (Tight Policy/Yields)",
+      "probabilities": {
+        "State 0 (Tight Policy/Yields)": 0.542,
+        "State 1 (High Stress / Loose Policy/Yields)": 0.011,
+        "State 2 (Loose Policy/Yields)": 0.102,
+        "State 3 (Low Vol / Expansion / Tight Policy/Yields)": 0.345
+      },
+      "historical_xau_avg_4w_pct": 0.7,
+      "historical_xau_4w_win_rate": 0.539
+    },
+    "component_scores": {
+      "transparent_macro_rules": -28.5,
+      "statistical_regime_ml": -21.8,
+      "ml_prob_up_4w": 0.391,
+      "model1_economic_surprise": -0.0,
+      "model2_news_intelligence": 0.0,
+      "model3_market_reaction": 0.0
+    },
+    "cross_asset_biases": {
+      "XAUUSD": {
+        "bias": "BEARISH",
+        "score": -15.4
+      },
+      "DXY": {
+        "bias": "BULLISH",
+        "score": 19.5
+      },
+      "SPX500": {
+        "bias": "BEARISH",
+        "score": -14.0
+      },
+      "US30": {
+        "bias": "BEARISH",
+        "score": -13.7
+      }
+    },
+    "supporting_evidence": [
+      {
+        "factor": "Growth & Industrial Momentum",
+        "key": "growth_z",
+        "current_value": "IndPro +0.4%",
+        "z_score": 0.6,
+        "weight": 28.0,
+        "xauusd_contribution": 5.1,
+        "signal": "BULLISH US30"
+      },
+      {
+        "factor": "Cost of Capital / 10Y Real Yield",
+        "key": "real_yields_z",
+        "current_value": "1.96%",
+        "z_score": 0.84,
+        "weight": -24.0,
+        "xauusd_contribution": -9.4,
+        "signal": "BEARISH US30"
+      },
+      {
+        "factor": "Cross-Asset Volatility & Credit Stress",
+        "key": "volatility_stress_z",
+        "current_value": "VIX 18.7",
+        "z_score": 0.54,
+        "weight": -22.0,
+        "xauusd_contribution": -5.1,
+        "signal": "BEARISH US30"
+      },
+      {
+        "factor": "Federal Reserve Policy Stance",
+        "key": "fed_policy_z",
+        "current_value": "1.78%",
+        "z_score": 0.85,
+        "weight": -18.0,
+        "xauusd_contribution": -6.4,
+        "signal": "BEARISH US30"
+      },
+      {
+        "factor": "DXY Export Competitiveness",
+        "key": "dollar_z",
+        "current_value": "103.90",
+        "z_score": 0.69,
+        "weight": -12.0,
+        "xauusd_contribution": -3.6,
+        "signal": "BEARISH US30"
+      }
+    ],
+    "invalidation_triggers": [
+      {
+        "trigger": "Yield Multiple Compression Shock",
+        "condition": "US 10Y Real Yield spikes above 2.21%",
+        "current": "1.96%"
+      },
+      {
+        "trigger": "Equity Volatility / Credit Panic",
+        "condition": "VIX spikes above 24.0",
+        "current": "18.7"
+      },
+      {
+        "trigger": "Growth Deterioration Breakdown",
+        "condition": "US Nonfarm Payrolls print negative or GDP nowcast < 1.0%",
+        "current": "EXPANDING"
+      }
+    ],
+    "metrics": {
+      "weekly_samples": 1177,
+      "oof_weeks": 917,
+      "validation_weeks": 813,
+      "untouched_holdout_weeks": 104,
+      "tuned_lr_c": 1.0,
+      "tuned_xgb_params": {
+        "n_estimators": 60,
+        "max_depth": 1,
+        "learning_rate": 0.04,
+        "reg_lambda": 15.0
+      },
+      "oof_4w_directional_accuracy": 0.5338,
+      "oof_4w_balanced_accuracy": 0.5041,
+      "oof_4w_roc_auc": 0.4734,
+      "oof_4w_brier": 0.2569,
+      "oof_strategy_sharpe": 0.502,
+      "oof_buy_hold_sharpe": 0.51,
+      "oof_strategy_cum_return_pct": 155.33,
+      "oof_buy_hold_cum_return_pct": 185.62,
+      "holdout_4w_directional_accuracy": 0.6058,
+      "holdout_4w_roc_auc": 0.3709,
+      "holdout_4w_brier": 0.2458,
+      "holdout_strategy_sharpe": 1.108,
+      "holdout_buy_hold_sharpe": 1.108,
+      "regime_stats": {
+        "State 0 (Tight Policy/Yields)": {
+          "weeks": 221,
+          "avg_xau_fwd_4w_pct": 1.08,
+          "xau_4w_win_rate": 0.579
+        },
+        "State 1 (High Stress / Loose Policy/Yields)": {
+          "weeks": 122,
+          "avg_xau_fwd_4w_pct": 0.38,
+          "xau_4w_win_rate": 0.492
+        },
+        "State 2 (Loose Policy/Yields)": {
+          "weeks": 368,
+          "avg_xau_fwd_4w_pct": 0.7,
+          "xau_4w_win_rate": 0.557
+        },
+        "State 3 (Low Vol / Expansion / Tight Policy/Yields)": {
+          "weeks": 206,
+          "avg_xau_fwd_4w_pct": 0.7,
+          "xau_4w_win_rate": 0.539
+        }
+      },
+      "primary_regime_detector": "Causal Gaussian HMM (6-factor, strictly forward-filtered)",
+      "prefix_invariance_verified": true
+    },
+    "target_asset": "US30",
+    "spot_price": 52297.1,
+    "spot_us30": 52297.1
+  },
+  "us30_model4": {
+    "model": "Model 4 \u2014 Point-in-Time Macro Regime (Rules + Causal HMM/GMM/K-Means) + Bias Engine",
+    "generated_at": "2026-11-20T16:37:45.194518+00:00",
+    "as_of_date": "2026-11-20",
+    "primary_asset": "US30",
+    "spot_xauusd": 3919.7,
+    "bias": "BEARISH",
+    "bias_score": -13.7,
+    "confidence_pct": 71.6,
+    "uncertainty": 0.284,
+    "uncertainty_breakdown": {
+      "cross_model_disagreement": 0.25,
+      "news_ambiguity": 0.42,
+      "regime_entropy": 0.084
+    },
+    "regime": {
+      "dominant_regime": "State 0 (Tight Policy/Yields)",
+      "probabilities": {
+        "State 0 (Tight Policy/Yields)": 0.542,
+        "State 1 (High Stress / Loose Policy/Yields)": 0.011,
+        "State 2 (Loose Policy/Yields)": 0.102,
+        "State 3 (Low Vol / Expansion / Tight Policy/Yields)": 0.345
+      },
+      "historical_xau_avg_4w_pct": 0.7,
+      "historical_xau_4w_win_rate": 0.539
+    },
+    "component_scores": {
+      "transparent_macro_rules": -28.5,
+      "statistical_regime_ml": -21.8,
+      "ml_prob_up_4w": 0.391,
+      "model1_economic_surprise": -0.0,
+      "model2_news_intelligence": 0.0,
+      "model3_market_reaction": 0.0
+    },
+    "cross_asset_biases": {
+      "XAUUSD": {
+        "bias": "BEARISH",
+        "score": -15.4
+      },
+      "DXY": {
+        "bias": "BULLISH",
+        "score": 19.5
+      },
+      "SPX500": {
+        "bias": "BEARISH",
+        "score": -14.0
+      },
+      "US30": {
+        "bias": "BEARISH",
+        "score": -13.7
+      }
+    },
+    "supporting_evidence": [
+      {
+        "factor": "Growth & Industrial Momentum",
+        "key": "growth_z",
+        "current_value": "IndPro +0.4%",
+        "z_score": 0.6,
+        "weight": 28.0,
+        "xauusd_contribution": 5.1,
+        "signal": "BULLISH US30"
+      },
+      {
+        "factor": "Cost of Capital / 10Y Real Yield",
+        "key": "real_yields_z",
+        "current_value": "1.96%",
+        "z_score": 0.84,
+        "weight": -24.0,
+        "xauusd_contribution": -9.4,
+        "signal": "BEARISH US30"
+      },
+      {
+        "factor": "Cross-Asset Volatility & Credit Stress",
+        "key": "volatility_stress_z",
+        "current_value": "VIX 18.7",
+        "z_score": 0.54,
+        "weight": -22.0,
+        "xauusd_contribution": -5.1,
+        "signal": "BEARISH US30"
+      },
+      {
+        "factor": "Federal Reserve Policy Stance",
+        "key": "fed_policy_z",
+        "current_value": "1.78%",
+        "z_score": 0.85,
+        "weight": -18.0,
+        "xauusd_contribution": -6.4,
+        "signal": "BEARISH US30"
+      },
+      {
+        "factor": "DXY Export Competitiveness",
+        "key": "dollar_z",
+        "current_value": "103.90",
+        "z_score": 0.69,
+        "weight": -12.0,
+        "xauusd_contribution": -3.6,
+        "signal": "BEARISH US30"
+      }
+    ],
+    "invalidation_triggers": [
+      {
+        "trigger": "Yield Multiple Compression Shock",
+        "condition": "US 10Y Real Yield spikes above 2.21%",
+        "current": "1.96%"
+      },
+      {
+        "trigger": "Equity Volatility / Credit Panic",
+        "condition": "VIX spikes above 24.0",
+        "current": "18.7"
+      },
+      {
+        "trigger": "Growth Deterioration Breakdown",
+        "condition": "US Nonfarm Payrolls print negative or GDP nowcast < 1.0%",
+        "current": "EXPANDING"
+      }
+    ],
+    "metrics": {
+      "weekly_samples": 1177,
+      "oof_weeks": 917,
+      "validation_weeks": 813,
+      "untouched_holdout_weeks": 104,
+      "tuned_lr_c": 1.0,
+      "tuned_xgb_params": {
+        "n_estimators": 60,
+        "max_depth": 1,
+        "learning_rate": 0.04,
+        "reg_lambda": 15.0
+      },
+      "oof_4w_directional_accuracy": 0.5338,
+      "oof_4w_balanced_accuracy": 0.5041,
+      "oof_4w_roc_auc": 0.4734,
+      "oof_4w_brier": 0.2569,
+      "oof_strategy_sharpe": 0.502,
+      "oof_buy_hold_sharpe": 0.51,
+      "oof_strategy_cum_return_pct": 155.33,
+      "oof_buy_hold_cum_return_pct": 185.62,
+      "holdout_4w_directional_accuracy": 0.6058,
+      "holdout_4w_roc_auc": 0.3709,
+      "holdout_4w_brier": 0.2458,
+      "holdout_strategy_sharpe": 1.108,
+      "holdout_buy_hold_sharpe": 1.108,
+      "regime_stats": {
+        "State 0 (Tight Policy/Yields)": {
+          "weeks": 221,
+          "avg_xau_fwd_4w_pct": 1.08,
+          "xau_4w_win_rate": 0.579
+        },
+        "State 1 (High Stress / Loose Policy/Yields)": {
+          "weeks": 122,
+          "avg_xau_fwd_4w_pct": 0.38,
+          "xau_4w_win_rate": 0.492
+        },
+        "State 2 (Loose Policy/Yields)": {
+          "weeks": 368,
+          "avg_xau_fwd_4w_pct": 0.7,
+          "xau_4w_win_rate": 0.557
+        },
+        "State 3 (Low Vol / Expansion / Tight Policy/Yields)": {
+          "weeks": 206,
+          "avg_xau_fwd_4w_pct": 0.7,
+          "xau_4w_win_rate": 0.539
+        }
+      },
+      "primary_regime_detector": "Causal Gaussian HMM (6-factor, strictly forward-filtered)",
+      "prefix_invariance_verified": true
+    },
+    "target_asset": "US30",
+    "spot_price": 52297.1,
+    "spot_us30": 52297.1
+  },
+  "us30_model3": {
+    "model": "Model 3 \u2014 Conditional Market Reaction to US Macro Surprises (US30)",
+    "generated_at": "2026-11-20T16:37:45.194628+00:00",
+    "target_asset": "US30",
+    "event_type": "CPI",
+    "input_surprise_z": 0.0,
+    "spot_price": 52297.1,
+    "spot_us30": 52297.1,
+    "market_conditions": {
+      "real10y_level": 1.96,
+      "dxy_level": 103.9,
+      "vix_level": 18.7
+    },
+    "horizons": {
+      "5m": {
+        "horizon": "5m",
+        "direction": "NEUTRAL",
+        "prob_up": 0.46,
+        "prob_flat": 0.1,
+        "prob_down": 0.44,
+        "expected_return_pct": -0.07,
+        "expected_usd_move": -36.6,
+        "distribution_pct": {
+          "p10": -0.67,
+          "p25": -0.32,
+          "p50": -0.07,
+          "p75": 0.18,
+          "p90": 0.53
+        },
+        "metrics": {
+          "horizon": "5m",
+          "total_events": 184,
+          "exact_intraday_observed_events": 184,
+          "bridged_events": 0
+        }
+      },
+      "30m": {
+        "horizon": "30m",
+        "direction": "BEARISH",
+        "prob_up": 0.46,
+        "prob_flat": 0.1,
+        "prob_down": 0.44,
+        "expected_return_pct": -0.13,
+        "expected_usd_move": -68.0,
+        "distribution_pct": {
+          "p10": -0.73,
+          "p25": -0.38,
+          "p50": -0.13,
+          "p75": 0.12,
+          "p90": 0.47
+        },
+        "metrics": {
+          "horizon": "30m",
+          "total_events": 184,
+          "exact_intraday_observed_events": 184,
+          "bridged_events": 0
+        }
+      },
+      "4h": {
+        "horizon": "4h",
+        "direction": "BEARISH",
+        "prob_up": 0.46,
+        "prob_flat": 0.1,
+        "prob_down": 0.44,
+        "expected_return_pct": -0.18,
+        "expected_usd_move": -94.1,
+        "distribution_pct": {
+          "p10": -0.78,
+          "p25": -0.43,
+          "p50": -0.18,
+          "p75": 0.07,
+          "p90": 0.42
+        },
+        "metrics": {
+          "horizon": "4h",
+          "total_events": 184,
+          "exact_intraday_observed_events": 184,
+          "bridged_events": 0
+        }
+      },
+      "1d": {
+        "horizon": "1d",
+        "direction": "BEARISH",
+        "prob_up": 0.46,
+        "prob_flat": 0.1,
+        "prob_down": 0.44,
+        "expected_return_pct": -0.21,
+        "expected_usd_move": -109.8,
+        "distribution_pct": {
+          "p10": -0.81,
+          "p25": -0.46,
+          "p50": -0.21,
+          "p75": 0.04,
+          "p90": 0.39
+        },
+        "metrics": {
+          "horizon": "1d",
+          "total_events": 184,
+          "exact_intraday_observed_events": 184,
+          "bridged_events": 0
+        }
+      }
+    },
+    "historical_analogs": [
+      {
+        "event_date": "2024-03-12",
+        "event_type": "CPI",
+        "surprise_z": 0.0,
+        "xau_ret_1d_pct": -0.21,
+        "real10y_level": 1.96,
+        "vix_level": 18.7,
+        "similarity": 0.86
+      }
+    ]
+  },
+  "xauusd_model4": {
+    "model": "Model 4 \u2014 Point-in-Time Macro Regime (Rules + Causal HMM/GMM/K-Means) + Bias Engine",
+    "generated_at": "2026-11-20T16:37:45.194518+00:00",
     "as_of_date": "2026-11-20",
     "primary_asset": "XAUUSD",
     "spot_xauusd": 3919.7,
@@ -7657,5 +8116,118 @@
       "primary_regime_detector": "Causal Gaussian HMM (6-factor, strictly forward-filtered)",
       "prefix_invariance_verified": true
     }
+  },
+  "xauusd_model3": {
+    "model": "Model 3 \u2014 Conditional Market Reaction to US Macro Surprises",
+    "generated_at": "2026-11-20T16:37:45.194529+00:00",
+    "event_type": "CPI",
+    "input_surprise_z": 0.0,
+    "spot_xauusd": 3919.7,
+    "market_conditions": {
+      "real10y_level": 1.96,
+      "dxy_level": 103.9,
+      "vix_level": 18.7
+    },
+    "horizons": {
+      "5m": {
+        "horizon": "5m",
+        "direction": "NEUTRAL",
+        "prob_up": 0.5,
+        "prob_flat": 0.1,
+        "prob_down": 0.4,
+        "expected_return_pct": -0.0,
+        "expected_usd_move": -0.0,
+        "distribution_pct": {
+          "p10": -0.5,
+          "p25": -0.2,
+          "p50": -0.0,
+          "p75": 0.2,
+          "p90": 0.5
+        },
+        "metrics": {
+          "horizon": "5m",
+          "total_events": 184,
+          "exact_intraday_observed_events": 184,
+          "bridged_events": 0
+        }
+      },
+      "30m": {
+        "horizon": "30m",
+        "direction": "NEUTRAL",
+        "prob_up": 0.5,
+        "prob_flat": 0.1,
+        "prob_down": 0.4,
+        "expected_return_pct": -0.0,
+        "expected_usd_move": -0.0,
+        "distribution_pct": {
+          "p10": -0.5,
+          "p25": -0.2,
+          "p50": -0.0,
+          "p75": 0.2,
+          "p90": 0.5
+        },
+        "metrics": {
+          "horizon": "30m",
+          "total_events": 184,
+          "exact_intraday_observed_events": 184,
+          "bridged_events": 0
+        }
+      },
+      "4h": {
+        "horizon": "4h",
+        "direction": "NEUTRAL",
+        "prob_up": 0.5,
+        "prob_flat": 0.1,
+        "prob_down": 0.4,
+        "expected_return_pct": -0.0,
+        "expected_usd_move": -0.0,
+        "distribution_pct": {
+          "p10": -0.5,
+          "p25": -0.2,
+          "p50": -0.0,
+          "p75": 0.2,
+          "p90": 0.5
+        },
+        "metrics": {
+          "horizon": "4h",
+          "total_events": 184,
+          "exact_intraday_observed_events": 184,
+          "bridged_events": 0
+        }
+      },
+      "1d": {
+        "horizon": "1d",
+        "direction": "NEUTRAL",
+        "prob_up": 0.5,
+        "prob_flat": 0.1,
+        "prob_down": 0.4,
+        "expected_return_pct": -0.0,
+        "expected_usd_move": -0.0,
+        "distribution_pct": {
+          "p10": -0.5,
+          "p25": -0.2,
+          "p50": -0.0,
+          "p75": 0.2,
+          "p90": 0.5
+        },
+        "metrics": {
+          "horizon": "1d",
+          "total_events": 184,
+          "exact_intraday_observed_events": 184,
+          "bridged_events": 0
+        }
+      }
+    },
+    "historical_analogs": [
+      {
+        "event_date": "2024-03-12",
+        "event_type": "CPI",
+        "surprise_z": 0.0,
+        "xau_ret_1d_pct": -0.0,
+        "real10y_level": 1.96,
+        "vix_level": 18.7,
+        "similarity": 0.88
+      }
+    ]
   }
 }

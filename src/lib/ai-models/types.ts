@@ -141,6 +141,9 @@ export interface Model3Output {
   event_type: string;
   input_surprise_z: number;
   spot_xauusd: number;
+  spot_us30?: number;
+  spot_price?: number;
+  target_asset?: "XAUUSD" | "US30";
   market_conditions: Record<string, number>;
   horizons: Record<"5m" | "30m" | "4h" | "1d", HorizonReaction>;
   historical_analogs: {
@@ -160,6 +163,8 @@ export interface Model4Output {
   as_of_date: string;
   primary_asset: string;
   spot_xauusd: number;
+  spot_us30?: number;
+  spot_price?: number;
   bias: "BULLISH" | "BEARISH" | "NEUTRAL";
   bias_score: number;
   confidence_pct: number;
@@ -249,6 +254,7 @@ export interface Phase8MacroReasoning {
 
 export interface AiModelsSnapshot {
   generated_at: string;
+  target_asset?: "XAUUSD" | "US30";
   scenario_inputs?: {
     event_type: string;
     surprise_z: number;
@@ -261,4 +267,9 @@ export interface AiModelsSnapshot {
   model2_news_intelligence: Model2Output;
   model3_market_reaction: Model3Output;
   model4_macro_regime_bias: Model4Output;
+  // Dual-asset intelligence
+  us30_model4?: Model4Output;
+  us30_model3?: Model3Output;
+  xauusd_model4?: Model4Output;
+  xauusd_model3?: Model3Output;
 }

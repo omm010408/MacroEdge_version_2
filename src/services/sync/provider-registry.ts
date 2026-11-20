@@ -889,19 +889,19 @@ export function isProviderConfigured(providerId: ProviderId): boolean {
     );
   }
 
+  if (providerId === "twelve_data_ws") {
+    return Boolean(process.env.TWELVE_DATA_API_KEY?.trim());
+  }
+
   if (providerId === "marketaux") {
     return Boolean(
       process.env.MARKETAUX_API_KEY?.trim() ||
-      process.env.MARKETAUX_API_TOKEN?.trim() ||
-      "Z8H8vDZtxqZLBuEEGR0q3pUvacjL6TTgvmM9K97g"
+      process.env.MARKETAUX_API_TOKEN?.trim()
     );
   }
 
   if (providerId === "api_ninjas") {
-    return Boolean(
-      process.env.API_NINJAS_API_KEY?.trim() ||
-      "HYkCvAgukUoScnKdHtdZ98OyxpFGrbfiQJt4NP22"
-    );
+    return Boolean(process.env.API_NINJAS_API_KEY?.trim());
   }
 
   if (

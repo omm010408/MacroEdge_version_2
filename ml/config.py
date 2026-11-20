@@ -37,9 +37,9 @@ FRED_API_KEY = os.getenv("FRED_API_KEY", "").strip()
 BLS_API_KEY = os.getenv("BLS_API_KEY", "").strip()
 BEA_API_KEY = os.getenv("BEA_API_KEY", "").strip()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-API_NINJAS_API_KEY = os.getenv("API_NINJAS_API_KEY", "HYkCvAgukUoScnKdHtdZ98OyxpFGrbfiQJt4NP22").strip()
+API_NINJAS_API_KEY = os.getenv("API_NINJAS_API_KEY", "").strip()
 API_NINJAS_GOLD_URL = "https://api.api-ninjas.com/v1/goldprice"
-MARKETAUX_API_KEY = os.getenv("MARKETAUX_API_KEY", "Z8H8vDZtxqZLBuEEGR0q3pUvacjL6TTgvmM9K97g").strip()
+MARKETAUX_API_KEY = os.getenv("MARKETAUX_API_KEY", "").strip()
 MARKETAUX_BASE_URL = "https://api.marketaux.com/v1"
 
 # Core FRED Series to pull from 1995-01-01 onward

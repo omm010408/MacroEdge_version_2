@@ -12,10 +12,12 @@ export async function GET(req: NextRequest) {
     const refresh = req.nextUrl.searchParams.get("refresh") === "1";
     const refreshData = req.nextUrl.searchParams.get("refreshData") === "1";
     const summaryOnly = req.nextUrl.searchParams.get("summary") === "1";
+    const rawAsset = req.nextUrl.searchParams.get("asset")?.toUpperCase();
+    const targetAsset: "XAUUSD" | "US30" = rawAsset === "US30" ? "US30" : "XAUUSD";
 
-    let snapshot = refresh ? null : await getLatestAiModelsSnapshot();
+    let snapshot = refresh ? null : await getLatestAiModelsSnapshot(targetAsset);
     if (!snapshot) {
-      snapshot = await runAiModelsInference({ refresh_data: refreshData });
+      snapshot = await runAiModelsInference({ refresh_data: refreshData, target_asset: targetAsset });
     }
 
     if (summaryOnly) {

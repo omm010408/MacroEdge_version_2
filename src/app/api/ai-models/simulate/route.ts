@@ -15,6 +15,7 @@ const ALLOWED_EVENTS = new Set([
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as {
+      target_asset?: string;
       event_type?: string;
       surprise_z?: number | null;
       consensus_overrides?: Record<string, number>;
@@ -22,6 +23,9 @@ export async function POST(req: NextRequest) {
       refresh_data?: boolean;
       use_finbert?: boolean;
     };
+
+    const targetAsset: "XAUUSD" | "US30" =
+      body.target_asset?.toUpperCase() === "US30" ? "US30" : "XAUUSD";
 
     const eventType = (body.event_type ?? "CPI").toUpperCase();
     if (!ALLOWED_EVENTS.has(eventType)) {
@@ -46,6 +50,7 @@ export async function POST(req: NextRequest) {
     }
 
     const snapshot = await runAiModelsInference({
+      target_asset: targetAsset,
       event_type: eventType,
       surprise_z: surpriseZ,
       consensus_overrides: cleanOverrides,
