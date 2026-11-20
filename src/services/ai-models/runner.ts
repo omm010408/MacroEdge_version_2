@@ -81,17 +81,35 @@ export async function getLatestAiModelsSnapshot(
   }
 }
 
-export async function getLatestAiBiasSummary(): Promise<AiBiasSummary | null> {
-  const snapshot = await getLatestAiModelsSnapshot();
-  const m4 = snapshot?.model4_macro_regime_bias;
-  if (!m4) return null;
+export async function getLatestAiBiasSummary(
+  targetAsset: "XAUUSD" | "US30" = "XAUUSD"
+): Promise<AiBiasSummary | null> {
+  const snapshot = await getLatestAiModelsSnapshot(targetAsset);
+  if (!snapshot) return null;
+  const m4 =
+    targetAsset === "US30"
+      ? (snapshot.us30_model4 ?? (snapshot.model4_macro_regime_bias?.primary_asset === "US30" ? snapshot.model4_macro_regime_bias : null))
+      : (snapshot.xauusd_model4 ?? (snapshot.model4_macro_regime_bias?.primary_asset === "XAUUSD" ? snapshot.model4_macro_regime_bias : null));
+  const fallback = m4 ?? snapshot.model4_macro_regime_bias;
+  if (!fallback) return null;
   return {
-    primary_asset: m4.primary_asset,
-    bias: m4.bias,
-    bias_score: m4.bias_score,
-    confidence_pct: m4.confidence_pct,
-    dominant_regime: m4.regime.dominant_regime,
+    primary_asset: fallback.primary_asset || targetAsset,
+    bias: fallback.bias,
+    bias_score: fallback.bias_score,
+    confidence_pct: fallback.confidence_pct,
+    dominant_regime: fallback.regime.dominant_regime,
   };
+}
+
+export async function getDualAiBiasSummary(): Promise<{
+  xauusd: AiBiasSummary | null;
+  us30: AiBiasSummary | null;
+}> {
+  const [xauusd, us30] = await Promise.all([
+    getLatestAiBiasSummary("XAUUSD"),
+    getLatestAiBiasSummary("US30"),
+  ]);
+  return { xauusd, us30 };
 }
 
 export async function getTrainingSummary(): Promise<Record<string, unknown> | null> {

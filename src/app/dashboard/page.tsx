@@ -8,15 +8,15 @@ import { MarketStatusBadge } from "@/components/cards/MarketStatusBadge";
 import { AiBiasBanner } from "@/components/cards/AiBiasBanner";
 import { CrossAssetTelemetryBoard } from "@/components/dashboard/CrossAssetTelemetryBoard";
 import { GoldUs30NewsSection } from "@/components/dashboard/GoldUs30NewsSection";
-import { getLatestAiBiasSummary } from "@/services/ai-models/runner";
+import { getDualAiBiasSummary } from "@/services/ai-models/runner";
 import { getGoldAndUs30News } from "@/services/marketaux/client";
 
 export const dynamic = "force-dynamic";
 
 export default async function PersonalDashboardPage() {
-  const [overview, aiSummary, newsData] = await Promise.all([
+  const [overview, dualAiSummary, newsData] = await Promise.all([
     getMacroOverviewData(),
-    getLatestAiBiasSummary(),
+    getDualAiBiasSummary(),
     getGoldAndUs30News(),
   ]);
 
@@ -75,7 +75,10 @@ export default async function PersonalDashboardPage() {
       </div>
 
       {/* 1-Line Overall AI Bias Banner */}
-      <AiBiasBanner initialSummary={aiSummary} />
+      <AiBiasBanner
+        initialSummary={dualAiSummary.xauusd}
+        initialUs30Summary={dualAiSummary.us30}
+      />
 
       {/* ============================================================== */}
       {/* BENTO GRID ARCHITECTURE                                        */}

@@ -1,14 +1,14 @@
 import { getMacroOverviewData } from "@/services/macro-data";
-import { getLatestAiBiasSummary } from "@/services/ai-models/runner";
+import { getDualAiBiasSummary } from "@/services/ai-models/runner";
 import { getGoldAndUs30News } from "@/services/marketaux/client";
 import { MacroOverviewView } from "@/components/views/MacroOverviewView";
 
 export const dynamic = "force-dynamic";
 
 export default async function MacrodashboardOverviewPage() {
-  const [data, aiSummary, newsData] = await Promise.all([
+  const [data, dualAiSummary, newsData] = await Promise.all([
     getMacroOverviewData(),
-    getLatestAiBiasSummary(),
+    getDualAiBiasSummary(),
     getGoldAndUs30News(),
   ]);
 
@@ -19,7 +19,8 @@ export default async function MacrodashboardOverviewPage() {
       calendarEvents={data.calendarEvents}
       correlationAssets={data.correlationAssets}
       meta={data.meta}
-      aiSummary={aiSummary}
+      aiSummary={dualAiSummary.xauusd}
+      us30AiSummary={dualAiSummary.us30}
       news={newsData.news}
       newsLastUpdated={newsData.lastUpdated}
     />

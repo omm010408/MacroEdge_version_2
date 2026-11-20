@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
 import { AutoSyncDebugModal } from "@/components/dashboard/AutoSyncDebugModal";
 import { EconomicCalendar } from "@/components/dashboard/EconomicCalendar";
+import { AiBiasBanner } from "@/components/cards/AiBiasBanner";
 import type {
   CorrelationAssetSeries,
   DatasetMeta,
@@ -331,6 +332,7 @@ interface MacroOverviewViewProps {
   correlationAssets?: CorrelationAssetSeries[];
   meta?: DatasetMeta;
   aiSummary?: AiBiasSummary | null;
+  us30AiSummary?: AiBiasSummary | null;
   news?: FilteredMarketauxArticle[];
   newsLastUpdated?: string;
 }
@@ -340,6 +342,7 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
   const [regimeFactors, setRegimeFactors] = useState<MacroRegimeFactor[]>(() => props?.regimeFactors ?? []);
   const [calendarEvents, setCalendarEvents] = useState<EconomicCalendarEvent[]>(() => props?.calendarEvents ?? []);
   const [aiSummary, setAiSummary] = useState<AiBiasSummary | null | undefined>(() => props?.aiSummary);
+  const [us30AiSummary, setUs30AiSummary] = useState<AiBiasSummary | null | undefined>(() => props?.us30AiSummary);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "success" | "error">("idle");
 
