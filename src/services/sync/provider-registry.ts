@@ -449,9 +449,10 @@ export const MARKET_INSTRUMENT_MAPPINGS: Record<MarketSymbol, InstrumentMapping>
     unit: "Index",
     decimals: 2,
     primaryProvider: "twelve_data_ws",
-    fallbackProviders: ["yfinance", "finnhub_ws", "polygon_ws"],
+    fallbackProviders: ["api_ninjas", "yfinance", "finnhub_ws", "polygon_ws"],
     externalSymbols: {
       twelve_data_ws: "DXY",
+      api_ninjas: "DX-Y.NYB",
       yfinance: "DX-Y.NYB",
       finnhub_ws: "TVC:DXY",
       polygon_ws: "I:DXY",
@@ -893,6 +894,13 @@ export function isProviderConfigured(providerId: ProviderId): boolean {
       process.env.MARKETAUX_API_KEY?.trim() ||
       process.env.MARKETAUX_API_TOKEN?.trim() ||
       "Z8H8vDZtxqZLBuEEGR0q3pUvacjL6TTgvmM9K97g"
+    );
+  }
+
+  if (providerId === "api_ninjas") {
+    return Boolean(
+      process.env.API_NINJAS_API_KEY?.trim() ||
+      "HYkCvAgukUoScnKdHtdZ98OyxpFGrbfiQJt4NP22"
     );
   }
 

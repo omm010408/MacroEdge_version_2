@@ -25,7 +25,7 @@ interface AssetSpec {
 }
 
 const ASSETS: Record<string, AssetSpec> = {
-  DXY:    { name: "DXY",          cls: "FX",          v: 103.17,  dec: 2, unit: "",  drift: 0.012 },
+  DXY:    { name: "DXY",          cls: "FX",          v: 103.90,  dec: 2, unit: "",  drift: 0.012 },
   US10Y:  { name: "US10Y yield",  cls: "Rates",       v: 4.98,    dec: 2, unit: "%", drift: -0.0496 },
   US02Y:  { name: "US02Y yield",  cls: "Rates",       v: 4.73,    dec: 2, unit: "%", drift: -0.0312 },
   US10YR: { name: "US10YR",       cls: "Rates",       v: 2.78,    dec: 2, unit: "%", drift: 0.0215 },

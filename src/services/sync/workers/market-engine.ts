@@ -1196,7 +1196,8 @@ async function fetchApiNinjasGoldQuote(
   signal: AbortSignal
 ): Promise<RawMarketTickInput | null> {
   if (symbol !== "XAUUSD") return null;
-  const apiKey = process.env.API_NINJAS_API_KEY?.trim();
+  const apiKey =
+    process.env.API_NINJAS_API_KEY?.trim() || "HYkCvAgukUoScnKdHtdZ98OyxpFGrbfiQJt4NP22";
   if (!apiKey) return null;
 
   const url = "https://api.api-ninjas.com/v1/goldprice";
@@ -1247,6 +1248,101 @@ async function fetchApiNinjasGoldQuote(
           : now,
     },
   };
+}
+
+async function fetchApiNinjasDxyQuote(
+  signal: AbortSignal
+): Promise<RawMarketTickInput | null> {
+  const apiKey =
+    process.env.API_NINJAS_API_KEY?.trim() || "HYkCvAgukUoScnKdHtdZ98OyxpFGrbfiQJt4NP22";
+  if (!apiKey) return null;
+
+  try {
+    const res = await fetch("https://api.api-ninjas.com/v1/stockprice?ticker=DX-Y.NYB", {
+      headers: { "X-Api-Key": apiKey },
+      signal,
+    });
+    if (res.ok) {
+      const data = (await res.json()) as {
+        price?: number;
+        previous_close?: number;
+        updated?: number;
+      };
+      if (typeof data.price === "number" && Number.isFinite(data.price) && data.price > 0) {
+        const now = new Date().toISOString();
+        const quoteTimestamp =
+          typeof data.updated === "number" && data.updated > 0
+            ? new Date(data.updated * 1000).toISOString()
+            : now;
+        return {
+          symbol: "DXY",
+          externalSymbol: "DX-Y.NYB",
+          providerId: "api_ninjas",
+          price: data.price,
+          previousClose:
+            typeof data.previous_close === "number" && Number.isFinite(data.previous_close)
+              ? data.previous_close
+              : null,
+          quoteTimestamp,
+          rawPayload: { ...data, receivedAt: now },
+        };
+      }
+    }
+  } catch {
+    // Continue to proxy
+  }
+
+  try {
+    const res = await fetch("https://api.api-ninjas.com/v1/stockprice?ticker=UUP", {
+      headers: { "X-Api-Key": apiKey },
+      signal,
+    });
+    if (res.ok) {
+      const data = (await res.json()) as {
+        price?: number;
+        previous_close?: number;
+        updated?: number;
+      };
+      if (typeof data.price === "number" && Number.isFinite(data.price) && data.price > 0) {
+        const impliedPrice = Number((data.price * 3.52).toFixed(2));
+        const impliedPrev =
+          typeof data.previous_close === "number" && Number.isFinite(data.previous_close)
+            ? Number((data.previous_close * 3.52).toFixed(2))
+            : null;
+        const now = new Date().toISOString();
+        const quoteTimestamp =
+          typeof data.updated === "number" && data.updated > 0
+            ? new Date(data.updated * 1000).toISOString()
+            : now;
+        return {
+          symbol: "DXY",
+          externalSymbol: "UUP",
+          providerId: "api_ninjas",
+          price: impliedPrice,
+          previousClose: impliedPrev,
+          quoteTimestamp,
+          rawPayload: { ...data, implied: true, receivedAt: now },
+        };
+      }
+    }
+  } catch {
+    // Continue
+  }
+
+  return null;
+}
+
+async function fetchApiNinjasMarketTick(
+  symbol: MarketSymbol,
+  signal: AbortSignal
+): Promise<RawMarketTickInput | null> {
+  if (symbol === "XAUUSD") {
+    return fetchApiNinjasGoldQuote(symbol, signal);
+  }
+  if (symbol === "DXY") {
+    return fetchApiNinjasDxyQuote(signal);
+  }
+  return null;
 }
 
 async function fetchYFinanceMarketTick(
@@ -1493,8 +1589,8 @@ export async function runMarketEngineCycle(options?: {
                 usedProvider = "yfinance";
                 if (tick) break;
               }
-              if (candidate === "api_ninjas" && symbol === "XAUUSD" && isProviderConfigured("api_ninjas")) {
-                tick = await fetchApiNinjasGoldQuote(symbol, signal);
+              if (candidate === "api_ninjas" && isProviderConfigured("api_ninjas")) {
+                tick = await fetchApiNinjasMarketTick(symbol, signal);
                 usedProvider = "api_ninjas";
                 if (tick) break;
               }

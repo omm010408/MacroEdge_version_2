@@ -1,7 +1,7 @@
 {
   "asset": "XAUUSD",
   "overall_bias": "BEARISH",
-  "confidence": 0.73,
+  "confidence": 0.716,
   "macro_regime": {
     "current_regime": "State 0 (Tight Policy/Yields)",
     "regime_probability": 0.542,
@@ -425,10 +425,10 @@
     },
     {
       "factor": "US Dollar Index (DXY)",
-      "current_value": "103.17",
-      "z_score": 0.48,
+      "current_value": "103.90",
+      "z_score": 0.69,
       "signal": "BEARISH GOLD",
-      "contribution": -7.4
+      "contribution": -10.3
     },
     {
       "factor": "Fed Real Policy Stance",
@@ -497,7 +497,7 @@
     "abstain": false,
     "reason": "Active Directional Stance",
     "calibrated_threshold": 0.05,
-    "confidence_level": 0.73
+    "confidence_level": 0.716
   },
   "data_quality_status": {
     "status": "VALIDATED_WITH_DOCUMENTED_CONSTRAINTS",
@@ -550,11 +550,11 @@
       "status": "PROMOTED"
     }
   ],
-  "generated_at": "2026-11-20T13:07:48.904322+00:00",
+  "generated_at": "2026-11-20T13:53:41.931462+00:00",
   "phase8_macro_reasoning": {
     "asset": "XAUUSD",
     "overall_bias": "BEARISH",
-    "confidence": 0.73,
+    "confidence": 0.716,
     "macro_regime": {
       "current_regime": "State 0 (Tight Policy/Yields)",
       "regime_probability": 0.542,
@@ -978,10 +978,10 @@
       },
       {
         "factor": "US Dollar Index (DXY)",
-        "current_value": "103.17",
-        "z_score": 0.48,
+        "current_value": "103.90",
+        "z_score": 0.69,
         "signal": "BEARISH GOLD",
-        "contribution": -7.4
+        "contribution": -10.3
       },
       {
         "factor": "Fed Real Policy Stance",
@@ -1050,7 +1050,7 @@
       "abstain": false,
       "reason": "Active Directional Stance",
       "calibrated_threshold": 0.05,
-      "confidence_level": 0.73
+      "confidence_level": 0.716
     },
     "data_quality_status": {
       "status": "VALIDATED_WITH_DOCUMENTED_CONSTRAINTS",
@@ -7362,13 +7362,13 @@
   },
   "model3_market_reaction": {
     "model": "Model 3 \u2014 Conditional Market Reaction to US Macro Surprises",
-    "generated_at": "2026-11-20T13:07:48.904235+00:00",
+    "generated_at": "2026-11-20T13:53:41.931424+00:00",
     "event_type": "CPI",
     "input_surprise_z": 0.0,
     "spot_xauusd": 3919.7,
     "market_conditions": {
       "real10y_level": 1.96,
-      "dxy_level": 103.17,
+      "dxy_level": 103.9,
       "vix_level": 18.7
     },
     "horizons": {
@@ -7475,16 +7475,16 @@
   },
   "model4_macro_regime_bias": {
     "model": "Model 4 \u2014 Point-in-Time Macro Regime (Rules + Causal HMM/GMM/K-Means) + Bias Engine",
-    "generated_at": "2026-11-20T13:07:48.904221+00:00",
+    "generated_at": "2026-11-20T13:53:41.931419+00:00",
     "as_of_date": "2026-11-20",
     "primary_asset": "XAUUSD",
     "spot_xauusd": 3919.7,
     "bias": "BEARISH",
-    "bias_score": -13.6,
-    "confidence_pct": 73.0,
-    "uncertainty": 0.27,
+    "bias_score": -15.4,
+    "confidence_pct": 71.6,
+    "uncertainty": 0.284,
     "uncertainty_breakdown": {
-      "cross_model_disagreement": 0.22,
+      "cross_model_disagreement": 0.25,
       "news_ambiguity": 0.42,
       "regime_entropy": 0.084
     },
@@ -7500,9 +7500,9 @@
       "historical_xau_4w_win_rate": 0.539
     },
     "component_scores": {
-      "transparent_macro_rules": -25.6,
-      "statistical_regime_ml": -18.4,
-      "ml_prob_up_4w": 0.408,
+      "transparent_macro_rules": -28.5,
+      "statistical_regime_ml": -21.8,
+      "ml_prob_up_4w": 0.391,
       "model1_economic_surprise": -0.0,
       "model2_news_intelligence": 0.0,
       "model3_market_reaction": 0.0
@@ -7510,11 +7510,11 @@
     "cross_asset_biases": {
       "XAUUSD": {
         "bias": "BEARISH",
-        "score": -13.6
+        "score": -15.4
       },
       "DXY": {
         "bias": "BULLISH",
-        "score": 15.3
+        "score": 19.5
       },
       "SPX500": {
         "bias": "BEARISH",
@@ -7538,10 +7538,10 @@
       {
         "factor": "US Dollar Index (DXY)",
         "key": "dollar_z",
-        "current_value": "103.17",
-        "z_score": 0.48,
+        "current_value": "103.90",
+        "z_score": 0.69,
         "weight": -24.0,
-        "xauusd_contribution": -7.4,
+        "xauusd_contribution": -10.3,
         "signal": "BEARISH GOLD"
       },
       {
@@ -7598,8 +7598,8 @@
       },
       {
         "trigger": "Dollar Trend Flip",
-        "condition": "DXY closes decisively below 101.67",
-        "current": "103.17"
+        "condition": "DXY closes decisively below 102.40",
+        "current": "103.90"
       },
       {
         "trigger": "Volatility / Risk Override",

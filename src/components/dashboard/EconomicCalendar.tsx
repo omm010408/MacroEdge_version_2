@@ -262,20 +262,12 @@ export function EconomicCalendar({
       });
     }
 
-    // 2. Overlay props.events (passed from server or parent views)
+    // 2. Overlay props.events ONLY if matching Forex Factory event or explicit ff- ID
     for (const ev of events) {
-      const iso = extractPreciseIso(ev, todayKey);
-      const impact: ForexFactoryImpact =
-        ev.importance === "HIGH"
-          ? "HIGH"
-          : ev.importance === "MEDIUM"
-          ? "MEDIUM"
-          : ev.importance === "NON_ECONOMIC"
-          ? "NON_ECONOMIC"
-          : "LOW";
-
       const currency = ev.currency ?? (ev.country === "US" ? "USD" : ev.country);
-      const existing = itemMap.get(ev.id);
+      const existing = itemMap.get(ev.id) || Array.from(itemMap.values()).find(
+        (it) => it.name.toLowerCase() === ev.event.toLowerCase() && it.currency === currency
+      );
 
       if (existing) {
         if (ev.actual !== null && ev.actual !== undefined && ev.actual !== "") {
@@ -287,8 +279,20 @@ export function EconomicCalendar({
         if (ev.previous && ev.previous !== "—") {
           existing.previous = ev.previous;
         }
-        itemMap.set(ev.id, existing);
-      } else {
+        if (ev.betterThanExpected !== undefined && ev.betterThanExpected !== null) {
+          existing.betterThanExpected = ev.betterThanExpected;
+        }
+        itemMap.set(existing.id, existing);
+      } else if (ev.id.startsWith("ff-")) {
+        const iso = extractPreciseIso(ev, todayKey);
+        const impact: ForexFactoryImpact =
+          ev.importance === "HIGH"
+            ? "HIGH"
+            : ev.importance === "MEDIUM"
+            ? "MEDIUM"
+            : ev.importance === "NON_ECONOMIC"
+            ? "NON_ECONOMIC"
+            : "LOW";
         itemMap.set(ev.id, {
           id: ev.id,
           t: iso,

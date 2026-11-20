@@ -60,13 +60,17 @@ export function getInstitutionalForexFactoryDocket(anchorIso = new Date().toISOS
     return dt.toISOString().slice(0, 10);
   };
 
+  const dayMinus7 = offsetDate(-7);
+  const dayMinus4 = offsetDate(-4);
+  const dayMinus3 = offsetDate(-3);
+  const dayMinus2 = offsetDate(-2);
   const dayMinus1 = offsetDate(-1);
   const day0 = offsetDate(0);
   const dayPlus1 = offsetDate(1);
-  const dayPlus2 = offsetDate(2);
   const dayPlus3 = offsetDate(3);
   const dayPlus4 = offsetDate(4);
   const dayPlus5 = offsetDate(5);
+  const dayPlus6 = offsetDate(6);
 
   const rawEvents: Array<{
     dateStr: string;
@@ -78,7 +82,73 @@ export function getInstitutionalForexFactoryDocket(anchorIso = new Date().toISOS
     previous: string;
     actual: string | null;
   }> = [
-    // Yesterday (Completed releases with actuals)
+    // --- Prior Week: Friday Nov 13 ---
+    {
+      dateStr: dayMinus7,
+      timeStr: "13:30",
+      currency: "USD",
+      title: "Core PPI m/m",
+      impact: "HIGH",
+      forecast: "0.3%",
+      previous: "0.8%",
+      actual: "0.3%",
+    },
+    {
+      dateStr: dayMinus7,
+      timeStr: "13:30",
+      currency: "USD",
+      title: "PPI m/m",
+      impact: "HIGH",
+      forecast: "0.4%",
+      previous: "1.4%",
+      actual: "0.3%",
+    },
+
+    // --- Current Week: Monday Nov 16 ---
+    {
+      dateStr: dayMinus4,
+      timeStr: "17:00",
+      currency: "USD",
+      title: "Fed Chairman Warsh Speaks",
+      impact: "HIGH",
+      forecast: "—",
+      previous: "—",
+      actual: null,
+    },
+
+    // --- Current Week: Tuesday Nov 17 ---
+    {
+      dateStr: dayMinus3,
+      timeStr: "13:30",
+      currency: "USD",
+      title: "Core Retail Sales m/m",
+      impact: "HIGH",
+      forecast: "0.4%",
+      previous: "1.1%",
+      actual: "0.6%",
+    },
+    {
+      dateStr: dayMinus3,
+      timeStr: "13:30",
+      currency: "USD",
+      title: "Retail Sales m/m",
+      impact: "HIGH",
+      forecast: "0.1%",
+      previous: "0.8%",
+      actual: "0.2%",
+    },
+
+    // --- Current Week: Thursday Nov 19 (Yesterday) ---
+    {
+      dateStr: dayMinus2, // Nov 18 19:00 UTC = 12:30am Thu Nov 19 Local
+      timeStr: "19:00",
+      currency: "USD",
+      title: "FOMC Meeting Minutes",
+      impact: "HIGH",
+      forecast: "—",
+      previous: "—",
+      actual: null,
+    },
     {
       dateStr: dayMinus1,
       timeStr: "07:00",
@@ -93,34 +163,25 @@ export function getInstitutionalForexFactoryDocket(anchorIso = new Date().toISOS
       dateStr: dayMinus1,
       timeStr: "13:30",
       currency: "USD",
-      title: "Building Permits",
-      impact: "MEDIUM",
-      forecast: "1.43M",
-      previous: "1.42M",
-      actual: "1.41M",
+      title: "Philly Fed Manufacturing Index",
+      impact: "HIGH",
+      forecast: "20.6",
+      previous: "20.9",
+      actual: "6.3",
     },
     {
       dateStr: dayMinus1,
       timeStr: "13:30",
       currency: "USD",
-      title: "Housing Starts",
+      title: "Unemployment Claims",
       impact: "MEDIUM",
-      forecast: "1.34M",
-      previous: "1.35M",
-      actual: "1.31M",
-    },
-    {
-      dateStr: dayMinus1,
-      timeStr: "15:30",
-      currency: "USD",
-      title: "Crude Oil Inventories",
-      impact: "MEDIUM",
-      forecast: "0.8M",
-      previous: "2.1M",
-      actual: "0.5M",
+      forecast: "198K",
+      previous: "202K",
+      actual: "203K",
     },
 
-    // Today (Active trading session docket)
+    // --- Current Week: Friday Nov 20 (TODAY) ---
+    // In Forex Factory, exactly 2 USD releases on Friday Nov 20 at 8:30pm Local (15:00 UTC)
     {
       dateStr: day0,
       timeStr: "00:50",
@@ -130,6 +191,16 @@ export function getInstitutionalForexFactoryDocket(anchorIso = new Date().toISOS
       forecast: "-0.36T",
       previous: "-0.29T",
       actual: "-0.46T",
+    },
+    {
+      dateStr: day0,
+      timeStr: "07:00",
+      currency: "GBP",
+      title: "Retail Sales m/m",
+      impact: "HIGH",
+      forecast: "-0.3%",
+      previous: "0.3%",
+      actual: "-0.7%",
     },
     {
       dateStr: day0,
@@ -164,65 +235,35 @@ export function getInstitutionalForexFactoryDocket(anchorIso = new Date().toISOS
     {
       dateStr: day0,
       timeStr: "13:30",
-      currency: "USD",
-      title: "Unemployment Claims (Initial Jobless)",
+      currency: "CAD",
+      title: "Core Retail Sales m/m",
       impact: "HIGH",
-      forecast: "215K",
-      previous: "217K",
-      actual: "213K",
+      forecast: "0.5%",
+      previous: "-0.7%",
+      actual: null,
     },
     {
       dateStr: day0,
-      timeStr: "13:30",
+      timeStr: "15:00", // 8:30pm Local GMT+5:30
       currency: "USD",
-      title: "Philly Fed Manufacturing Index",
-      impact: "HIGH",
-      forecast: "8.2",
-      previous: "10.3",
-      actual: "-5.5",
-    },
-    {
-      dateStr: day0,
-      timeStr: "15:00",
-      currency: "USD",
-      title: "Existing Home Sales",
+      title: "Revised UoM Consumer Sentiment",
       impact: "MEDIUM",
-      forecast: "3.95M",
-      previous: "3.84M",
+      forecast: "51.7",
+      previous: "51.0",
       actual: null,
     },
     {
       dateStr: day0,
-      timeStr: "15:00",
+      timeStr: "15:00", // 8:30pm Local GMT+5:30
       currency: "USD",
-      title: "CB Leading Index m/m",
-      impact: "LOW",
-      forecast: "-0.3%",
-      previous: "-0.5%",
-      actual: null,
-    },
-    {
-      dateStr: day0,
-      timeStr: "15:30",
-      currency: "USD",
-      title: "Natural Gas Storage",
-      impact: "LOW",
-      forecast: "-3B",
-      previous: "42B",
-      actual: null,
-    },
-    {
-      dateStr: day0,
-      timeStr: "19:00",
-      currency: "USD",
-      title: "FOMC Member Hammack Speaks",
+      title: "Revised UoM Inflation Expectations",
       impact: "MEDIUM",
       forecast: "—",
-      previous: "—",
+      previous: "4.3%",
       actual: null,
     },
 
-    // Tomorrow (Upcoming key high-impact volatility events)
+    // --- Weekend: Saturday Nov 21 ---
     {
       dateStr: dayPlus1,
       timeStr: "00:01",
@@ -233,38 +274,10 @@ export function getInstitutionalForexFactoryDocket(anchorIso = new Date().toISOS
       previous: "-21",
       actual: null,
     },
+
+    // --- Next Week: Monday Nov 23 ---
     {
-      dateStr: dayPlus1,
-      timeStr: "00:30",
-      currency: "JPY",
-      title: "National Core CPI y/y",
-      impact: "HIGH",
-      forecast: "2.2%",
-      previous: "2.4%",
-      actual: null,
-    },
-    {
-      dateStr: dayPlus1,
-      timeStr: "07:00",
-      currency: "GBP",
-      title: "Retail Sales m/m",
-      impact: "HIGH",
-      forecast: "-0.3%",
-      previous: "0.3%",
-      actual: null,
-    },
-    {
-      dateStr: dayPlus1,
-      timeStr: "08:15",
-      currency: "EUR",
-      title: "French Flash Manufacturing PMI",
-      impact: "MEDIUM",
-      forecast: "44.6",
-      previous: "44.5",
-      actual: null,
-    },
-    {
-      dateStr: dayPlus1,
+      dateStr: dayPlus3,
       timeStr: "08:30",
       currency: "EUR",
       title: "German Flash Manufacturing PMI",
@@ -274,17 +287,7 @@ export function getInstitutionalForexFactoryDocket(anchorIso = new Date().toISOS
       actual: null,
     },
     {
-      dateStr: dayPlus1,
-      timeStr: "09:00",
-      currency: "EUR",
-      title: "Flash Manufacturing PMI",
-      impact: "HIGH",
-      forecast: "46.0",
-      previous: "46.0",
-      actual: null,
-    },
-    {
-      dateStr: dayPlus1,
+      dateStr: dayPlus3,
       timeStr: "09:30",
       currency: "GBP",
       title: "Flash Services PMI",
@@ -294,87 +297,27 @@ export function getInstitutionalForexFactoryDocket(anchorIso = new Date().toISOS
       actual: null,
     },
     {
-      dateStr: dayPlus1,
-      timeStr: "13:30",
-      currency: "CAD",
-      title: "Core Retail Sales m/m",
-      impact: "HIGH",
-      forecast: "0.5%",
-      previous: "-0.7%",
-      actual: null,
-    },
-    {
-      dateStr: dayPlus1,
-      timeStr: "14:45",
+      dateStr: dayPlus3,
+      timeStr: "14:45", // 8:15pm Local
       currency: "USD",
       title: "Flash Manufacturing PMI",
-      impact: "HIGH",
-      forecast: "48.8",
-      previous: "48.5",
+      impact: "MEDIUM",
+      forecast: "54.6",
+      previous: "54.9",
       actual: null,
     },
     {
-      dateStr: dayPlus1,
-      timeStr: "14:45",
+      dateStr: dayPlus3,
+      timeStr: "14:45", // 8:15pm Local
       currency: "USD",
       title: "Flash Services PMI",
-      impact: "HIGH",
-      forecast: "55.0",
-      previous: "55.0",
-      actual: null,
-    },
-    {
-      dateStr: dayPlus1,
-      timeStr: "15:00",
-      currency: "USD",
-      title: "Revised UoM Consumer Sentiment",
-      impact: "HIGH",
-      forecast: "73.9",
-      previous: "73.0",
-      actual: null,
-    },
-    {
-      dateStr: dayPlus1,
-      timeStr: "15:00",
-      currency: "USD",
-      title: "Revised UoM Inflation Expectations",
       impact: "MEDIUM",
-      forecast: "2.6%",
-      previous: "2.6%",
+      forecast: "55.8",
+      previous: "56.1",
       actual: null,
     },
 
-    // Next Week Docket
-    {
-      dateStr: dayPlus2,
-      timeStr: "01:00",
-      currency: "NZD",
-      title: "Official Cash Rate (RBNZ Rate Decision)",
-      impact: "HIGH",
-      forecast: "4.25%",
-      previous: "4.75%",
-      actual: null,
-    },
-    {
-      dateStr: dayPlus3,
-      timeStr: "09:00",
-      currency: "EUR",
-      title: "German Ifo Business Climate",
-      impact: "HIGH",
-      forecast: "85.6",
-      previous: "86.5",
-      actual: null,
-    },
-    {
-      dateStr: dayPlus3,
-      timeStr: "13:30",
-      currency: "USD",
-      title: "Durable Goods Orders m/m",
-      impact: "HIGH",
-      forecast: "0.5%",
-      previous: "-0.7%",
-      actual: null,
-    },
+    // --- Next Week: Tuesday Nov 24 ---
     {
       dateStr: dayPlus4,
       timeStr: "00:30",
@@ -387,24 +330,36 @@ export function getInstitutionalForexFactoryDocket(anchorIso = new Date().toISOS
     },
     {
       dateStr: dayPlus4,
-      timeStr: "13:30",
-      currency: "USD",
-      title: "Prelim GDP q/q (BEA)",
+      timeStr: "01:00",
+      currency: "NZD",
+      title: "Official Cash Rate (RBNZ Rate Decision)",
       impact: "HIGH",
-      forecast: "2.8%",
-      previous: "3.0%",
+      forecast: "4.25%",
+      previous: "4.75%",
       actual: null,
     },
     {
       dateStr: dayPlus4,
-      timeStr: "13:30",
-      currency: "USD",
-      title: "Core PCE Price Index m/m",
+      timeStr: "09:00",
+      currency: "EUR",
+      title: "German Ifo Business Climate",
       impact: "HIGH",
-      forecast: "0.3%",
-      previous: "0.3%",
+      forecast: "85.6",
+      previous: "86.5",
       actual: null,
     },
+    {
+      dateStr: dayPlus4,
+      timeStr: "15:00", // 8:30pm Local
+      currency: "USD",
+      title: "CB Consumer Confidence",
+      impact: "MEDIUM",
+      forecast: "92.1",
+      previous: "91.7",
+      actual: null,
+    },
+
+    // --- Next Week: Wednesday Nov 25 ---
     {
       dateStr: dayPlus5,
       timeStr: "01:30",
@@ -423,6 +378,58 @@ export function getInstitutionalForexFactoryDocket(anchorIso = new Date().toISOS
       impact: "HIGH",
       forecast: "2.3%",
       previous: "2.0%",
+      actual: null,
+    },
+    {
+      dateStr: dayPlus5,
+      timeStr: "13:30", // 7:00pm Local
+      currency: "USD",
+      title: "Core PCE Price Index m/m",
+      impact: "HIGH",
+      forecast: "0.3%",
+      previous: "0.3%",
+      actual: null,
+    },
+    {
+      dateStr: dayPlus5,
+      timeStr: "13:30", // 7:00pm Local
+      currency: "USD",
+      title: "Prelim GDP q/q",
+      impact: "HIGH",
+      forecast: "3.5%",
+      previous: "3.4%",
+      actual: null,
+    },
+    {
+      dateStr: dayPlus5,
+      timeStr: "13:30", // 7:00pm Local
+      currency: "USD",
+      title: "Prelim GDP Price Index q/q",
+      impact: "MEDIUM",
+      forecast: "2.3%",
+      previous: "2.3%",
+      actual: null,
+    },
+    {
+      dateStr: dayPlus5,
+      timeStr: "13:30", // 7:00pm Local
+      currency: "USD",
+      title: "Unemployment Claims",
+      impact: "MEDIUM",
+      forecast: "200K",
+      previous: "203K",
+      actual: null,
+    },
+
+    // --- Next Week: Thursday Nov 26 ---
+    {
+      dateStr: dayPlus6,
+      timeStr: "12:00",
+      currency: "USD",
+      title: "Bank Holiday",
+      impact: "NON_ECONOMIC",
+      forecast: "—",
+      previous: "—",
       actual: null,
     },
   ];

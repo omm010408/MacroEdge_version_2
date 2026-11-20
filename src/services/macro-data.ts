@@ -365,16 +365,14 @@ export async function getMacroOverviewData() {
     // Non-blocking fallback
   }
 
-  // Specifically ensure DXY is populated with live ICE Dollar Index
-  if (!quoteMap.has("DXY")) {
-    try {
-      const dxyQuote = await getYFinanceQuote("DXY");
-      if (dxyQuote) {
-        quoteMap.set("DXY", dxyQuote);
-      }
-    } catch {
-      // Non-blocking
+  // Specifically ensure DXY is populated with live ICE Dollar Index / API Ninjas / Yahoo Finance
+  try {
+    const dxyQuote = await getYFinanceQuote("DXY");
+    if (dxyQuote && Number.isFinite(dxyQuote.price) && dxyQuote.price > 0) {
+      quoteMap.set("DXY", dxyQuote);
     }
+  } catch {
+    // Non-blocking
   }
 
   const barsBySymbol = new Map<MarketSymbol, { t: string; v: number }[]>();
