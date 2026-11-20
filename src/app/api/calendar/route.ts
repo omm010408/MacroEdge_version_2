@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import {
   exportForexFactoryCsv,
   exportForexFactoryJson,
-  getForexFactoryCalendar,
   toEconomicCalendarEvent,
 } from "@/services/data/forex-factory";
+import { getForexFactoryCalendar } from "@/services/data/forex-factory.server";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {

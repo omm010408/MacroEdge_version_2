@@ -1,5 +1,3 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import type { EconomicCalendarEvent } from "@/lib/types";
 
 export type ForexFactoryImpact = "HIGH" | "MEDIUM" | "LOW" | "NON_ECONOMIC";
@@ -28,7 +26,7 @@ export interface ForexFactoryRawItem {
   actual?: string;
 }
 
-const CACHE_FILE_PATH = path.join(process.cwd(), "ml", "data", "forex_factory_calendar.json");
+
 
 export const G10_CURRENCIES = ["USD", "EUR", "GBP", "JPY", "CAD", "AUD", "CHF", "NZD", "CNY"] as const;
 export type SupportedCurrency = (typeof G10_CURRENCIES)[number];
@@ -557,111 +555,7 @@ export function normalizeForexFactoryItem(
   };
 }
 
-/**
- * Primary fetch service: Fetches live Forex Factory calendar with disk caching and offline fallback.
- */
-export async function getForexFactoryCalendar(options?: {
-  forceRefresh?: boolean;
-}): Promise<{
-  events: ForexFactoryEvent[];
-  source: "live_nfs" | "disk_cache" | "institutional_docket";
-  lastUpdated: string;
-}> {
-  const force = options?.forceRefresh ?? false;
 
-  // 1. Try reading disk cache first if recent and not forcing refresh
-  if (!force) {
-    try {
-      const stat = await fs.stat(CACHE_FILE_PATH);
-      const ageMs = Date.now() - stat.mtimeMs;
-      if (ageMs < 3600_000) {
-        // Cached less than 1 hour ago
-        const raw = await fs.readFile(CACHE_FILE_PATH, "utf-8");
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return {
-            events: parsed,
-            source: "disk_cache",
-            lastUpdated: new Date(stat.mtimeMs).toISOString(),
-          };
-        }
-      }
-    } catch {
-      // Continue to live fetch
-    }
-  }
-
-  // 2. Fetch live Forex Factory / Fair Economy media calendar feeds
-  try {
-    const urls = [
-      "https://nfs.faireconomy.media/ff_calendar_thisweek.json",
-      "https://nfs.faireconomy.media/ff_calendar_nextweek.json",
-    ];
-
-    const responses = await Promise.allSettled(
-      urls.map(async (u) => {
-        const res = await fetch(u, {
-          headers: {
-            "User-Agent": "MacroEdge-QuantCalendar/2.0 (Institutional Risk Platform)",
-            Accept: "application/json",
-          },
-          signal: AbortSignal.timeout(6000),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return (await res.json()) as ForexFactoryRawItem[];
-      })
-    );
-
-    const mergedRaw: ForexFactoryRawItem[] = [];
-    for (const r of responses) {
-      if (r.status === "fulfilled" && Array.isArray(r.value)) {
-        mergedRaw.push(...r.value);
-      }
-    }
-
-    if (mergedRaw.length > 0) {
-      const normalized = mergedRaw.map((item, idx) => normalizeForexFactoryItem(item, idx));
-      // Save to disk cache
-      try {
-        await fs.mkdir(path.dirname(CACHE_FILE_PATH), { recursive: true });
-        await fs.writeFile(CACHE_FILE_PATH, JSON.stringify(normalized, null, 2), "utf-8");
-      } catch {
-        // Non-fatal
-      }
-
-      return {
-        events: normalized,
-        source: "live_nfs",
-        lastUpdated: new Date().toISOString(),
-      };
-    }
-  } catch {
-    // Continue to fallback
-  }
-
-  // 3. Fallback to existing disk cache if present
-  try {
-    const raw = await fs.readFile(CACHE_FILE_PATH, "utf-8");
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return {
-        events: parsed,
-        source: "disk_cache",
-        lastUpdated: new Date().toISOString(),
-      };
-    }
-  } catch {
-    // Fallback to institutional docket
-  }
-
-  // 4. Resilient institutional fallback docket
-  const institutional = getInstitutionalForexFactoryDocket();
-  return {
-    events: institutional,
-    source: "institutional_docket",
-    lastUpdated: new Date().toISOString(),
-  };
-}
 
 /**
  * Converts ForexFactoryEvent into standard EconomicCalendarEvent for seamless UI compatibility.
