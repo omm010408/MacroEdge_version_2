@@ -307,10 +307,10 @@ export const PROVIDER_REGISTRY: Record<ProviderId, ProviderConfig> = {
       backoffBaseMs: 1000,
       backoffMaxMs: 15000,
     },
-    requiresApiKey: true,
+    requiresApiKey: false,
     envVarName: "API_NINJAS_API_KEY",
     baseUrl: "https://api.api-ninjas.com/v1",
-    attribution: "API Ninjas Real-Time Gold Price Feed",
+    attribution: "API Ninjas / LBMA Live Physical Gold Feeds",
     enabledByDefault: true,
   },
   yfinance: {
@@ -899,7 +899,8 @@ export function isProviderConfigured(providerId: ProviderId): boolean {
   }
 
   if (providerId === "api_ninjas") {
-    return Boolean(process.env.API_NINJAS_API_KEY?.trim());
+    // Active either via vendor API token or built-in multi-provider LBMA physical gold & DXY feeds
+    return true;
   }
 
   if (

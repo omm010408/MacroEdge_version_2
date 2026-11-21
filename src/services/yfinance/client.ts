@@ -93,8 +93,7 @@ export async function updateYFinanceCacheEntry(
 export async function fetchDirectApiNinjasDxyQuote(
   signal?: AbortSignal
 ): Promise<{ price: number; previousClose: number | null; timestamp: string } | null> {
-  const apiKey =
-    process.env.API_NINJAS_API_KEY?.trim() || "HYkCvAgukUoScnKdHtdZ98OyxpFGrbfiQJt4NP22";
+  const apiKey = process.env.API_NINJAS_API_KEY?.trim();
   if (!apiKey) return null;
 
   try {

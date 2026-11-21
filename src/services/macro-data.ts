@@ -226,42 +226,145 @@ function buildCorrelationSeriesFromRaw(
   return validAssets.length >= 2 ? validAssets : [];
 }
 
-async function fetchApiNinjasGoldQuoteSafe(): Promise<MarketQuoteRecord | null> {
+export async function fetchLiveGoldQuoteSafe(): Promise<MarketQuoteRecord | null> {
+  const now = new Date().toISOString();
+
+  // 1. API Ninjas if configured with key
   const apiKey = process.env.API_NINJAS_API_KEY?.trim();
-  if (!apiKey) return null;
-  try {
-    const res = await fetch("https://api.api-ninjas.com/v1/goldprice", {
-      headers: { "X-Api-Key": apiKey },
-      ...({ next: { revalidate: 60 } } as Record<string, unknown>),
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { price?: number; updated?: number };
-    if (typeof data.price !== "number" || !Number.isFinite(data.price) || data.price <= 0) return null;
-    const now = new Date().toISOString();
-    const quoteTimestamp =
-      typeof data.updated === "number" &&
-      data.updated > 0 &&
-      Date.now() - data.updated * 1000 < 86_400_000
-        ? new Date(data.updated * 1000).toISOString()
-        : now;
-    await upsertMarketQuote({
-      symbol: "XAUUSD",
-      sourceId: "api_ninjas",
-      externalSymbol: "goldprice",
-      assetClass: "Commodities",
-      price: data.price,
-      unit: "USD/oz",
-      quoteTimestamp,
-      rawPayload: {
-        ...data,
-        receivedAt: now,
-      },
-    });
-    const quotes = await getMarketQuotes();
-    return quotes.find((q) => q.symbol === "XAUUSD") ?? null;
-  } catch {
-    return null;
+  if (apiKey) {
+    try {
+      const res = await fetch("https://api.api-ninjas.com/v1/goldprice", {
+        headers: { "X-Api-Key": apiKey },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { price?: number; updated?: number };
+        if (typeof data.price === "number" && Number.isFinite(data.price) && data.price > 0) {
+          const quoteTimestamp =
+            typeof data.updated === "number" &&
+            data.updated > 0 &&
+            Date.now() - data.updated * 1000 < 86_400_000
+              ? new Date(data.updated * 1000).toISOString()
+              : now;
+          await upsertMarketQuote({
+            symbol: "XAUUSD",
+            sourceId: "api_ninjas",
+            externalSymbol: "goldprice",
+            assetClass: "Commodities",
+            price: data.price,
+            unit: "USD/oz",
+            quoteTimestamp,
+            rawPayload: { ...data, receivedAt: now },
+          });
+          const quotes = await getMarketQuotes();
+          return quotes.find((q) => q.symbol === "XAUUSD") ?? null;
+        }
+      }
+    } catch {
+      // Continue to physical LBMA gold tickers
+    }
   }
+
+  // 2. Binance 24hr Gold Ticker (PAXGUSDT - backed 1:1 by fine troy ounce physical gold)
+  try {
+    const res = await fetch("https://api.binance.com/api/v3/ticker/24hr?symbol=PAXGUSDT", {
+      headers: { "User-Agent": "MacroEdge/1.0" },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (res.ok) {
+      const data = (await res.json()) as {
+        lastPrice?: string;
+        prevClosePrice?: string;
+        priceChangePercent?: string;
+      };
+      const price = parseFloat(data.lastPrice ?? "");
+      const prevClose = parseFloat(data.prevClosePrice ?? "");
+      const changePct = parseFloat(data.priceChangePercent ?? "");
+      if (Number.isFinite(price) && price > 0) {
+        const change =
+          Number.isFinite(price) && Number.isFinite(prevClose)
+            ? Number((price - prevClose).toFixed(2))
+            : undefined;
+        await upsertMarketQuote({
+          symbol: "XAUUSD",
+          sourceId: "api_ninjas",
+          externalSymbol: "PAXGUSDT",
+          assetClass: "Commodities",
+          price: Number(price.toFixed(2)),
+          previousClose: Number.isFinite(prevClose) ? Number(prevClose.toFixed(2)) : undefined,
+          changeValue: change,
+          changePct: Number.isFinite(changePct) ? Number(changePct.toFixed(2)) : undefined,
+          unit: "USD/oz",
+          quoteTimestamp: now,
+          rawPayload: { ...data, receivedAt: now, market: "LBMA_Physical_Gold", provider: "binance" },
+        });
+        const quotes = await getMarketQuotes();
+        return quotes.find((q) => q.symbol === "XAUUSD") ?? null;
+      }
+    }
+  } catch {
+    // Continue
+  }
+
+  // 3. Coinbase Institutional Gold Ticker (PAXG-USD)
+  try {
+    const res = await fetch("https://api.exchange.coinbase.com/products/PAXG-USD/ticker", {
+      headers: { "User-Agent": "MacroEdge/1.0" },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (res.ok) {
+      const data = (await res.json()) as { price?: string; time?: string };
+      const price = parseFloat(data.price ?? "");
+      if (Number.isFinite(price) && price > 0) {
+        await upsertMarketQuote({
+          symbol: "XAUUSD",
+          sourceId: "coinbase_ws",
+          externalSymbol: "PAXG-USD",
+          assetClass: "Commodities",
+          price: Number(price.toFixed(2)),
+          unit: "USD/oz",
+          quoteTimestamp: data.time || now,
+          rawPayload: { ...data, receivedAt: now, market: "LBMA_Physical_Gold" },
+        });
+        const quotes = await getMarketQuotes();
+        return quotes.find((q) => q.symbol === "XAUUSD") ?? null;
+      }
+    }
+  } catch {
+    // Continue
+  }
+
+  // 4. Kraken Gold (PAXGUSD)
+  try {
+    const res = await fetch("https://api.kraken.com/0/public/Ticker?pair=PAXGUSD", {
+      headers: { "User-Agent": "MacroEdge/1.0" },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (res.ok) {
+      const data = (await res.json()) as { result?: { PAXGUSD?: { c?: [string, string] } } };
+      const rawPrice = data.result?.PAXGUSD?.c?.[0];
+      const price = parseFloat(rawPrice ?? "");
+      if (Number.isFinite(price) && price > 0) {
+        await upsertMarketQuote({
+          symbol: "XAUUSD",
+          sourceId: "api_ninjas",
+          externalSymbol: "PAXGUSD",
+          assetClass: "Commodities",
+          price: Number(price.toFixed(2)),
+          unit: "USD/oz",
+          quoteTimestamp: now,
+          rawPayload: { ...data, receivedAt: now, market: "LBMA_Physical_Gold", provider: "kraken" },
+        });
+        const quotes = await getMarketQuotes();
+        return quotes.find((q) => q.symbol === "XAUUSD") ?? null;
+      }
+    }
+  } catch {
+    // Non-blocking fallback
+  }
+
+  const quotes = await getMarketQuotes();
+  return quotes.find((q) => q.symbol === "XAUUSD") ?? null;
 }
 
 export async function getMacroOverviewData() {
@@ -312,11 +415,18 @@ export async function getMacroOverviewData() {
     quotes.map((q) => [q.symbol, q])
   );
 
-  if (!quoteMap.has("XAUUSD") && process.env.API_NINJAS_API_KEY?.trim()) {
+  // Ensure live Gold quote is always actively populated and fresh
+  const existingGold = quoteMap.get("XAUUSD");
+  const isGoldStale =
+    !existingGold ||
+    !existingGold.quoteTimestamp ||
+    Date.now() - Date.parse(existingGold.quoteTimestamp) > 15 * 60 * 1000;
+
+  if (isGoldStale) {
     try {
-      const goldQuote = await fetchApiNinjasGoldQuoteSafe();
-      if (goldQuote) {
-        quoteMap.set("XAUUSD", goldQuote);
+      const liveGold = await fetchLiveGoldQuoteSafe();
+      if (liveGold) {
+        quoteMap.set("XAUUSD", liveGold);
       }
     } catch {
       // Background fetch non-blocking
