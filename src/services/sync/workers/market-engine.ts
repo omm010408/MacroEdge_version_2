@@ -1475,6 +1475,26 @@ async function fetchYFinanceMarketTick(
     // Continue to cached fallback
   }
 
+  // For XAUUSD, use live physical LBMA gold feeds before resting JSON cache
+  if (symbol === "XAUUSD") {
+    try {
+      const liveGold = await fetchApiNinjasGoldQuote(symbol, signal);
+      if (
+        liveGold &&
+        typeof liveGold.price === "number" &&
+        Number.isFinite(liveGold.price) &&
+        liveGold.price > 0
+      ) {
+        return {
+          ...liveGold,
+          providerId: "yfinance",
+        };
+      }
+    } catch {
+      // Continue to cached fallback
+    }
+  }
+
   // 2. Fast cache check from yfinance_quotes.json as resilient fallback
   try {
     const cached = await getYFinanceCachedQuotes();

@@ -639,6 +639,7 @@ export async function dispatchSyncJob(
         ...(activeWs !== "coinbase_ws"
           ? [{ workerId: "market-engine" as WorkerId, providerId: "coinbase_ws" as ProviderId }]
           : []),
+        { workerId: "market-engine", providerId: "api_ninjas" },
         { workerId: "market-engine", providerId: "yfinance" },
       ];
     } else if (options.workerId === "ai-supervisor") {
@@ -680,6 +681,7 @@ export async function dispatchSyncJob(
       ...(activeWs !== "coinbase_ws"
         ? [{ workerId: "market-engine" as WorkerId, providerId: "coinbase_ws" as ProviderId }]
         : []),
+      { workerId: "market-engine", providerId: "api_ninjas" },
       { workerId: "market-engine", providerId: "yfinance" },
       {
         workerId: "macro-engine",
