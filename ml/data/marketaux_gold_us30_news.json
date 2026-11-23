@@ -1,12 +1,68 @@
 [
   {
+    "id": "maux_f5412453",
+    "uuid": "f5412453-fd3e-4886-a34a-0a0c0ee32205",
+    "title": "Gold Holds Firm Above $3,740 as University of Michigan Inflation Expectations Anchor Yields",
+    "summary": "Spot Gold held steady near $3,741/oz as the revised UoM survey confirmed long-run inflation expectations holding at 4.3%. Institutional bullion desks noted resilient ETF demand.",
+    "url": "https://www2.stockmarketwatch.com/stock-market-news/gold-holds-firm-above-3740-uom-inflation-expectations/74712/",
+    "source": "Reuters Financial",
+    "publishedAt": "2026-11-23T07:05:06.670Z",
+    "targetAsset": "GOLD",
+    "relevanceScore": 98,
+    "transmissionChannel": "Inflation Expectations & Real Yield Floor",
+    "goldImpact": "BULLISH",
+    "us30Impact": "NEUTRAL",
+    "aiRationale": "Anchored inflation expectations prevent further surge in real yields, reinforcing support for spot gold near record highs.",
+    "keyDrivers": [
+      "gold",
+      "spot gold",
+      "bullion",
+      "uom inflation",
+      "real yields"
+    ],
+    "sentimentScore": 0.42,
+    "entities": [
+      "GLD",
+      "XAUUSD",
+      "DXY"
+    ]
+  },
+  {
+    "id": "maux_bacd9dff",
+    "uuid": "bacd9dff-4872-4644-ba33-6d8addc59986",
+    "title": "Dow Jones Advances Led by Industrials as Consumer Sentiment Beats Preliminary Print",
+    "summary": "The Dow Jones Industrial Average (US30) climbed higher in afternoon trade as the Revised UoM Consumer Sentiment rose to 51.7 versus 51.0 previous, driven by Caterpillar (CAT) and Boeing (BA).",
+    "url": "https://www2.stockmarketwatch.com/stock-market-news/dow-jones-advances-led-by-industrials-uom-consumer-sentiment/74710/",
+    "source": "The Stock Market Watch",
+    "publishedAt": "2026-11-23T06:35:06.670Z",
+    "targetAsset": "US30",
+    "relevanceScore": 96,
+    "transmissionChannel": "Consumer Resilience & Industrial Capex Expansion",
+    "goldImpact": "NEUTRAL",
+    "us30Impact": "BULLISH",
+    "aiRationale": "Consumer sentiment upside beats expectations, bolstering revenue visibility for cyclical Dow industrials.",
+    "keyDrivers": [
+      "dow jones",
+      "consumer sentiment",
+      "caterpillar",
+      "boeing"
+    ],
+    "sentimentScore": 0.48,
+    "entities": [
+      "DIA",
+      "CAT",
+      "BA",
+      "^DJI"
+    ]
+  },
+  {
     "id": "maux_75cabf7e",
     "uuid": "75cabf7e-f042-4d30-a3b2-5ac84a8b8eee",
     "title": "Treasury Yields Consolidate Near Weekly Highs as FOMC Minutes and Jobs Prints Echo Across Rates",
     "summary": "The benchmark 10-year Treasury yield fluctuated near 4.42% while the Dollar Index traded rangebound around 106.8. Gold and equity desks digest policy reaction functions.",
     "url": "https://mottcapitalmanagement.com/treasury-yields-consolidate-fomc-minutes-jobless-claims/",
     "source": "Mott Capital Management",
-    "publishedAt": "2026-11-20T17:57:47.130Z",
+    "publishedAt": "2026-11-23T05:50:06.670Z",
     "targetAsset": "BOTH",
     "relevanceScore": 95,
     "transmissionChannel": "Consolidation & Dollar Index Rangebound Flows",
@@ -28,41 +84,13 @@
     ]
   },
   {
-    "id": "maux_f5412453",
-    "uuid": "f5412453-fd3e-4886-a34a-0a0c0ee32205",
-    "title": "Gold Holds Firm Above $3,740 as University of Michigan Inflation Expectations Anchor Yields",
-    "summary": "Spot Gold held steady near $3,741/oz as the revised UoM survey confirmed long-run inflation expectations holding at 4.3%. Institutional bullion desks noted resilient ETF demand.",
-    "url": "https://www2.stockmarketwatch.com/stock-market-news/gold-holds-firm-above-3740-uom-inflation-expectations/74712/",
-    "source": "Reuters Financial",
-    "publishedAt": "2026-11-20T17:45:00.000000Z",
-    "targetAsset": "GOLD",
-    "relevanceScore": 100,
-    "transmissionChannel": "Precious Metals Inflow Sentiment",
-    "goldImpact": "BULLISH",
-    "us30Impact": null,
-    "aiRationale": "Positive commodity sentiment and ETF accumulation support spot gold support levels.",
-    "keyDrivers": [
-      "gold",
-      "spot gold",
-      "bullion",
-      "dollar index",
-      "safe-haven"
-    ],
-    "sentimentScore": 0.42,
-    "entities": [
-      "GLD",
-      "XAUUSD",
-      "DXY"
-    ]
-  },
-  {
     "id": "maux_7a5a09b4",
     "uuid": "7a5a09b4-26bc-455c-aa84-50bf51f6ea7b",
     "title": "Central Bank Gold Reserves Surge as Sovereign Diversification Offsets Dollar Volatility",
     "summary": "Official sector bullion purchases remained brisk heading into year-end as global reserve managers continued diversification away from single-currency debt holdings.",
     "url": "https://www.etftrends.com/tactical-allocation-channel/central-bank-gold-reserves-surge/",
     "source": "ETF Trends",
-    "publishedAt": "2026-11-20T17:12:47.130Z",
+    "publishedAt": "2026-11-23T05:05:06.670Z",
     "targetAsset": "GOLD",
     "relevanceScore": 94,
     "transmissionChannel": "Sovereign Reserve De-dollarization & Bullion Floor",
@@ -80,34 +108,6 @@
       "GLD",
       "XAUUSD",
       "IAU"
-    ]
-  },
-  {
-    "id": "maux_bacd9dff",
-    "uuid": "bacd9dff-4872-4644-ba33-6d8addc59986",
-    "title": "Dow Jones Advances 140 Points Led by Industrials as Consumer Sentiment Beats Preliminary Print",
-    "summary": "The Dow Jones Industrial Average (US30) climbed higher in afternoon trade as the Revised UoM Consumer Sentiment rose to 51.7 versus 51.0 previous.",
-    "url": "https://www2.stockmarketwatch.com/stock-market-news/dow-jones-advances-led-by-industrials-uom-consumer-sentiment/74710/",
-    "source": "thestockmarketwatch.com",
-    "publishedAt": "2026-11-20T17:10:00.000000Z",
-    "targetAsset": "US30",
-    "relevanceScore": 100,
-    "transmissionChannel": "Credit Easing & Industrial Capex Expansion",
-    "goldImpact": null,
-    "us30Impact": "BULLISH",
-    "aiRationale": "Accommodative policy or resilient corporate earnings support Dow industrials and large-cap financials.",
-    "keyDrivers": [
-      "dow jones",
-      "industrial average",
-      "blue-chip",
-      "caterpillar",
-      "boeing"
-    ],
-    "sentimentScore": 0.48,
-    "entities": [
-      "DIA",
-      "CAT",
-      "BA"
     ]
   }
 ]
