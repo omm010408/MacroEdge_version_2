@@ -57,7 +57,7 @@ function AssetBlock({ summary, href, isCompact = false }: AssetBlockProps) {
   const clampedConf = Math.min(100, Math.max(0, confidence));
 
   const content = (
-    <div className="flex items-center gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-5 shrink-0">
+    <div className="flex items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6 shrink-0">
       {/* Asset Symbol - fixed min-width for vertical column alignment */}
       <span className="font-semibold text-white tracking-wide text-[13px] sm:text-[14px] min-w-[62px] sm:min-w-[66px] shrink-0">
         {summary.primary_asset}
@@ -111,12 +111,12 @@ interface ViewSwitcherProps {
 
 function ViewSwitcher({ activeTab, onChange }: ViewSwitcherProps) {
   return (
-    <div className="inline-flex items-center gap-1 text-xs text-[#71717A] shrink-0">
+    <div className="inline-flex items-center gap-1.5 text-xs text-[#71717A] shrink-0">
       <button
         type="button"
         onClick={() => onChange("DUAL")}
         className={cn(
-          "px-2 py-0.5 rounded text-[11px] font-medium transition-colors",
+          "px-2.5 py-1 rounded text-[11px] font-medium transition-colors",
           activeTab === "DUAL"
             ? "bg-[#1C1C1C] text-white"
             : "hover:text-[#D4D4D8]"
@@ -128,7 +128,7 @@ function ViewSwitcher({ activeTab, onChange }: ViewSwitcherProps) {
         type="button"
         onClick={() => onChange("XAUUSD")}
         className={cn(
-          "px-2 py-0.5 rounded text-[11px] font-medium transition-colors",
+          "px-2.5 py-1 rounded text-[11px] font-medium transition-colors",
           activeTab === "XAUUSD"
             ? "bg-[#1C1C1C] text-white"
             : "hover:text-[#D4D4D8]"
@@ -140,7 +140,7 @@ function ViewSwitcher({ activeTab, onChange }: ViewSwitcherProps) {
         type="button"
         onClick={() => onChange("US30")}
         className={cn(
-          "px-2 py-0.5 rounded text-[11px] font-medium transition-colors",
+          "px-2.5 py-1 rounded text-[11px] font-medium transition-colors",
           activeTab === "US30"
             ? "bg-[#1C1C1C] text-white"
             : "hover:text-[#D4D4D8]"
@@ -206,16 +206,16 @@ export function AiBiasBanner({
     <section
       aria-label="AI Macro Bias Telemetry"
       className={cn(
-        "w-full border-t border-b border-[#1C1C1C] py-2.5 sm:py-3 bg-black transition-colors",
+        "w-full border-t border-b border-[#1C1C1C] py-3.5 sm:py-4.5 px-3 sm:px-4 md:px-5 lg:px-6 bg-black transition-colors",
         className
       )}
     >
       {activeTab === "DUAL" ? (
         <>
           {/* DUAL VIEW: Two structured, balanced rows on screens < 1440px */}
-          <div className="flex flex-col gap-2.5 w-full 2xl:hidden">
+          <div className="flex flex-col gap-3 sm:gap-3.5 w-full 2xl:hidden">
             {/* Row 1: XAUUSD + View Switcher */}
-            <div className="flex items-center justify-between gap-4 w-full">
+            <div className="flex items-center justify-between gap-4 w-full py-1">
               <AssetBlock
                 summary={xauusd}
                 href="/macrodashboard/tools/ai-bias?asset=XAUUSD"
@@ -224,17 +224,17 @@ export function AiBiasBanner({
             </div>
 
             {/* Hairline Row Separator */}
-            <div className="h-px w-full bg-[#1C1C1C]/70" aria-hidden="true" />
+            <div className="h-px w-full bg-[#1C1C1C]/80" aria-hidden="true" />
 
             {/* Row 2: US30 + Details Link */}
-            <div className="flex items-center justify-between gap-4 w-full">
+            <div className="flex items-center justify-between gap-4 w-full py-1">
               <AssetBlock
                 summary={us30}
                 href="/macrodashboard/tools/ai-bias?asset=US30"
               />
               <Link
                 href="/macrodashboard/tools/ai-bias?asset=US30"
-                className="text-[#A1A1AA] hover:text-white transition-colors text-[12px] sm:text-[13px] font-medium inline-flex items-center gap-0.5 whitespace-nowrap shrink-0"
+                className="text-[#A1A1AA] hover:text-white transition-colors text-[12px] sm:text-[13px] font-medium inline-flex items-center gap-0.5 whitespace-nowrap shrink-0 px-1 py-0.5"
               >
                 Details <span className="text-[14px] leading-none select-none">›</span>
               </Link>
@@ -242,14 +242,14 @@ export function AiBiasBanner({
           </div>
 
           {/* DUAL VIEW: Single-line layout on ultra-wide screens (>= 1440px) */}
-          <div className="hidden 2xl:flex items-center justify-between gap-6 w-full">
+          <div className="hidden 2xl:flex items-center justify-between gap-6 w-full py-1">
             <div className="flex items-center gap-6 2xl:gap-8">
               <AssetBlock
                 summary={xauusd}
                 href="/macrodashboard/tools/ai-bias?asset=XAUUSD"
                 isCompact
               />
-              <div className="h-3.5 w-px bg-[#262626]" aria-hidden="true" />
+              <div className="h-4 w-px bg-[#262626]" aria-hidden="true" />
               <AssetBlock
                 summary={us30}
                 href="/macrodashboard/tools/ai-bias?asset=US30"
@@ -257,12 +257,12 @@ export function AiBiasBanner({
               />
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-3.5 shrink-0">
               <ViewSwitcher activeTab={activeTab} onChange={setActiveTab} />
-              <div className="h-3.5 w-px bg-[#262626]" aria-hidden="true" />
+              <div className="h-4 w-px bg-[#262626]" aria-hidden="true" />
               <Link
                 href={detailTarget}
-                className="text-[#A1A1AA] hover:text-white transition-colors text-[12px] sm:text-[13px] font-medium inline-flex items-center gap-0.5 whitespace-nowrap"
+                className="text-[#A1A1AA] hover:text-white transition-colors text-[12px] sm:text-[13px] font-medium inline-flex items-center gap-0.5 whitespace-nowrap px-1 py-0.5"
               >
                 Details <span className="text-[14px] leading-none select-none">›</span>
               </Link>
@@ -271,18 +271,18 @@ export function AiBiasBanner({
         </>
       ) : (
         /* SINGLE ASSET FOCUS VIEW (XAUUSD or US30 on 1 clean row) */
-        <div className="flex items-center justify-between gap-4 w-full">
+        <div className="flex items-center justify-between gap-4 w-full py-1">
           <AssetBlock
             summary={activeTab === "US30" ? us30 : xauusd}
             href={detailTarget}
           />
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-3.5 shrink-0">
             <ViewSwitcher activeTab={activeTab} onChange={setActiveTab} />
-            <div className="h-3.5 w-px bg-[#262626]" aria-hidden="true" />
+            <div className="h-4 w-px bg-[#262626]" aria-hidden="true" />
             <Link
               href={detailTarget}
-              className="text-[#A1A1AA] hover:text-white transition-colors text-[12px] sm:text-[13px] font-medium inline-flex items-center gap-0.5 whitespace-nowrap"
+              className="text-[#A1A1AA] hover:text-white transition-colors text-[12px] sm:text-[13px] font-medium inline-flex items-center gap-0.5 whitespace-nowrap px-1 py-0.5"
             >
               Details <span className="text-[14px] leading-none select-none">›</span>
             </Link>

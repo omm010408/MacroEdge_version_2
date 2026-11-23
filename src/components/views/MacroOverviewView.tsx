@@ -966,7 +966,7 @@ export function MacroOverviewView(props?: MacroOverviewViewProps) {
       <AiBiasBanner
         initialSummary={aiSummary}
         initialUs30Summary={us30AiSummary}
-        className="mt-5"
+        className="my-6"
       />
 
       {/* Telemetry Strip: 8 hairline cards */}
